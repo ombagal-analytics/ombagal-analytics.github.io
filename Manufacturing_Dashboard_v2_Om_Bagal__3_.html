@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manufacturing Intelligence Dashboard | Om Bagal Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F4F6F9; --surface:#FFFFFF; --surface2:#F0F2F5; --border:#E2E6EC;
+    --text-primary:#1A1D23; --text-secondary:#5A6270; --text-muted:#8C95A2;
+    --blue:#1B6FE8; --blue-light:#EBF2FD; --green:#0FAD74; --green-light:#E6F7F1;
+    --red:#E84040; --red-light:#FEF0F0; --amber:#F59E0B; --amber-light:#FEF3C7;
+    --purple:#7C3AED; --shadow-sm:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+    --radius-lg:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;}
+
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+  .header-left{display:flex;align-items:center;gap:14px;}
+  .logo-badge{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;}
+  .header-title{font-size:15px;font-weight:600;}
+  .header-sub{font-size:12px;color:var(--text-muted);}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .live-badge{display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+  .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.85);}}
+  .last-updated{font-size:11px;color:var(--text-muted);}
+
+  .insights-bar{background:linear-gradient(135deg,#1B3A6B,#1B6FE8);color:white;padding:12px 28px;display:flex;align-items:flex-start;gap:16px;}
+  .insights-icon{font-size:18px;margin-top:1px;flex-shrink:0;}
+  .insights-label{font-size:10px;font-weight:700;letter-spacing:1.2px;opacity:.7;margin-bottom:4px;text-transform:uppercase;}
+  .insights-cards{display:flex;gap:16px;flex-wrap:wrap;}
+  .insight-item{display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;min-width:210px;border:1px solid rgba(255,255,255,.15);}
+  .insight-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+  .insight-text{font-size:12px;line-height:1.5;opacity:.92;}
+  .insight-action{font-size:11px;font-weight:600;opacity:.65;margin-top:2px;font-style:italic;}
+
+  .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .filter-label{font-size:12px;color:var(--text-muted);font-weight:500;}
+  .filter-group{display:flex;align-items:center;gap:8px;}
+  .time-toggle{display:flex;background:var(--surface2);border-radius:8px;padding:3px;border:1px solid var(--border);}
+  .time-btn{padding:5px 14px;border:none;background:none;border-radius:6px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text-secondary);transition:all .15s;}
+  .time-btn.active{background:var(--blue);color:white;box-shadow:0 1px 4px rgba(27,111,232,.3);}
+  .line-select{display:flex;gap:6px;}
+  .line-chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);transition:all .15s;}
+  .chip-active-all,.chip-active-A{border-color:var(--blue)!important;background:var(--blue-light)!important;color:var(--blue)!important;}
+  .chip-active-B{border-color:var(--green)!important;background:var(--green-light)!important;color:var(--green)!important;}
+  .chip-active-C{border-color:var(--amber)!important;background:var(--amber-light)!important;color:var(--amber)!important;}
+  .divider{width:1px;height:24px;background:var(--border);}
+
+  .main{padding:20px 28px;max-width:1400px;margin:0 auto;}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+  .kpi-card{background:var(--surface);border-radius:var(--radius-lg);padding:18px 20px;border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+  .kpi-blue::before{background:var(--blue);}  .kpi-green::before{background:var(--green);}
+  .kpi-amber::before{background:var(--amber);} .kpi-red::before{background:var(--red);}
+  .kpi-purple::before{background:var(--purple);}
+  .kpi-label{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;}
+  .kpi-value{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:8px;font-family:'DM Mono',monospace;}
+  .kpi-footer{display:flex;align-items:center;gap:6px;font-size:11px;}
+  .kpi-change{font-weight:600;padding:2px 6px;border-radius:4px;}
+  .up{color:var(--green);background:var(--green-light);} .down{color:var(--red);background:var(--red-light);}
+  .kpi-period{color:var(--text-muted);}
+
+  .alert-strip{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;margin-bottom:8px;font-size:12px;border:1px solid;}
+  .alert-red{background:var(--red-light);border-color:#FCA5A5;color:#7F1D1D;}
+  .alert-amber{background:var(--amber-light);border-color:#FCD34D;color:#78350F;}
+  .alert-green{background:var(--green-light);border-color:#6EE7B7;color:#064E3B;}
+  .alert-icon{font-size:14px;flex-shrink:0;} .alert-text{flex:1;line-height:1.4;}
+  .alert-action{font-weight:700;font-size:11px;padding:3px 8px;border-radius:4px;background:rgba(0,0,0,.08);cursor:pointer;flex-shrink:0;}
+
+  .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;}
+  .charts-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+  .card{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;}
+  .card-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .card-title{font-size:13px;font-weight:600;} .card-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+  .card-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;}
+  .badge-blue{background:var(--blue-light);color:var(--blue);} .badge-green{background:var(--green-light);color:var(--green);}
+  .badge-red{background:var(--red-light);color:var(--red);} .badge-amber{background:var(--amber-light);color:var(--amber);}
+  .card-body{padding:18px 20px;}
+
+  .quality-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;cursor:default;}
+  .quality-row:last-child{margin-bottom:0;}
+  .q-label{width:52px;font-size:12px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+  .q-bar-wrap{flex:1;background:var(--surface2);border-radius:6px;height:24px;overflow:hidden;}
+  .q-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:white;}
+  .q-val{width:44px;text-align:right;font-size:13px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0;}
+
+  .defect-table{width:100%;border-collapse:collapse;}
+  .defect-table th{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 10px 10px 0;text-align:left;}
+  .defect-table td{padding:9px 10px 9px 0;font-size:12px;border-top:1px solid var(--border);}
+  .defect-table tr:first-child td{border-top:none;}
+  .status-pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+  .pill-ok{background:var(--green-light);color:var(--green);}
+  .pill-warn{background:var(--amber-light);color:var(--amber);}
+  .pill-fail{background:var(--red-light);color:var(--red);}
+
+  .util-grid{display:flex;flex-direction:column;gap:10px;}
+  .util-row{display:flex;align-items:center;gap:10px;cursor:default;}
+  .util-label{width:36px;font-size:11px;font-weight:600;color:var(--text-secondary);font-family:'DM Mono',monospace;}
+  .util-track{flex:1;height:10px;background:var(--surface2);border-radius:10px;overflow:hidden;}
+  .util-fill{height:100%;border-radius:10px;}
+  .util-pct{width:34px;font-size:11px;font-weight:600;text-align:right;font-family:'DM Mono',monospace;}
+
+  .batch-table{width:100%;border-collapse:collapse;}
+  .batch-table th{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 8px 10px 0;text-align:left;}
+  .batch-table td{padding:8px 8px 8px 0;font-size:11.5px;border-top:1px solid var(--border);font-family:'DM Mono',monospace;}
+  .batch-table tr:first-child td{border-top:none;}
+
+  #TT{position:fixed;background:#1A1D23;color:white;font-size:12px;padding:10px 14px;border-radius:8px;
+    pointer-events:none;display:none;z-index:9999;font-family:'DM Sans',sans-serif;white-space:nowrap;
+    box-shadow:0 6px 20px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);line-height:1.8;min-width:160px;}
+  .tt-title{font-weight:700;font-size:10px;letter-spacing:.8px;color:rgba(255,255,255,.5);text-transform:uppercase;
+    margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px;}
+  .tt-row{display:flex;justify-content:space-between;gap:20px;}
+  .tt-lbl{color:rgba(255,255,255,.65);font-size:11px;display:flex;align-items:center;gap:5px;}
+  .tt-val{font-weight:700;font-size:13px;font-family:'DM Mono',monospace;}
+  .tt-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  .tt-note{margin-top:5px;font-size:10px;opacity:.65;border-top:1px solid rgba(255,255,255,.08);padding-top:4px;}
+
+  .footer{text-align:center;padding:18px 28px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);margin-top:8px;}
+  .footer strong{color:var(--blue);}
+
+  svg text{font-family:'DM Sans',sans-serif;}
+  @media(max-width:1100px){
+    .kpi-grid{grid-template-columns:repeat(3,1fr);}
+    .charts-row{grid-template-columns:1fr;}
+    .charts-row-3{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-badge">M</div>
+    <div>
+      <div class="header-title">Manufacturing Intelligence Dashboard</div>
+      <div class="header-sub">Production &middot; Quality &middot; Defects &middot; Scrap &middot; Insights</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="last-updated">Updated: Today, 9:45 AM</div>
+  </div>
+</div>
+
+<div class="insights-bar">
+  <div class="insights-icon">&#129302;</div>
+  <div style="flex:1">
+    <div class="insights-label">AI-Generated Insights &amp; Recommended Actions</div>
+    <div class="insights-cards" id="insightsContainer"></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">View By:</span>
+    <div class="time-toggle">
+      <button class="time-btn" id="btnDay">Day</button>
+      <button class="time-btn active" id="btnWeek">Week</button>
+      <button class="time-btn" id="btnMonth">Month</button>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Production Line:</span>
+    <div class="line-select">
+      <div class="line-chip chip-active-all" id="chipAll">All Lines</div>
+      <div class="line-chip" id="chipA">Line A</div>
+      <div class="line-chip" id="chipB">Line B</div>
+      <div class="line-chip" id="chipC">Line C</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Period:</span>
+    <span id="periodLabel" style="font-size:12px;font-weight:600;color:var(--blue)">Week 1-4, April 2025</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div id="alertStrips" style="margin-bottom:16px"></div>
+
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Production Output vs Target</div>
+          <div class="card-sub" id="outputSubtitle">Weekly units produced across all lines</div>
+        </div>
+        <div class="card-badge badge-blue" id="outputBadge">4 Weeks</div>
+      </div>
+      <div class="card-body">
+        <svg id="outputChart" width="100%" height="220" viewBox="0 0 680 220" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Quality Rate by Line</div>
+          <div class="card-sub">% of units passing QC</div>
+        </div>
+        <div class="card-badge badge-green">Target: 94%</div>
+      </div>
+      <div class="card-body"><div id="qualityBars"></div></div>
+    </div>
+  </div>
+
+  <div class="charts-row-3">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Defects by Machine</div>
+          <div class="card-sub">Count &amp; severity</div>
+        </div>
+        <div class="card-badge badge-red" id="defectBadge">High Alert</div>
+      </div>
+      <div class="card-body"><table class="defect-table" id="defectTable"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Machine Utilization</div>
+          <div class="card-sub">% of planned uptime used</div>
+        </div>
+        <div class="card-badge badge-blue">Efficiency</div>
+      </div>
+      <div class="card-body"><div class="util-grid" id="utilGrid"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Scrap Rate Trend</div>
+          <div class="card-sub">% material wasted per period</div>
+        </div>
+        <div class="card-badge badge-amber">Monitor</div>
+      </div>
+      <div class="card-body">
+        <svg id="scrapChart" width="100%" height="130" viewBox="0 0 320 130" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Recent Batch Production Log</div>
+        <div class="card-sub">Latest batches across all production lines</div>
+      </div>
+      <div class="card-badge badge-blue" id="batchBadge">10 Batches</div>
+    </div>
+    <div class="card-body"><table class="batch-table" id="batchTable"></table></div>
+  </div>
+</div>
+
+<div id="TT"></div>
+
+<div class="footer">
+  Built by <strong>Om Bagal Analytics</strong> &nbsp;|&nbsp; Data Analytics Solutions for Manufacturing, Clinics, Retail &amp; Coaching &nbsp;|&nbsp; Pune, Maharashtra
+</div>
+
+<script>
+// DATA
+var DATA = {
+  week:{
+    labels:['Week 1','Week 2','Week 3','Week 4'],
+    produced:[1820,1950,1885,2060], target:[1900,1900,1900,1900],
+    lineA_q:93.2, lineB_q:88.6, lineC_q:95.8, scrap:[3.8,4.1,3.5,2.9],
+    kpi:{output:7715,quality:92.5,defects:148,scrap:3.6,oee:84.2},
+    kpi_delta:{output:'+5.2%',quality:'-1.3%',defects:'+8',scrap:'-0.4%',oee:'+2.1%'},
+    kpi_dir:{output:'up',quality:'down',defects:'down',scrap:'up',oee:'up'},
+    period:'Week 1-4, April 2025', subtitle:'Weekly units produced across all lines', badge:'4 Weeks'
+  },
+  day:{
+    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    produced:[420,455,438,461,412,398,310], target:[440,440,440,440,440,400,300],
+    lineA_q:92.1, lineB_q:87.3, lineC_q:94.9, scrap:[3.9,3.6,4.2,3.1,3.8,4.5,2.8],
+    kpi:{output:2894,quality:91.4,defects:38,scrap:3.7,oee:82.6},
+    kpi_delta:{output:'+3.1%',quality:'-2.1%',defects:'+4',scrap:'-0.2%',oee:'+1.4%'},
+    kpi_dir:{output:'up',quality:'down',defects:'down',scrap:'up',oee:'up'},
+    period:'This Week (Mon-Sun), Apr 2025', subtitle:'Daily units produced across all lines', badge:'7 Days'
+  },
+  month:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    produced:[7200,7580,7390,7715,8100,7950], target:[7600,7600,7600,7600,7600,7600],
+    lineA_q:93.8, lineB_q:89.2, lineC_q:96.1, scrap:[4.2,3.9,3.7,3.6,3.2,3.4],
+    kpi:{output:46035,quality:93.0,defects:892,scrap:3.7,oee:85.8},
+    kpi_delta:{output:'+7.4%',quality:'+0.5%',defects:'-12',scrap:'-0.6%',oee:'+3.2%'},
+    kpi_dir:{output:'up',quality:'up',defects:'up',scrap:'up',oee:'up'},
+    period:'Jan-Jun 2025', subtitle:'Monthly units produced across all lines', badge:'6 Months'
+  }
+};
+var INSIGHTS = {
+  week:[
+    {color:'#E84040',text:'Line B quality dropped to 88.6% below 90% threshold for 2 weeks',action:'Inspect M2 immediately'},
+    {color:'#F59E0B',text:'Scrap rate trending down - 3.6% avg, best since Q1',action:'Sustain current settings'},
+    {color:'#0FAD74',text:'Week 4 output 2,060 units - highest weekly output ever recorded',action:'Replicate Line C setup'}
+  ],
+  day:[
+    {color:'#E84040',text:'Saturday scrap spiked to 4.5% - weekend shift change likely cause',action:'Add QC check at shift start'},
+    {color:'#F59E0B',text:'Thursday achieved highest daily output (461 units)',action:'Document shift parameters'},
+    {color:'#0FAD74',text:'Sunday output on target despite lower staffing',action:'Continue lean staffing model'}
+  ],
+  month:[
+    {color:'#0FAD74',text:'May 2025 best month: 8,100 units - exceeded target by 6.6%',action:'Apply May learnings to June'},
+    {color:'#F59E0B',text:'Line B quality at 89.2% - has not hit 90% target in 6 months',action:'Schedule maintenance audit'},
+    {color:'#1B6FE8',text:'OEE improving +3.2% YoY - investment in M4 showing results',action:'Prioritize M4-type upgrades'}
+  ]
+};
+var DEFECTS=[
+  {machine:'M1',line:'A',count:18,trend:'up1',sev:'med'},
+  {machine:'M2',line:'B',count:42,trend:'up2',sev:'high'},
+  {machine:'M3',line:'B',count:31,trend:'up1',sev:'high'},
+  {machine:'M4',line:'C',count:11,trend:'dn', sev:'low'},
+  {machine:'M5',line:'A',count:24,trend:'eq', sev:'med'},
+  {machine:'M6',line:'C',count:8, trend:'dn', sev:'low'}
+];
+var UTIL=[
+  {name:'M1',pct:88,color:'#1B6FE8'},{name:'M2',pct:72,color:'#E84040'},
+  {name:'M3',pct:79,color:'#F59E0B'},{name:'M4',pct:94,color:'#0FAD74'},
+  {name:'M5',pct:85,color:'#1B6FE8'},{name:'M6',pct:96,color:'#0FAD74'}
+];
+var BATCHES=[
+  {id:'B-0421',line:'A',date:'28 Apr',units:312,defects:6,scrap:2.8,status:'ok'},
+  {id:'B-0420',line:'C',date:'28 Apr',units:298,defects:2,scrap:2.1,status:'ok'},
+  {id:'B-0419',line:'B',date:'27 Apr',units:287,defects:18,scrap:5.2,status:'warn'},
+  {id:'B-0418',line:'A',date:'27 Apr',units:321,defects:5,scrap:2.6,status:'ok'},
+  {id:'B-0417',line:'B',date:'26 Apr',units:244,defects:31,scrap:7.1,status:'fail'},
+  {id:'B-0416',line:'C',date:'26 Apr',units:308,defects:3,scrap:2.3,status:'ok'},
+  {id:'B-0415',line:'A',date:'25 Apr',units:316,defects:8,scrap:3.1,status:'ok'},
+  {id:'B-0414',line:'B',date:'25 Apr',units:271,defects:22,scrap:5.8,status:'warn'},
+  {id:'B-0413',line:'C',date:'24 Apr',units:305,defects:4,scrap:2.4,status:'ok'},
+  {id:'B-0412',line:'A',date:'24 Apr',units:289,defects:9,scrap:3.4,status:'ok'}
+];
+var ALERTS={
+  week:[
+    {type:'alert-red',icon:'!!',text:'Line B: Machine M2 defect rate is 42 units this week - CRITICAL. Immediate inspection required.',action:'Raise Ticket'},
+    {type:'alert-amber',icon:'!',text:'Line B quality rate (88.6%) below minimum threshold (90%) for 2 consecutive weeks.',action:'Review QC Log'},
+    {type:'alert-green',icon:'OK',text:'Line C performing at 95.8% quality - best in facility. Cross-train operators from Line C.',action:'View Details'}
+  ],
+  day:[
+    {type:'alert-red',icon:'!!',text:'Saturday scrap rate spiked to 4.5% - 25% above weekly average. Check weekend shift changeover.',action:'View Shift Log'},
+    {type:'alert-amber',icon:'!',text:'Line B daily quality dropped to 87.3% - lowest this week. Correlates with M2 and M3 defects.',action:'Inspect M2/M3'}
+  ],
+  month:[
+    {type:'alert-green',icon:'OK',text:'May 2025 output (8,100 units) is highest monthly output on record - exceeded target by 6.6%.',action:'View Report'},
+    {type:'alert-amber',icon:'!',text:'Line B has not met 90% quality target in 6 months. Schedule machine audit for Q3.',action:'Schedule Audit'}
+  ]
+};
+
+// STATE
+var currentTime = 'week';
+var currentLine = 'all';
+
+// TOOLTIP
+var TT = document.getElementById('TT');
+function showTT(e, title, rows, note) {
+  var h = '';
+  if(title) h += '<div class="tt-title">'+title+'</div>';
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    var dot = r.dot ? '<span class="tt-dot" style="background:'+r.dot+'"></span>' : '';
+    h += '<div class="tt-row"><span class="tt-lbl">'+dot+r.lbl+'</span><span class="tt-val" style="color:'+(r.col||'#fff')+'">'+r.val+'</span></div>';
+  }
+  if(note) h += '<div class="tt-note">'+note+'</div>';
+  TT.innerHTML = h;
+  TT.style.display = 'block';
+  posTT(e);
+}
+function posTT(e){
+  var off=14, l=e.clientX+off, t=e.clientY+off;
+  var w=TT.offsetWidth, h=TT.offsetHeight;
+  if(l+w>window.innerWidth-10) l=e.clientX-w-off;
+  if(t+h>window.innerHeight-10) t=e.clientY-h-off;
+  TT.style.left=l+'px'; TT.style.top=t+'px';
+}
+function hideTT(){ TT.style.display='none'; }
+document.addEventListener('mousemove',function(e){ if(TT.style.display==='block') posTT(e); });
+
+// CONTROLS - using addEventListener to avoid any HTML attribute issues
+document.getElementById('btnDay').addEventListener('click', function(){ setTime('day',this); });
+document.getElementById('btnWeek').addEventListener('click', function(){ setTime('week',this); });
+document.getElementById('btnMonth').addEventListener('click', function(){ setTime('month',this); });
+document.getElementById('chipAll').addEventListener('click', function(){ setLine('all',this); });
+document.getElementById('chipA').addEventListener('click', function(){ setLine('A',this); });
+document.getElementById('chipB').addEventListener('click', function(){ setLine('B',this); });
+document.getElementById('chipC').addEventListener('click', function(){ setLine('C',this); });
+
+function setTime(t, btn){
+  currentTime=t;
+  ['btnDay','btnWeek','btnMonth'].forEach(function(id){ document.getElementById(id).classList.remove('active'); });
+  btn.classList.add('active');
+  renderAll();
+}
+function setLine(l, chip){
+  currentLine=l;
+  ['chipAll','chipA','chipB','chipC'].forEach(function(id){
+    var el=document.getElementById(id);
+    el.className='line-chip';
+  });
+  var map={all:'chip-active-all',A:'chip-active-A',B:'chip-active-B',C:'chip-active-C'};
+  chip.classList.add(map[l]);
+  renderAll();
+}
+
+function renderAll(){
+  var d=DATA[currentTime];
+  document.getElementById('periodLabel').textContent=d.period;
+  document.getElementById('outputSubtitle').textContent=d.subtitle;
+  document.getElementById('outputBadge').textContent=d.badge;
+  renderKPIs(d); renderInsights(); renderAlerts();
+  renderOutputChart(d); renderQualityBars(d);
+  renderDefects(); renderUtil();
+  renderScrap(d); renderBatches();
+}
+
+function renderKPIs(d){
+  var k=d.kpi, dd=d.kpi_delta, dr=d.kpi_dir;
+  function fmt(n){ return n.toLocaleString('en-IN'); }
+  var cards=[
+    {lbl:'Total Output',    val:fmt(k.output)+' units', delta:dd.output, dir:dr.output,              cls:'kpi-blue',   per:'vs previous period'},
+    {lbl:'Avg Quality Rate',val:k.quality+'%',           delta:dd.quality,dir:dr.quality,             cls:'kpi-green',  per:'target: 94%'},
+    {lbl:'Total Defects',   val:k.defects+' units',      delta:dd.defects,dir:dr.defects==='down'?'up':'down', cls:'kpi-red',per:'vs previous period'},
+    {lbl:'Avg Scrap Rate',  val:k.scrap+'%',             delta:dd.scrap,  dir:dr.scrap,              cls:'kpi-amber',  per:'target: less than 3%'},
+    {lbl:'Overall OEE',     val:k.oee+'%',               delta:dd.oee,    dir:dr.oee,               cls:'kpi-purple', per:'industry avg: 80%'}
+  ];
+  document.getElementById('kpiGrid').innerHTML=cards.map(function(c){
+    return '<div class="kpi-card '+c.cls+'"><div class="kpi-label">'+c.lbl+'</div>'
+      +'<div class="kpi-value">'+c.val+'</div>'
+      +'<div class="kpi-footer"><span class="kpi-change '+c.dir+'">'+c.delta+'</span>'
+      +'<span class="kpi-period">'+c.per+'</span></div></div>';
+  }).join('');
+}
+
+function renderInsights(){
+  document.getElementById('insightsContainer').innerHTML=INSIGHTS[currentTime].map(function(i){
+    return '<div class="insight-item"><div class="insight-dot" style="background:'+i.color+'"></div>'
+      +'<div><div class="insight-text">'+i.text+'</div>'
+      +'<div class="insight-action">&#8594; '+i.action+'</div></div></div>';
+  }).join('');
+}
+
+function renderAlerts(){
+  document.getElementById('alertStrips').innerHTML=ALERTS[currentTime].map(function(a){
+    return '<div class="alert-strip '+a.type+'">'
+      +'<div class="alert-icon" style="font-weight:900;font-size:13px">'+a.icon+'</div>'
+      +'<div class="alert-text">'+a.text+'</div>'
+      +'<div class="alert-action">'+a.action+'</div></div>';
+  }).join('');
+}
+
+// OUTPUT BAR CHART
+function renderOutputChart(d){
+  var svg=document.getElementById('outputChart');
+  var W=680,H=220,pad={t:16,r:62,b:36,l:52};
+  var cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  var n=d.labels.length;
+  var maxVal=Math.max.apply(null,d.produced.concat(d.target))*1.12;
+  var barW=Math.min(38,(cW/n)*0.4);
+  var gap=cW/n;
+  function X(i){return pad.l+gap*i+gap/2;}
+  function Y(v){return pad.t+cH-(v/maxVal)*cH;}
+
+  var h='';
+  // Grid
+  for(var g=0;g<=4;g++){
+    var yy=pad.t+(cH/4)*g;
+    var val=Math.round(maxVal-(maxVal/4)*g);
+    h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="#E2E6EC" stroke-width="1" stroke-dasharray="4,3"/>';
+    h+='<text x="'+(pad.l-6)+'" y="'+(yy+4)+'" text-anchor="end" fill="#8C95A2" font-size="10">'+(val>=1000?(val/1000).toFixed(1)+'k':val)+'</text>';
+  }
+  // Target line
+  var ty=Y(d.target[0]);
+  h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+ty+'" y2="'+ty+'" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="6,4"/>';
+  h+='<text x="'+(W-pad.r+4)+'" y="'+(ty+4)+'" fill="#F59E0B" font-size="9" font-weight="600">TARGET</text>';
+  // Bars + invisible hit zones
+  for(var i=0;i<d.produced.length;i++){
+    var v=d.produced[i], t=d.target[i];
+    var bx=X(i)-barW/2, by=Y(v), bh=H-pad.b-by;
+    var color=v>=t?'#1B6FE8':'#93C5FD';
+    h+='<rect class="bhit" data-i="'+i+'" x="'+(bx-6)+'" y="'+pad.t+'" width="'+(barW+12)+'" height="'+cH+'" fill="transparent" style="cursor:crosshair"/>';
+    h+='<rect x="'+bx+'" y="'+by+'" width="'+barW+'" height="'+bh+'" rx="4" fill="'+color+'" opacity="0.92" style="pointer-events:none"/>';
+    h+='<text x="'+(bx+barW/2)+'" y="'+(by-5)+'" text-anchor="middle" fill="#5A6270" font-size="10" font-weight="600" style="pointer-events:none">'+(v>=1000?(v/1000).toFixed(2)+'k':v)+'</text>';
+    h+='<text x="'+X(i)+'" y="'+(H-pad.b+14)+'" text-anchor="middle" fill="#8C95A2" font-size="10" style="pointer-events:none">'+d.labels[i]+'</text>';
+  }
+  // Legend
+  h+='<rect x="'+pad.l+'" y="'+(H-10)+'" width="10" height="10" rx="2" fill="#1B6FE8"/>';
+  h+='<text x="'+(pad.l+14)+'" y="'+(H-2)+'" font-size="9" fill="#5A6270">Above Target</text>';
+  h+='<rect x="'+(pad.l+90)+'" y="'+(H-10)+'" width="10" height="10" rx="2" fill="#93C5FD"/>';
+  h+='<text x="'+(pad.l+104)+'" y="'+(H-2)+'" font-size="9" fill="#5A6270">Below Target</text>';
+  h+='<line x1="'+(pad.l+180)+'" x2="'+(pad.l+196)+'" y1="'+(H-5)+'" y2="'+(H-5)+'" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="4,3"/>';
+  h+='<text x="'+(pad.l+200)+'" y="'+(H-2)+'" font-size="9" fill="#5A6270">Target</text>';
+
+  svg.innerHTML=h;
+
+  // Attach tooltips via JS (no inline attributes)
+  svg.querySelectorAll('.bhit').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var idx=parseInt(this.getAttribute('data-i'));
+      var v=d.produced[idx], tgt=d.target[idx];
+      var diff=v-tgt;
+      var dStr=(diff>=0?'+':'')+diff.toLocaleString('en-IN');
+      var col=v>=tgt?'#60A5FA':'#FCA5A5';
+      showTT(e, d.labels[idx], [
+        {lbl:'Produced', val:v.toLocaleString('en-IN')+' units', col:'#60A5FA', dot:'#1B6FE8'},
+        {lbl:'Target',   val:tgt.toLocaleString('en-IN')+' units', col:'#FCD34D', dot:'#F59E0B'},
+        {lbl:'vs Target',val:dStr+' units', col:col}
+      ], v>=tgt?'Above Target':'Below Target');
+    });
+    el.addEventListener('mouseleave', hideTT);
+  });
+}
+
+// QUALITY BARS
+function renderQualityBars(d){
+  var lines=[
+    {lbl:'Line A', pct:d.lineA_q, col:'#1B6FE8'},
+    {lbl:'Line B', pct:d.lineB_q, col:d.lineB_q<90?'#E84040':'#0FAD74'},
+    {lbl:'Line C', pct:d.lineC_q, col:'#0FAD74'},
+    {lbl:'Overall',pct:parseFloat(((d.lineA_q+d.lineB_q+d.lineC_q)/3).toFixed(1)), col:'#7C3AED'}
+  ];
+  var c=document.getElementById('qualityBars');
+  c.innerHTML=lines.map(function(l,i){
+    return '<div class="quality-row" data-qi="'+i+'">'
+      +'<div class="q-label">'+l.lbl+'</div>'
+      +'<div class="q-bar-wrap"><div class="q-bar" style="width:'+l.pct+'%;background:'+l.col+';">'+(l.pct>=88?l.pct+'%':'')+'</div></div>'
+      +'<div class="q-val" style="color:'+l.col+'">'+l.pct+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.quality-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var l=lines[parseInt(this.getAttribute('data-qi'))];
+      var gap=+(l.pct-94).toFixed(1);
+      var gCol=l.pct>=94?'#6EE7B7':'#FCA5A5';
+      var status=l.pct>=94?'Meets Target (94%)':l.pct>=90?'Acceptable (90%+)':'Below Threshold - Action Needed';
+      showTT(e, l.lbl, [
+        {lbl:'Quality Rate', val:l.pct+'%', col:l.col},
+        {lbl:'Target',       val:'94.0%',   col:'#FCD34D'},
+        {lbl:'Gap',          val:(gap>=0?'+':'')+gap+'%', col:gCol}
+      ], status);
+    });
+    el.addEventListener('mouseleave', hideTT);
+  });
+}
+
+// DEFECTS TABLE
+function renderDefects(){
+  var rows=currentLine==='all'?DEFECTS:DEFECTS.filter(function(r){return r.line===currentLine;});
+  var trendTxt={up2:'↑↑ Rising Fast',up1:'↑ Rising','dn':'↓ Falling','eq':'→ Stable'};
+  var trendCol={up2:'var(--red)',up1:'var(--amber)',dn:'var(--green)',eq:'var(--text-muted)'};
+  var sevP={high:'pill-fail',med:'pill-warn',low:'pill-ok'};
+  var sevL={high:'HIGH',med:'MED',low:'LOW'};
+  document.getElementById('defectTable').innerHTML=
+    '<thead><tr><th>Machine</th><th>Line</th><th>Defects</th><th>Trend</th><th>Severity</th></tr></thead><tbody>'
+    +rows.map(function(r){
+      return '<tr><td><strong>'+r.machine+'</strong></td><td>Line '+r.line+'</td>'
+        +'<td style="font-family:DM Mono,monospace;font-weight:700">'+r.count+'</td>'
+        +'<td style="color:'+trendCol[r.trend]+';font-weight:600;font-size:11px">'+trendTxt[r.trend]+'</td>'
+        +'<td><span class="status-pill '+sevP[r.sev]+'">'+sevL[r.sev]+'</span></td></tr>';
+    }).join('')+'</tbody>';
+  var high=rows.filter(function(r){return r.sev==='high';}).length;
+  document.getElementById('defectBadge').textContent=high>0?high+' Critical':'All Clear';
+  document.getElementById('defectBadge').className='card-badge '+(high>0?'badge-red':'badge-green');
+}
+
+// UTILIZATION BARS
+function renderUtil(){
+  var c=document.getElementById('utilGrid');
+  c.innerHTML=UTIL.map(function(u,i){
+    return '<div class="util-row" data-ui="'+i+'">'
+      +'<div class="util-label">'+u.name+'</div>'
+      +'<div class="util-track"><div class="util-fill" style="width:'+u.pct+'%;background:'+u.color+'"></div></div>'
+      +'<div class="util-pct" style="color:'+u.color+'">'+u.pct+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.util-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var u=UTIL[parseInt(this.getAttribute('data-ui'))];
+      var status=u.pct>=90?'High Efficiency':u.pct>=80?'Moderate - Check Schedule':'Low Utilization - Investigate';
+      showTT(e, u.name+' Utilization', [
+        {lbl:'Utilization', val:u.pct+'%',       col:u.color},
+        {lbl:'Idle Time',   val:(100-u.pct)+'%', col:'#FCA5A5'}
+      ], status);
+    });
+    el.addEventListener('mouseleave', hideTT);
+  });
+}
+
+// SCRAP LINE CHART
+function renderScrap(d){
+  var svg=document.getElementById('scrapChart');
+  var W=320,H=130,pad={t:16,r:16,b:28,l:36};
+  var cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  var vals=d.scrap, n=vals.length;
+  var maxV=Math.max.apply(null,vals.concat([5]))*1.15;
+  function PX(i){return pad.l+(i/(n-1))*cW;}
+  function PY(v){return pad.t+cH-(v/maxV)*cH;}
+
+  var pts=vals.map(function(v,i){return PX(i)+','+PY(v);}).join(' ');
+  var area=PX(0)+','+(pad.t+cH)+' '+pts+' '+PX(n-1)+','+(pad.t+cH);
+
+  var h='<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="#F59E0B" stop-opacity="0.25"/>'
+    +'<stop offset="100%" stop-color="#F59E0B" stop-opacity="0.02"/>'
+    +'</linearGradient></defs>';
+
+  [3,4,5].forEach(function(v){
+    var yy=PY(v);
+    h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="#E2E6EC" stroke-width="1" stroke-dasharray="3,3"/>';
+    h+='<text x="'+(pad.l-4)+'" y="'+(yy+3)+'" text-anchor="end" font-size="8" fill="#8C95A2">'+v+'%</text>';
+  });
+  h+='<polygon points="'+area+'" fill="url(#sg)" style="pointer-events:none"/>';
+  h+='<polyline points="'+pts+'" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" style="pointer-events:none"/>';
+  vals.forEach(function(v,i){
+    h+='<text x="'+PX(i)+'" y="'+(H-4)+'" text-anchor="middle" font-size="9" fill="#8C95A2">'+d.labels[i]+'</text>';
+  });
+  svg.innerHTML=h;
+
+  var avg=(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1);
+  vals.forEach(function(v,i){
+    var color=v>4?'#E84040':v>3.5?'#F59E0B':'#0FAD74';
+    var vCol=v>4?'#FCA5A5':v>3.5?'#FCD34D':'#6EE7B7';
+
+    var hz=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    hz.setAttribute('cx',PX(i)); hz.setAttribute('cy',PY(v)); hz.setAttribute('r','14');
+    hz.setAttribute('fill','transparent'); hz.style.cursor='crosshair';
+    (function(v,i,color,vCol){
+      hz.addEventListener('mouseenter',function(e){
+        var status=v>4?'High Scrap - Investigate Process':v>3.5?'Elevated - Monitor Closely':'Within Acceptable Range';
+        showTT(e, d.labels[i]+' Scrap Rate', [
+          {lbl:'Scrap %',    val:v+'%',   col:vCol, dot:color},
+          {lbl:'Period Avg', val:avg+'%', col:'#D1D5DB'},
+          {lbl:'Target',     val:'<3.0%', col:'#FCD34D'}
+        ], status);
+      });
+    })(v,i,color,vCol);
+    hz.addEventListener('mouseleave', hideTT);
+
+    var dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',PX(i)); dot.setAttribute('cy',PY(v)); dot.setAttribute('r','4.5');
+    dot.setAttribute('fill',color); dot.setAttribute('stroke','white'); dot.setAttribute('stroke-width','1.5');
+    dot.style.pointerEvents='none';
+
+    var lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PX(i)); lbl.setAttribute('y',PY(v)-9);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-size','9');
+    lbl.setAttribute('fill','#5A6270'); lbl.setAttribute('font-weight','600');
+    lbl.style.pointerEvents='none';
+    lbl.textContent=v+'%';
+
+    svg.appendChild(hz); svg.appendChild(dot); svg.appendChild(lbl);
+  });
+}
+
+// BATCH TABLE
+function renderBatches(){
+  var rows=currentLine==='all'?BATCHES:BATCHES.filter(function(b){return b.line===currentLine;});
+  var pM={ok:'pill-ok',warn:'pill-warn',fail:'pill-fail'};
+  var lM={ok:'PASS',warn:'REVIEW',fail:'FAIL'};
+  document.getElementById('batchTable').innerHTML=
+    '<thead><tr><th>Batch ID</th><th>Line</th><th>Date</th><th>Units</th><th>Defects</th><th>Scrap %</th><th>Status</th></tr></thead><tbody>'
+    +rows.map(function(b){
+      var dc=b.defects>15?'var(--red)':b.defects>8?'var(--amber)':'var(--green)';
+      var sc=b.scrap>5?'var(--red)':b.scrap>3.5?'var(--amber)':'var(--green)';
+      return '<tr><td><strong>'+b.id+'</strong></td><td>Line '+b.line+'</td><td>'+b.date+'</td>'
+        +'<td>'+b.units+'</td>'
+        +'<td style="color:'+dc+';font-weight:700">'+b.defects+'</td>'
+        +'<td style="color:'+sc+'">'+b.scrap+'%</td>'
+        +'<td><span class="status-pill '+pM[b.status]+'">'+lM[b.status]+'</span></td></tr>';
+    }).join('')+'</tbody>';
+  document.getElementById('batchBadge').textContent=rows.length+' Batches';
+}
+
+renderAll();
+</script>
+</body>
+</html>

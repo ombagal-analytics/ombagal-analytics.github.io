@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinic Intelligence Dashboard | Om Bagal Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F0F4F8; --surface:#FFFFFF; --surface2:#F7F9FC; --border:#DDE3EC;
+    --text-primary:#0F1B2D; --text-secondary:#4A5568; --text-muted:#8A98A8;
+    --teal:#0891B2; --teal-light:#E0F7FA; --teal-dark:#0E7490;
+    --green:#059669; --green-light:#ECFDF5;
+    --red:#DC2626; --red-light:#FEF2F2;
+    --amber:#D97706; --amber-light:#FFFBEB;
+    --blue:#2563EB; --blue-light:#EFF6FF;
+    --purple:#7C3AED; --purple-light:#F5F3FF;
+    --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+    --radius:10px; --radius-lg:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;}
+  svg text{font-family:'Plus Jakarta Sans',sans-serif;}
+
+  /* HEADER */
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+  .header-left{display:flex;align-items:center;gap:14px;}
+  .logo-badge{width:36px;height:36px;background:linear-gradient(135deg,#0891B2,#0E7490);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;box-shadow:0 2px 8px rgba(8,145,178,.35);}
+  .header-title{font-size:15px;font-weight:700;letter-spacing:-0.3px;}
+  .header-sub{font-size:11px;color:var(--text-muted);font-weight:400;}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .live-badge{display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid #A7F3D0;}
+  .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.85);}}
+  .last-updated{font-size:11px;color:var(--text-muted);}
+
+  /* AI INSIGHTS */
+  .insights-bar{background:linear-gradient(135deg,#0E4C60 0%,#0891B2 100%);color:white;padding:13px 28px;display:flex;align-items:flex-start;gap:16px;}
+  .insights-icon{font-size:20px;margin-top:1px;flex-shrink:0;}
+  .insights-label{font-size:10px;font-weight:700;letter-spacing:1.4px;opacity:.65;margin-bottom:5px;text-transform:uppercase;}
+  .insights-cards{display:flex;gap:14px;flex-wrap:wrap;}
+  .insight-item{display:flex;align-items:flex-start;gap:9px;background:rgba(255,255,255,.1);border-radius:9px;padding:9px 13px;min-width:220px;border:1px solid rgba(255,255,255,.18);}
+  .insight-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+  .insight-text{font-size:12px;line-height:1.55;opacity:.93;}
+  .insight-action{font-size:11px;font-weight:600;opacity:.6;margin-top:2px;font-style:italic;}
+
+  /* FILTER BAR */
+  .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .filter-label{font-size:12px;color:var(--text-muted);font-weight:500;}
+  .filter-group{display:flex;align-items:center;gap:8px;}
+  .time-toggle{display:flex;background:var(--surface2);border-radius:8px;padding:3px;border:1px solid var(--border);}
+  .time-btn{padding:5px 14px;border:none;background:none;border-radius:6px;font-size:12px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;color:var(--text-secondary);transition:all .15s;}
+  .time-btn.active{background:var(--teal);color:white;box-shadow:0 1px 4px rgba(8,145,178,.4);}
+  .dept-select{display:flex;gap:6px;}
+  .dept-chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);transition:all .15s;}
+  .chip-active-all{border-color:var(--teal)!important;background:var(--teal-light)!important;color:var(--teal)!important;}
+  .chip-active-OPD{border-color:var(--blue)!important;background:var(--blue-light)!important;color:var(--blue)!important;}
+  .chip-active-LAB{border-color:var(--purple)!important;background:var(--purple-light)!important;color:var(--purple)!important;}
+  .chip-active-IMG{border-color:var(--green)!important;background:var(--green-light)!important;color:var(--green)!important;}
+  .divider{width:1px;height:24px;background:var(--border);}
+
+  /* MAIN */
+  .main{padding:20px 28px;max-width:1400px;margin:0 auto;}
+
+  /* KPI CARDS */
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+  .kpi-card{background:var(--surface);border-radius:var(--radius-lg);padding:18px 20px;border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+  .kpi-teal::before{background:var(--teal);}   .kpi-green::before{background:var(--green);}
+  .kpi-amber::before{background:var(--amber);} .kpi-red::before{background:var(--red);}
+  .kpi-purple::before{background:var(--purple);}
+  .kpi-label{font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+  .kpi-value{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
+  .kpi-footer{display:flex;align-items:center;gap:6px;font-size:11px;}
+  .kpi-change{font-weight:600;padding:2px 7px;border-radius:4px;}
+  .up{color:var(--green);background:var(--green-light);}
+  .down{color:var(--red);background:var(--red-light);}
+  .kpi-period{color:var(--text-muted);}
+
+  /* ALERTS */
+  .alert-strip{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;margin-bottom:8px;font-size:12px;border:1px solid;line-height:1.5;}
+  .alert-red{background:var(--red-light);border-color:#FECACA;color:#7F1D1D;}
+  .alert-amber{background:var(--amber-light);border-color:#FDE68A;color:#78350F;}
+  .alert-green{background:var(--green-light);border-color:#A7F3D0;color:#064E3B;}
+  .alert-teal{background:var(--teal-light);border-color:#A5F3FC;color:#164E63;}
+  .alert-icon{font-size:13px;flex-shrink:0;font-weight:900;margin-top:1px;}
+  .alert-text{flex:1;}
+  .alert-action{font-weight:700;font-size:11px;padding:3px 8px;border-radius:4px;background:rgba(0,0,0,.07);cursor:pointer;flex-shrink:0;white-space:nowrap;}
+
+  /* LAYOUT */
+  .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;}
+  .charts-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+  .charts-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .card{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;}
+  .card-header{padding:15px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .card-title{font-size:13px;font-weight:700;letter-spacing:-0.2px;}
+  .card-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+  .card-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.2px;}
+  .badge-teal{background:var(--teal-light);color:var(--teal);}
+  .badge-green{background:var(--green-light);color:var(--green);}
+  .badge-red{background:var(--red-light);color:var(--red);}
+  .badge-amber{background:var(--amber-light);color:var(--amber);}
+  .badge-blue{background:var(--blue-light);color:var(--blue);}
+  .badge-purple{background:var(--purple-light);color:var(--purple);}
+  .card-body{padding:18px 20px;}
+
+  /* HORIZONTAL BARS (Revenue by dept / Test performance) */
+  .hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:13px;cursor:default;}
+  .hbar-row:last-child{margin-bottom:0;}
+  .hbar-label{width:56px;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+  .hbar-wrap{flex:1;background:var(--surface2);border-radius:6px;height:22px;overflow:hidden;}
+  .hbar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:white;}
+  .hbar-val{width:64px;text-align:right;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+
+  /* DOCTOR TABLE */
+  .doc-table{width:100%;border-collapse:collapse;}
+  .doc-table th{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 8px 10px 0;text-align:left;}
+  .doc-table td{padding:9px 8px 9px 0;font-size:12px;border-top:1px solid var(--border);}
+  .doc-table tr:first-child td{border-top:none;}
+
+  /* STATUS PILLS */
+  .status-pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+  .pill-ok{background:var(--green-light);color:var(--green);}
+  .pill-warn{background:var(--amber-light);color:var(--amber);}
+  .pill-fail{background:var(--red-light);color:var(--red);}
+  .pill-teal{background:var(--teal-light);color:var(--teal);}
+
+  /* PATIENT LOG TABLE */
+  .patient-table{width:100%;border-collapse:collapse;}
+  .patient-table th{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 8px 10px 0;text-align:left;}
+  .patient-table td{padding:8px 8px 8px 0;font-size:11.5px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+  .patient-table tr:first-child td{border-top:none;}
+
+  /* WAIT TIME BARS */
+  .wait-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;cursor:default;}
+  .wait-row:last-child{margin-bottom:0;}
+  .wait-label{width:80px;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+  .wait-track{flex:1;height:10px;background:var(--surface2);border-radius:10px;overflow:hidden;}
+  .wait-fill{height:100%;border-radius:10px;}
+  .wait-val{width:42px;font-size:11px;font-weight:600;text-align:right;font-family:'JetBrains Mono',monospace;}
+
+  /* TOOLTIP */
+  #TT{position:fixed;background:#0F1B2D;color:white;font-size:12px;padding:10px 14px;border-radius:9px;
+    pointer-events:none;display:none;z-index:9999;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;
+    box-shadow:0 6px 24px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);line-height:1.8;min-width:165px;}
+  .tt-title{font-weight:700;font-size:10px;letter-spacing:.8px;color:rgba(255,255,255,.45);text-transform:uppercase;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px;}
+  .tt-row{display:flex;justify-content:space-between;gap:22px;}
+  .tt-lbl{color:rgba(255,255,255,.62);font-size:11px;display:flex;align-items:center;gap:5px;}
+  .tt-val{font-weight:700;font-size:13px;font-family:'JetBrains Mono',monospace;}
+  .tt-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  .tt-note{margin-top:5px;font-size:10px;opacity:.6;border-top:1px solid rgba(255,255,255,.08);padding-top:4px;}
+
+  /* FOOTER */
+  .footer{text-align:center;padding:16px 28px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);margin-top:8px;}
+  .footer strong{color:var(--teal);}
+
+  @media(max-width:1100px){
+    .kpi-grid{grid-template-columns:repeat(3,1fr);}
+    .charts-row,.charts-row-2{grid-template-columns:1fr;}
+    .charts-row-3{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-badge">&#128138;</div>
+    <div>
+      <div class="header-title">Clinic Intelligence Dashboard</div>
+      <div class="header-sub">Revenue &middot; Patients &middot; Tests &middot; Doctors &middot; Reports &middot; Insights</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="last-updated">Updated: Today, 8:30 AM</div>
+  </div>
+</div>
+
+<!-- AI INSIGHTS -->
+<div class="insights-bar">
+  <div class="insights-icon">&#129302;</div>
+  <div style="flex:1">
+    <div class="insights-label">AI-Generated Insights &amp; Recommended Actions</div>
+    <div class="insights-cards" id="insightsContainer"></div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">View By:</span>
+    <div class="time-toggle">
+      <button class="time-btn" id="btnDay">Day</button>
+      <button class="time-btn active" id="btnWeek">Week</button>
+      <button class="time-btn" id="btnMonth">Month</button>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Department:</span>
+    <div class="dept-select">
+      <div class="dept-chip chip-active-all" id="chipAll">All Depts</div>
+      <div class="dept-chip" id="chipOPD">OPD</div>
+      <div class="dept-chip" id="chipLAB">Lab</div>
+      <div class="dept-chip" id="chipIMG">Imaging</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Period:</span>
+    <span id="periodLabel" style="font-size:12px;font-weight:700;color:var(--teal)">Week 1-4, April 2025</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div id="alertStrips" style="margin-bottom:16px"></div>
+
+  <!-- ROW 1: Revenue Chart + Dept Breakdown -->
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Revenue vs Target</div>
+          <div class="card-sub" id="revSubtitle">Weekly revenue collected across all departments</div>
+        </div>
+        <div class="card-badge badge-teal" id="revBadge">4 Weeks</div>
+      </div>
+      <div class="card-body">
+        <svg id="revChart" width="100%" height="220" viewBox="0 0 680 220" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Revenue by Department</div>
+          <div class="card-sub">% share of total revenue</div>
+        </div>
+        <div class="card-badge badge-teal">Breakdown</div>
+      </div>
+      <div class="card-body"><div id="deptBars"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Patient Count + Test Performance + Wait Times -->
+  <div class="charts-row-3">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Patient Count Trend</div>
+          <div class="card-sub" id="patSubtitle">Total patients visited per period</div>
+        </div>
+        <div class="card-badge badge-blue" id="patBadge">Trend</div>
+      </div>
+      <div class="card-body">
+        <svg id="patChart" width="100%" height="150" viewBox="0 0 300 150" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Test Performance</div>
+          <div class="card-sub">Report delivery within TAT</div>
+        </div>
+        <div class="card-badge badge-purple" id="testBadge">On-Time Rate</div>
+      </div>
+      <div class="card-body"><div id="testBars"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Avg Wait Time</div>
+          <div class="card-sub">Minutes per department</div>
+        </div>
+        <div class="card-badge badge-amber">Target: &lt;20 min</div>
+      </div>
+      <div class="card-body"><div id="waitBars"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Doctor Performance + Patient Log -->
+  <div class="charts-row-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Doctor-Wise Performance</div>
+          <div class="card-sub">Patients seen, revenue generated &amp; satisfaction</div>
+        </div>
+        <div class="card-badge badge-teal" id="docBadge">6 Doctors</div>
+      </div>
+      <div class="card-body">
+        <table class="doc-table" id="docTable"></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Recent Patient Log</div>
+          <div class="card-sub">Latest visits with report &amp; payment status</div>
+        </div>
+        <div class="card-badge badge-blue" id="patLogBadge">10 Records</div>
+      </div>
+      <div class="card-body">
+        <table class="patient-table" id="patientTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="TT"></div>
+
+<div class="footer">
+  Built by <strong>Om Bagal Analytics</strong> &nbsp;|&nbsp; Data Analytics Solutions for Clinics, Manufacturing, Retail &amp; Coaching &nbsp;|&nbsp; Pune, Maharashtra
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+var DATA = {
+  week:{
+    labels:['Week 1','Week 2','Week 3','Week 4'],
+    revenue:[186000,214000,197000,231000],
+    target: [200000,200000,200000,200000],
+    patients:[312,368,341,402],
+    opd_rev:42, lab_rev:35, img_rev:23,
+    kpi:{revenue:828000, patients:1423, tests:986, satisfied:88.4, pending:23},
+    kpi_delta:{revenue:'+8.2%', patients:'+11%', tests:'+6%', satisfied:'+1.2%', pending:'-4'},
+    kpi_dir:{revenue:'up', patients:'up', tests:'up', satisfied:'up', pending:'up'},
+    period:'Week 1-4, April 2025', revSub:'Weekly revenue across all departments', patSub:'Weekly patient visits', badge:'4 Weeks'
+  },
+  day:{
+    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    revenue:[42000,51000,47000,55000,38000,62000,18000],
+    target: [48000,48000,48000,48000,48000,55000,15000],
+    patients:[68,82,74,91,63,98,28],
+    opd_rev:44, lab_rev:33, img_rev:23,
+    kpi:{revenue:313000, patients:504, tests:348, satisfied:87.6, pending:9},
+    kpi_delta:{revenue:'+5.1%', patients:'+9%', tests:'+4%', satisfied:'+0.8%', pending:'-2'},
+    kpi_dir:{revenue:'up', patients:'up', tests:'up', satisfied:'up', pending:'up'},
+    period:'This Week (Mon-Sun), Apr 2025', revSub:'Daily revenue collected', patSub:'Daily patient visits', badge:'7 Days'
+  },
+  month:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    revenue:[720000,810000,775000,828000,920000,882000],
+    target: [800000,800000,800000,800000,800000,800000],
+    patients:[1210,1380,1295,1423,1580,1490],
+    opd_rev:41, lab_rev:36, img_rev:23,
+    kpi:{revenue:4935000, patients:8378, tests:5820, satisfied:89.1, pending:61},
+    kpi_delta:{revenue:'+12.4%', patients:'+14%', tests:'+9%', satisfied:'+2.1%', pending:'-8'},
+    kpi_dir:{revenue:'up', patients:'up', tests:'up', satisfied:'up', pending:'up'},
+    period:'Jan-Jun 2025', revSub:'Monthly revenue collected', patSub:'Monthly patient visits', badge:'6 Months'
+  }
+};
+
+var INSIGHTS = {
+  week:[
+    {color:'#DC2626',text:'23 reports still pending beyond TAT - Lab backlog critical this week',action:'Assign extra lab technician'},
+    {color:'#D97706',text:'Saturday highest revenue day (Rs.62k) - plan more Saturday slots',action:'Open extra OPD on Saturdays'},
+    {color:'#059669',text:'Week 4 patient count 402 - highest weekly footfall ever recorded',action:'Expand parking & reception desk'}
+  ],
+  day:[
+    {color:'#DC2626',text:'Sunday OPD footfall very low (28 patients) - underutilized capacity',action:'Promote Sunday health packages'},
+    {color:'#059669',text:'Saturday revenue Rs.62k exceeded target by 12.7%',action:'Retain Saturday extended hours'},
+    {color:'#0891B2',text:'Thursday patient count peak at 91 - staff adequately rostered',action:'Maintain Thursday staffing level'}
+  ],
+  month:[
+    {color:'#059669',text:'May 2025 best month: Rs.9.2L revenue - 15% above target',action:'Replicate May promotion strategy'},
+    {color:'#DC2626',text:'61 reports pending this period - TAT compliance at risk',action:'Automate report dispatch system'},
+    {color:'#D97706',text:'Avg wait time rising in Imaging dept (38 min) - above 20 min target',action:'Add second imaging technician'}
+  ]
+};
+
+var ALERTS = {
+  week:[
+    {type:'alert-red',   icon:'!!', text:'Lab TAT breach: 23 reports overdue. Patients waiting for results beyond 48-hour commitment. Risk of complaints.',action:'View Pending'},
+    {type:'alert-amber', icon:'!',  text:'Imaging dept average wait time is 38 minutes - nearly double the 20-minute target. Assign second technician.',action:'Reschedule'},
+    {type:'alert-green', icon:'OK', text:'OPD revenue up 8.2% vs last week. Dr. Sharma and Dr. Patel contributing highest footfall - consider expanding their slots.',action:'View Details'}
+  ],
+  day:[
+    {type:'alert-amber', icon:'!',  text:'Sunday patient count (28) is 60% below weekday average. Clinic capacity underutilised - consider targeted Sunday promotions.',action:'Plan Campaign'},
+    {type:'alert-teal',  icon:'i',  text:'Saturday revenue Rs.62,000 exceeded weekly daily target by 12.7% - highest single-day revenue this month.',action:'View Report'}
+  ],
+  month:[
+    {type:'alert-green', icon:'OK', text:'May 2025 revenue Rs.9.2 Lakhs is best monthly performance - 15% above target. Sustained 3-month upward trend.',action:'View Report'},
+    {type:'alert-red',   icon:'!!', text:'61 reports pending across the period. Lab TAT compliance dropped to 78% - below 90% standard. Immediate action needed.',action:'Audit Lab'}
+  ]
+};
+
+var DOCTORS = [
+  {name:'Dr. Sharma',   dept:'OPD',     patients:182, revenue:148000, sat:92, status:'ok'},
+  {name:'Dr. Patel',    dept:'OPD',     patients:164, revenue:131000, sat:89, status:'ok'},
+  {name:'Dr. Kulkarni', dept:'Imaging', patients:98,  revenue:92000,  sat:84, status:'warn'},
+  {name:'Dr. Mehta',    dept:'OPD',     patients:141, revenue:112000, sat:91, status:'ok'},
+  {name:'Dr. Joshi',    dept:'Lab',     patients:210, revenue:88000,  sat:87, status:'ok'},
+  {name:'Dr. Desai',    dept:'Imaging', patients:76,  revenue:68000,  sat:79, status:'warn'}
+];
+
+var PATIENTS = [
+  {id:'P-1042',name:'R. Sharma',   dept:'OPD',     test:'Consultation',   date:'28 Apr',fee:800,  report:'ok',  payment:'ok'},
+  {id:'P-1041',name:'S. Patil',    dept:'Lab',     test:'CBC + LFT',      date:'28 Apr',fee:1800, report:'ok',  payment:'ok'},
+  {id:'P-1040',name:'M. Desai',    dept:'Imaging', test:'X-Ray Chest',    date:'27 Apr',fee:1200, report:'pend',payment:'ok'},
+  {id:'P-1039',name:'A. Joshi',    dept:'OPD',     test:'Consultation',   date:'27 Apr',fee:800,  report:'ok',  payment:'pend'},
+  {id:'P-1038',name:'P. Kulkarni', dept:'Lab',     test:'Thyroid Panel',  date:'26 Apr',fee:2400, report:'late',payment:'ok'},
+  {id:'P-1037',name:'V. Mehta',    dept:'Imaging', test:'Ultrasound',     date:'26 Apr',fee:2200, report:'ok',  payment:'ok'},
+  {id:'P-1036',name:'N. Singh',    dept:'OPD',     test:'Follow-up',      date:'25 Apr',fee:500,  report:'ok',  payment:'ok'},
+  {id:'P-1035',name:'K. Rao',      dept:'Lab',     test:'Lipid Profile',  date:'25 Apr',fee:1400, report:'pend',payment:'pend'},
+  {id:'P-1034',name:'R. Iyer',     dept:'OPD',     test:'Consultation',   date:'24 Apr',fee:800,  report:'ok',  payment:'ok'},
+  {id:'P-1033',name:'T. Gupta',    dept:'Imaging', test:'MRI Brain',      date:'24 Apr',fee:7500, report:'late',payment:'ok'}
+];
+
+var TESTS = [
+  {name:'CBC',        ontime:96, dept:'LAB'},
+  {name:'LFT/KFT',   ontime:91, dept:'LAB'},
+  {name:'Thyroid',   ontime:83, dept:'LAB'},
+  {name:'X-Ray',     ontime:94, dept:'IMG'},
+  {name:'Ultrasound',ontime:88, dept:'IMG'},
+  {name:'MRI/CT',    ontime:72, dept:'IMG'}
+];
+
+var WAIT_TIMES = [
+  {dept:'OPD',      min:18, color:'#059669'},
+  {dept:'Lab',      min:12, color:'#0891B2'},
+  {dept:'Imaging',  min:38, color:'#DC2626'},
+  {dept:'Pharmacy', min:8,  color:'#059669'}
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+var currentTime = 'week';
+var currentDept = 'all';
+
+// ── TOOLTIP ──────────────────────────────────────────────────────────────────
+var TT = document.getElementById('TT');
+function showTT(e, title, rows, note){
+  var h='';
+  if(title) h+='<div class="tt-title">'+title+'</div>';
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    var dot=r.dot?'<span class="tt-dot" style="background:'+r.dot+'"></span>':'';
+    h+='<div class="tt-row"><span class="tt-lbl">'+dot+r.lbl+'</span><span class="tt-val" style="color:'+(r.col||'#fff')+'">'+r.val+'</span></div>';
+  }
+  if(note) h+='<div class="tt-note">'+note+'</div>';
+  TT.innerHTML=h; TT.style.display='block'; posTT(e);
+}
+function posTT(e){
+  var off=14,l=e.clientX+off,t=e.clientY+off;
+  var w=TT.offsetWidth,h=TT.offsetHeight;
+  if(l+w>window.innerWidth-10) l=e.clientX-w-off;
+  if(t+h>window.innerHeight-10) t=e.clientY-h-off;
+  TT.style.left=l+'px'; TT.style.top=t+'px';
+}
+function hideTT(){ TT.style.display='none'; }
+document.addEventListener('mousemove',function(e){ if(TT.style.display==='block') posTT(e); });
+
+// ── CONTROLS ─────────────────────────────────────────────────────────────────
+document.getElementById('btnDay').addEventListener('click',function(){ setTime('day',this); });
+document.getElementById('btnWeek').addEventListener('click',function(){ setTime('week',this); });
+document.getElementById('btnMonth').addEventListener('click',function(){ setTime('month',this); });
+document.getElementById('chipAll').addEventListener('click',function(){ setDept('all',this); });
+document.getElementById('chipOPD').addEventListener('click',function(){ setDept('OPD',this); });
+document.getElementById('chipLAB').addEventListener('click',function(){ setDept('LAB',this); });
+document.getElementById('chipIMG').addEventListener('click',function(){ setDept('IMG',this); });
+
+function setTime(t,btn){
+  currentTime=t;
+  ['btnDay','btnWeek','btnMonth'].forEach(function(id){ document.getElementById(id).classList.remove('active'); });
+  btn.classList.add('active');
+  renderAll();
+}
+function setDept(d,chip){
+  currentDept=d;
+  ['chipAll','chipOPD','chipLAB','chipIMG'].forEach(function(id){ document.getElementById(id).className='dept-chip'; });
+  var map={all:'chip-active-all',OPD:'chip-active-OPD',LAB:'chip-active-LAB',IMG:'chip-active-IMG'};
+  chip.classList.add(map[d]);
+  renderAll();
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+function renderAll(){
+  var d=DATA[currentTime];
+  document.getElementById('periodLabel').textContent=d.period;
+  document.getElementById('revSubtitle').textContent=d.revSub;
+  document.getElementById('patSubtitle').textContent=d.patSub;
+  document.getElementById('revBadge').textContent=d.badge;
+  document.getElementById('patBadge').textContent=d.badge;
+  renderKPIs(d); renderInsights(); renderAlerts();
+  renderRevChart(d); renderDeptBars(d);
+  renderPatChart(d); renderTestBars(); renderWaitBars();
+  renderDoctors(); renderPatientLog();
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function renderKPIs(d){
+  var k=d.kpi,dd=d.kpi_delta,dr=d.kpi_dir;
+  function fmtR(n){ return 'Rs.'+(n>=100000?(n/100000).toFixed(1)+'L':(n>=1000?(n/1000).toFixed(0)+'K':n)); }
+  var cards=[
+    {lbl:'Total Revenue',    val:fmtR(k.revenue),          delta:dd.revenue,  dir:dr.revenue,  cls:'kpi-teal',  per:'vs previous period'},
+    {lbl:'Total Patients',   val:k.patients.toLocaleString('en-IN'), delta:dd.patients, dir:dr.patients, cls:'kpi-green', per:'clinic visits'},
+    {lbl:'Tests Conducted',  val:k.tests.toLocaleString('en-IN'),    delta:dd.tests,    dir:dr.tests,    cls:'kpi-blue',  per:'all departments'},
+    {lbl:'Patient Satisfaction',val:k.satisfied+'%',        delta:dd.satisfied,dir:dr.satisfied,cls:'kpi-purple',per:'survey score'},
+    {lbl:'Reports Pending',  val:k.pending+' reports',      delta:dd.pending,  dir:'up',        cls:'kpi-red',   per:'beyond TAT'}
+  ];
+  // Note: for pending, 'up' badge actually means it went down (good) but we handle color separately
+  document.getElementById('kpiGrid').innerHTML=cards.map(function(c,i){
+    var dirClass = i===4 ? (parseInt(dd.pending)<0?'up':'down') : c.dir;
+    return '<div class="kpi-card '+c.cls+'">'
+      +'<div class="kpi-label">'+c.lbl+'</div>'
+      +'<div class="kpi-value">'+c.val+'</div>'
+      +'<div class="kpi-footer"><span class="kpi-change '+dirClass+'">'+c.delta+'</span>'
+      +'<span class="kpi-period">'+c.per+'</span></div></div>';
+  }).join('');
+}
+
+// ── INSIGHTS ──────────────────────────────────────────────────────────────────
+function renderInsights(){
+  document.getElementById('insightsContainer').innerHTML=INSIGHTS[currentTime].map(function(i){
+    return '<div class="insight-item"><div class="insight-dot" style="background:'+i.color+'"></div>'
+      +'<div><div class="insight-text">'+i.text+'</div>'
+      +'<div class="insight-action">&#8594; '+i.action+'</div></div></div>';
+  }).join('');
+}
+
+// ── ALERTS ────────────────────────────────────────────────────────────────────
+function renderAlerts(){
+  document.getElementById('alertStrips').innerHTML=ALERTS[currentTime].map(function(a){
+    return '<div class="alert-strip '+a.type+'">'
+      +'<div class="alert-icon">'+a.icon+'</div>'
+      +'<div class="alert-text">'+a.text+'</div>'
+      +'<div class="alert-action">'+a.action+'</div></div>';
+  }).join('');
+}
+
+// ── REVENUE BAR CHART ─────────────────────────────────────────────────────────
+function renderRevChart(d){
+  var svg=document.getElementById('revChart');
+  var W=680,H=220,pad={t:16,r:64,b:36,l:62};
+  var cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  var n=d.labels.length;
+  var maxVal=Math.max.apply(null,d.revenue.concat(d.target))*1.12;
+  var barW=Math.min(40,(cW/n)*0.4);
+  var gap=cW/n;
+  function X(i){return pad.l+gap*i+gap/2;}
+  function Y(v){return pad.t+cH-(v/maxVal)*cH;}
+  function fmtK(v){return v>=100000?(v/100000).toFixed(1)+'L':v>=1000?(v/1000).toFixed(0)+'K':v;}
+
+  var h='';
+  for(var g=0;g<=4;g++){
+    var yy=pad.t+(cH/4)*g;
+    var val=Math.round(maxVal-(maxVal/4)*g);
+    h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="#DDE3EC" stroke-width="1" stroke-dasharray="4,3"/>';
+    h+='<text x="'+(pad.l-6)+'" y="'+(yy+4)+'" text-anchor="end" fill="#8A98A8" font-size="10">'+fmtK(val)+'</text>';
+  }
+  var ty=Y(d.target[0]);
+  h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+ty+'" y2="'+ty+'" stroke="#D97706" stroke-width="1.5" stroke-dasharray="6,4"/>';
+  h+='<text x="'+(W-pad.r+4)+'" y="'+(ty+4)+'" fill="#D97706" font-size="9" font-weight="600">TARGET</text>';
+
+  for(var i=0;i<d.revenue.length;i++){
+    var v=d.revenue[i], t=d.target[i];
+    var bx=X(i)-barW/2, by=Y(v), bh=H-pad.b-by;
+    var color=v>=t?'#0891B2':'#A5F3FC';
+    h+='<rect class="rbhit" data-i="'+i+'" x="'+(bx-6)+'" y="'+pad.t+'" width="'+(barW+12)+'" height="'+cH+'" fill="transparent" style="cursor:crosshair"/>';
+    h+='<rect x="'+bx+'" y="'+by+'" width="'+barW+'" height="'+bh+'" rx="4" fill="'+color+'" opacity="0.9" style="pointer-events:none"/>';
+    h+='<text x="'+(bx+barW/2)+'" y="'+(by-5)+'" text-anchor="middle" fill="#4A5568" font-size="10" font-weight="600" style="pointer-events:none">'+fmtK(v)+'</text>';
+    h+='<text x="'+X(i)+'" y="'+(H-pad.b+14)+'" text-anchor="middle" fill="#8A98A8" font-size="10" style="pointer-events:none">'+d.labels[i]+'</text>';
+  }
+  h+='<rect x="'+pad.l+'" y="'+(H-10)+'" width="10" height="10" rx="2" fill="#0891B2"/>';
+  h+='<text x="'+(pad.l+14)+'" y="'+(H-2)+'" font-size="9" fill="#4A5568">Above Target</text>';
+  h+='<rect x="'+(pad.l+92)+'" y="'+(H-10)+'" width="10" height="10" rx="2" fill="#A5F3FC"/>';
+  h+='<text x="'+(pad.l+106)+'" y="'+(H-2)+'" font-size="9" fill="#4A5568">Below Target</text>';
+  h+='<line x1="'+(pad.l+186)+'" x2="'+(pad.l+202)+'" y1="'+(H-5)+'" y2="'+(H-5)+'" stroke="#D97706" stroke-width="1.5" stroke-dasharray="4,3"/>';
+  h+='<text x="'+(pad.l+206)+'" y="'+(H-2)+'" font-size="9" fill="#4A5568">Target</text>';
+  svg.innerHTML=h;
+
+  svg.querySelectorAll('.rbhit').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var idx=parseInt(this.getAttribute('data-i'));
+      var v=d.revenue[idx], tgt=d.target[idx];
+      function fmtFull(n){ return 'Rs.'+n.toLocaleString('en-IN'); }
+      var diff=v-tgt, dStr=(diff>=0?'+':'')+fmtFull(Math.abs(diff));
+      var col=v>=tgt?'#67E8F9':'#FCA5A5';
+      showTT(e, d.labels[idx]+' Revenue',[
+        {lbl:'Collected', val:fmtFull(v),   col:'#67E8F9', dot:'#0891B2'},
+        {lbl:'Target',    val:fmtFull(tgt),  col:'#FDE68A', dot:'#D97706'},
+        {lbl:'vs Target', val:dStr,           col:col}
+      ], v>=tgt?'Above Target':'Below Target');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── DEPT REVENUE BARS ─────────────────────────────────────────────────────────
+function renderDeptBars(d){
+  var depts=[
+    {lbl:'OPD',     pct:d.opd_rev, color:'#0891B2'},
+    {lbl:'Lab',     pct:d.lab_rev, color:'#7C3AED'},
+    {lbl:'Imaging', pct:d.img_rev, color:'#059669'},
+    {lbl:'Others',  pct:100-d.opd_rev-d.lab_rev-d.img_rev, color:'#D97706'}
+  ];
+  var c=document.getElementById('deptBars');
+  c.innerHTML=depts.map(function(dept,i){
+    return '<div class="hbar-row" data-di="'+i+'">'
+      +'<div class="hbar-label">'+dept.lbl+'</div>'
+      +'<div class="hbar-wrap"><div class="hbar-fill" style="width:'+dept.pct+'%;background:'+dept.color+';">'+(dept.pct>=15?dept.pct+'%':'')+'</div></div>'
+      +'<div class="hbar-val" style="color:'+dept.color+'">'+dept.pct+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.hbar-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var dept=depts[parseInt(this.getAttribute('data-di'))];
+      var totalRev=DATA[currentTime].kpi.revenue;
+      var deptRev=Math.round(totalRev*dept.pct/100);
+      showTT(e, dept.lbl+' Department',[
+        {lbl:'Revenue Share', val:dept.pct+'%', col:dept.color},
+        {lbl:'Est. Revenue',  val:'Rs.'+deptRev.toLocaleString('en-IN'), col:'#fff'}
+      ], 'of total period revenue');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── PATIENT LINE CHART ────────────────────────────────────────────────────────
+function renderPatChart(d){
+  var svg=document.getElementById('patChart');
+  var W=300,H=150,pad={t:16,r:14,b:28,l:38};
+  var cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  var vals=d.patients, n=vals.length;
+  var maxV=Math.max.apply(null,vals)*1.18;
+  function PX(i){return pad.l+(i/(n-1))*cW;}
+  function PY(v){return pad.t+cH-(v/maxV)*cH;}
+
+  var pts=vals.map(function(v,i){return PX(i)+','+PY(v);}).join(' ');
+  var area=PX(0)+','+(pad.t+cH)+' '+pts+' '+PX(n-1)+','+(pad.t+cH);
+
+  var h='<defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="#0891B2" stop-opacity="0.22"/>'
+    +'<stop offset="100%" stop-color="#0891B2" stop-opacity="0.02"/>'
+    +'</linearGradient></defs>';
+
+  // Y grid (2 lines)
+  [Math.round(maxV*0.5), Math.round(maxV*0.25)].forEach(function(v){
+    var yy=PY(v);
+    h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="#DDE3EC" stroke-width="1" stroke-dasharray="3,3"/>';
+    h+='<text x="'+(pad.l-4)+'" y="'+(yy+3)+'" text-anchor="end" font-size="8" fill="#8A98A8">'+v+'</text>';
+  });
+
+  h+='<polygon points="'+area+'" fill="url(#pg)" style="pointer-events:none"/>';
+  h+='<polyline points="'+pts+'" fill="none" stroke="#0891B2" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" style="pointer-events:none"/>';
+  vals.forEach(function(v,i){
+    h+='<text x="'+PX(i)+'" y="'+(H-3)+'" text-anchor="middle" font-size="8" fill="#8A98A8">'+d.labels[i]+'</text>';
+  });
+  svg.innerHTML=h;
+
+  var avg=(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(0);
+  vals.forEach(function(v,i){
+    var color=v>avg?'#0891B2':'#D97706';
+    var hz=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    hz.setAttribute('cx',PX(i)); hz.setAttribute('cy',PY(v)); hz.setAttribute('r','13');
+    hz.setAttribute('fill','transparent'); hz.style.cursor='crosshair';
+    (function(v,i){
+      hz.addEventListener('mouseenter',function(e){
+        var note=v>avg?'Above period average':'Below period average';
+        showTT(e, d.labels[i]+' Patients',[
+          {lbl:'Patients',   val:v.toLocaleString('en-IN'), col:'#67E8F9', dot:'#0891B2'},
+          {lbl:'Period Avg', val:avg, col:'#D1FAE5'}
+        ], note);
+      });
+    })(v,i);
+    hz.addEventListener('mouseleave',hideTT);
+    var dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',PX(i)); dot.setAttribute('cy',PY(v)); dot.setAttribute('r','4');
+    dot.setAttribute('fill',color); dot.setAttribute('stroke','white'); dot.setAttribute('stroke-width','1.5');
+    dot.style.pointerEvents='none';
+    var lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PX(i)); lbl.setAttribute('y',PY(v)-9);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-size','9');
+    lbl.setAttribute('fill','#4A5568'); lbl.setAttribute('font-weight','600');
+    lbl.style.pointerEvents='none'; lbl.textContent=v;
+    svg.appendChild(hz); svg.appendChild(dot); svg.appendChild(lbl);
+  });
+}
+
+// ── TEST PERFORMANCE BARS ─────────────────────────────────────────────────────
+function renderTestBars(){
+  var tests=currentDept==='all'?TESTS:TESTS.filter(function(t){
+    if(currentDept==='LAB') return t.dept==='LAB';
+    if(currentDept==='IMG') return t.dept==='IMG';
+    return true;
+  });
+  var avgOT=(tests.reduce(function(a,t){return a+t.ontime;},0)/tests.length).toFixed(0);
+  document.getElementById('testBadge').textContent=avgOT+'% On-Time';
+  document.getElementById('testBadge').className='card-badge '+(avgOT>=90?'badge-green':avgOT>=80?'badge-amber':'badge-red');
+
+  var c=document.getElementById('testBars');
+  c.innerHTML=tests.map(function(t,i){
+    var col=t.ontime>=90?'#059669':t.ontime>=80?'#D97706':'#DC2626';
+    return '<div class="hbar-row" data-ti="'+i+'">'
+      +'<div class="hbar-label" style="width:72px">'+t.name+'</div>'
+      +'<div class="hbar-wrap"><div class="hbar-fill" style="width:'+t.ontime+'%;background:'+col+';">'+(t.ontime>=80?t.ontime+'%':'')+'</div></div>'
+      +'<div class="hbar-val" style="color:'+col+'">'+t.ontime+'%</div></div>';
+  }).join('');
+
+  c.querySelectorAll('.hbar-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var t=tests[parseInt(this.getAttribute('data-ti'))];
+      var col=t.ontime>=90?'#6EE7B7':t.ontime>=80?'#FDE68A':'#FCA5A5';
+      var status=t.ontime>=90?'Excellent TAT compliance':t.ontime>=80?'Acceptable - monitor closely':'Below standard - investigate';
+      showTT(e, t.name+' TAT',[
+        {lbl:'On-Time Rate', val:t.ontime+'%', col:col},
+        {lbl:'Department',   val:t.dept,        col:'#fff'},
+        {lbl:'Delayed',      val:(100-t.ontime)+'%', col:'#FCA5A5'}
+      ], status);
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── WAIT TIME BARS ────────────────────────────────────────────────────────────
+function renderWaitBars(){
+  var c=document.getElementById('waitBars');
+  var maxMin=Math.max.apply(null,WAIT_TIMES.map(function(w){return w.min;}))*1.2;
+  c.innerHTML=WAIT_TIMES.map(function(w,i){
+    var col=w.min>25?'#DC2626':w.min>20?'#D97706':'#059669';
+    var pct=(w.min/maxMin)*100;
+    return '<div class="wait-row" data-wi="'+i+'">'
+      +'<div class="wait-label">'+w.dept+'</div>'
+      +'<div class="wait-track"><div class="wait-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
+      +'<div class="wait-val" style="color:'+col+'">'+w.min+' min</div></div>';
+  }).join('');
+  c.querySelectorAll('.wait-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var w=WAIT_TIMES[parseInt(this.getAttribute('data-wi'))];
+      var col=w.min>25?'#FCA5A5':w.min>20?'#FDE68A':'#6EE7B7';
+      var status=w.min>25?'Critical - far above 20 min target':w.min>20?'Above target - needs attention':'Within acceptable range';
+      showTT(e, w.dept+' Wait Time',[
+        {lbl:'Avg Wait',  val:w.min+' min', col:col},
+        {lbl:'Target',    val:'20 min',     col:'#FDE68A'},
+        {lbl:'Over by',   val:(w.min-20>0?(w.min-20)+' min over':'On target'), col:w.min>20?'#FCA5A5':'#6EE7B7'}
+      ], status);
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── DOCTOR TABLE ──────────────────────────────────────────────────────────────
+function renderDoctors(){
+  var docs=currentDept==='all'?DOCTORS:DOCTORS.filter(function(doc){
+    if(currentDept==='OPD') return doc.dept==='OPD';
+    if(currentDept==='LAB') return doc.dept==='Lab';
+    if(currentDept==='IMG') return doc.dept==='Imaging';
+    return true;
+  });
+  document.getElementById('docBadge').textContent=docs.length+' Doctors';
+  var satColor=function(s){return s>=90?'var(--green)':s>=85?'var(--amber)':'var(--red)';};
+  document.getElementById('docTable').innerHTML=
+    '<thead><tr><th>Doctor</th><th>Dept</th><th>Patients</th><th>Revenue</th><th>Satisfaction</th><th>Status</th></tr></thead><tbody>'
+    +docs.map(function(doc){
+      var sc=satColor(doc.sat);
+      return '<tr><td style="font-weight:600">'+doc.name+'</td>'
+        +'<td><span class="status-pill pill-teal">'+doc.dept+'</span></td>'
+        +'<td style="font-family:JetBrains Mono,monospace;font-weight:700">'+doc.patients+'</td>'
+        +'<td style="font-family:JetBrains Mono,monospace">Rs.'+doc.revenue.toLocaleString('en-IN')+'</td>'
+        +'<td style="font-weight:700;color:'+sc+'">'+doc.sat+'%</td>'
+        +'<td><span class="status-pill '+(doc.status==='ok'?'pill-ok':'pill-warn')+'">'+(doc.status==='ok'?'GOOD':'REVIEW')+'</span></td>'
+        +'</tr>';
+    }).join('')+'</tbody>';
+}
+
+// ── PATIENT LOG ───────────────────────────────────────────────────────────────
+function renderPatientLog(){
+  var rows=currentDept==='all'?PATIENTS:PATIENTS.filter(function(p){
+    if(currentDept==='OPD') return p.dept==='OPD';
+    if(currentDept==='LAB') return p.dept==='Lab';
+    if(currentDept==='IMG') return p.dept==='Imaging';
+    return true;
+  });
+  document.getElementById('patLogBadge').textContent=rows.length+' Records';
+  var repM={ok:'pill-ok',pend:'pill-warn',late:'pill-fail'};
+  var repL={ok:'READY',pend:'PENDING',late:'OVERDUE'};
+  var payM={ok:'pill-ok',pend:'pill-warn'};
+  var payL={ok:'PAID',pend:'DUE'};
+  document.getElementById('patientTable').innerHTML=
+    '<thead><tr><th>ID</th><th>Patient</th><th>Dept</th><th>Test</th><th>Date</th><th>Fee</th><th>Report</th><th>Payment</th></tr></thead><tbody>'
+    +rows.map(function(p){
+      return '<tr>'
+        +'<td><strong>'+p.id+'</strong></td>'
+        +'<td style="font-family:Plus Jakarta Sans,sans-serif;font-weight:600">'+p.name+'</td>'
+        +'<td><span class="status-pill pill-teal">'+p.dept+'</span></td>'
+        +'<td style="font-family:Plus Jakarta Sans,sans-serif;font-size:11px">'+p.test+'</td>'
+        +'<td>'+p.date+'</td>'
+        +'<td>Rs.'+p.fee.toLocaleString('en-IN')+'</td>'
+        +'<td><span class="status-pill '+repM[p.report]+'">'+repL[p.report]+'</span></td>'
+        +'<td><span class="status-pill '+payM[p.payment]+'">'+payL[p.payment]+'</span></td>'
+        +'</tr>';
+    }).join('')+'</tbody>';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>

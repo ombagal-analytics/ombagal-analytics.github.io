@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accenture Consulting KPI Dashboard | Om Bagal</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+[data-theme="light"]{--bg:#F7F7FB;--surface:#FFFFFF;--surface2:#F2F2F8;--surface3:#EAEAF5;--border:#E0E0EF;--border2:#D0D0E8;--text-primary:#0A0A1A;--text-secondary:#4A4A6A;--text-muted:#9090B0;--card-shadow:0 1px 4px rgba(0,0,0,0.07),0 2px 12px rgba(0,0,0,0.04);--tip-bg:#FFFFFF;--tip-border:#E0E0EF;}
+[data-theme="dark"]{--bg:#0D0D18;--surface:#14142A;--surface2:#1C1C35;--surface3:#242445;--border:#2A2A50;--border2:#333360;--text-primary:#E8E8F5;--text-secondary:#9090C0;--text-muted:#5050A0;--card-shadow:0 2px 12px rgba(0,0,0,0.4);--tip-bg:#14142A;--tip-border:#2A2A50;}
+:root{--pur:#A100FF;--purm:#7B00CC;--purl:rgba(161,0,255,0.09);--purb:rgba(161,0,255,0.18);--green:#059669;--gl:rgba(5,150,105,0.1);--red:#DC2626;--rl:rgba(220,38,38,0.1);--amber:#D97706;--al:rgba(217,119,6,0.1);--blue:#2563EB;--bl:rgba(37,99,235,0.1);--r:10px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;transition:background .3s,color .3s;}
+.header{background:var(--surface);border-bottom:3px solid var(--pur);padding:0 22px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200;box-shadow:var(--card-shadow);transition:background .3s;}
+.acc-sym{width:34px;height:34px;background:var(--pur);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:17px;font-weight:900;font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+.hd-main{font-size:13px;font-weight:700;}
+.hd-sub{font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.prac-badge{background:var(--purl);border:1px solid rgba(161,0,255,0.2);color:var(--pur);font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;}
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--gl);border:1px solid rgba(5,150,105,0.2);color:var(--green);font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+#liveClock{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;min-width:70px;}
+.theme-btn{cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 11px;font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:5px;transition:all .2s;user-select:none;}
+.theme-btn:hover{border-color:var(--pur);color:var(--pur);}
+.ins-bar{background:rgba(161,0,255,0.04);border-bottom:1px solid rgba(161,0,255,0.1);padding:9px 22px;display:flex;align-items:flex-start;gap:10px;}
+.ins-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;color:var(--pur);opacity:.75;margin-bottom:3px;text-transform:uppercase;}
+.ins-cards{display:flex;gap:9px;flex-wrap:wrap;}
+.ins-item{display:flex;gap:7px;background:var(--surface);border-radius:6px;padding:6px 11px;border:1px solid rgba(161,0,255,0.1);min-width:190px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+[data-theme="dark"] .ins-item{background:rgba(255,255,255,0.03);border-color:rgba(161,0,255,0.15);}
+.ins-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.ins-text{font-size:11px;line-height:1.5;color:var(--text-secondary);}
+.ins-sub{font-size:10px;color:var(--text-muted);margin-top:1px;}
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;transition:background .3s;}
+.flbl{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.ttgl{display:flex;background:var(--surface2);border-radius:6px;padding:2px;border:1px solid var(--border);}
+.tbtn{padding:4px 12px;border:none;background:none;border-radius:4px;font-size:11px;font-weight:600;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;color:var(--text-muted);transition:all .2s;}
+.tbtn.active{background:var(--pur);color:white;box-shadow:0 2px 8px rgba(161,0,255,0.3);}
+.chip-grp{display:flex;gap:5px;}
+.chip{padding:4px 11px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all .2s;user-select:none;}
+.chip:hover{border-color:var(--pur);color:var(--pur);}
+.chip.active{border-color:var(--pur);background:var(--purl);color:var(--pur);}
+.dvdr{width:1px;height:20px;background:var(--border2);}
+.main{padding:16px 22px;max-width:1400px;margin:0 auto;}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:14px;}
+.kpi-card{background:var(--surface);border-radius:var(--r);padding:15px 16px;border:1px solid var(--border);box-shadow:var(--card-shadow);position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s,background .3s;}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.12);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.kp::before{background:linear-gradient(90deg,var(--pur),var(--purm));}.kg::before{background:var(--green);}.ka::before{background:var(--amber);}.kr::before{background:var(--red);}.kb::before{background:var(--blue);}
+.kpi-lbl{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:7px;}
+.kpi-val{font-size:25px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:7px;font-family:'IBM Plex Mono',monospace;transition:all .35s;}
+.kpi-ft{display:flex;align-items:center;gap:5px;font-size:11px;}
+.bup{color:var(--green);background:var(--gl);font-weight:700;padding:1px 5px;border-radius:3px;}
+.bdn{color:var(--red);background:var(--rl);font-weight:700;padding:1px 5px;border-radius:3px;}
+.kpi-per{color:var(--text-muted);}
+.tip{position:fixed;background:var(--tip-bg);border:1px solid var(--tip-border);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--text-primary);pointer-events:none;z-index:9999;opacity:0;transition:opacity .15s;max-width:210px;box-shadow:0 8px 24px rgba(0,0,0,0.15);line-height:1.6;}
+.tip.show{opacity:1;}
+.tip-title{font-weight:700;font-size:12px;margin-bottom:4px;color:var(--pur);}
+.tip-row{display:flex;justify-content:space-between;gap:12px;font-size:11px;}
+.tip-val{font-weight:600;font-family:'IBM Plex Mono',monospace;}
+.astrip{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:6px;margin-bottom:6px;font-size:12px;border:1px solid;cursor:default;transition:transform .15s;}
+.astrip:hover{transform:translateX(3px);}
+.astrip:last-child{margin-bottom:0;}
+.ared{background:var(--rl);border-color:rgba(220,38,38,.2);color:#7F1D1D;}[data-theme="dark"] .ared{color:#FCA5A5;}
+.aamber{background:var(--al);border-color:rgba(217,119,6,.2);color:#78350F;}[data-theme="dark"] .aamber{color:#FCD34D;}
+.agreen{background:var(--gl);border-color:rgba(5,150,105,.2);color:#064E3B;}[data-theme="dark"] .agreen{color:#6EE7B7;}
+.aico{font-size:12px;flex-shrink:0;}.atxt{flex:1;line-height:1.4;}
+.aact{font-weight:700;font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(0,0,0,.06);cursor:pointer;flex-shrink:0;transition:background .15s;}
+.aact:hover{background:rgba(0,0,0,.1);}
+[data-theme="dark"] .aact{background:rgba(255,255,255,.08);}
+[data-theme="dark"] .aact:hover{background:rgba(255,255,255,.15);}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px);}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:520px;max-width:92vw;max-height:82vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);transform:translateY(20px);transition:transform .25s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.modal-title{font-size:14px;font-weight:700;color:var(--text-primary);}
+.modal-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.modal-close{cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-muted);flex-shrink:0;transition:all .15s;}
+.modal-close:hover{background:var(--rl);border-color:var(--red);color:var(--red);}
+.modal-body{padding:16px 20px;}
+.modal-section{margin-bottom:14px;}
+.modal-section:last-child{margin-bottom:0;}
+.msec-title{font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+.mrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.mrow:last-child{border-bottom:none;}
+.mrow-label{color:var(--text-secondary);}
+.mrow-val{font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--text-primary);}
+.mrow-val.danger{color:var(--red);}.mrow-val.warn{color:var(--amber);}.mrow-val.ok{color:var(--green);}
+.modal-action-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.mbtn{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;transition:all .2s;font-family:'IBM Plex Sans',sans-serif;}
+.mbtn-primary{background:var(--pur);border-color:var(--pur);color:white;}.mbtn-primary:hover{opacity:.85;}
+.mbtn-secondary{background:var(--surface2);border-color:var(--border2);color:var(--text-secondary);}.mbtn-secondary:hover{border-color:var(--pur);color:var(--pur);}
+.sc-red{background:var(--rl);color:var(--red);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+.sc-amber{background:var(--al);color:var(--amber);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+.sc-green{background:var(--gl);color:var(--green);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+
+.row2{display:grid;grid-template-columns:2fr 1fr;gap:11px;margin-bottom:11px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--card-shadow);overflow:hidden;transition:background .3s,border .3s;}
+.card-hd{padding:12px 15px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:12px;font-weight:700;color:var(--text-primary);}
+.card-sub{font-size:10px;color:var(--text-muted);margin-top:1px;}
+.cbadge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.cb-p{background:var(--purl);color:var(--pur);}.cb-g{background:var(--gl);color:var(--green);}.cb-r{background:var(--rl);color:var(--red);}.cb-a{background:var(--al);color:var(--amber);}.cb-b{background:var(--bl);color:var(--blue);}
+.card-body{padding:14px 15px;}
+.chart-wrap{display:flex;align-items:flex-end;gap:7px;height:125px;margin-bottom:7px;}
+.y-ax{display:flex;flex-direction:column;justify-content:space-between;height:125px;padding-right:5px;}
+.y-ax span{font-size:9px;color:var(--text-muted);}
+.chart-bars{flex:1;display:flex;align-items:flex-end;gap:5px;height:125px;}
+.cbar-grp{flex:1;display:flex;align-items:flex-end;gap:2px;height:100%;justify-content:center;cursor:pointer;}
+.cbar{border-radius:3px 3px 0 0;transition:height .65s cubic-bezier(.34,1.56,.64,1),filter .2s;display:flex;align-items:flex-start;justify-content:center;padding-top:2px;flex:1;}
+.cbar:hover{filter:brightness(1.15);}
+.cbar-val{font-size:9px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:rgba(255,255,255,.8);}
+.cbar-lbl{text-align:center;font-size:10px;color:var(--text-muted);padding-top:3px;}
+.brow{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.brow:last-child{margin-bottom:0;}
+.blbl{width:86px;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+.bwrap{flex:1;background:var(--surface2);border-radius:4px;height:21px;overflow:hidden;cursor:pointer;}
+.bfill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:7px;font-size:10px;font-weight:700;color:white;transition:width .7s cubic-bezier(.34,1.56,.64,1),filter .2s;}
+.bwrap:hover .bfill{filter:brightness(1.12);}
+.bval{width:50px;text-align:right;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+.dtable{width:100%;border-collapse:collapse;}
+.dtable th{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:9px 9px 9px 15px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);cursor:pointer;user-select:none;white-space:nowrap;}
+.dtable th:hover{color:var(--pur);}
+.th-arr{margin-left:3px;opacity:.5;}
+.dtable td{padding:8px 9px 8px 15px;font-size:12px;border-bottom:1px solid var(--border);color:var(--text-secondary);}
+.dtable tr:last-child td{border-bottom:none;}
+.dtable td:first-child{color:var(--text-primary);font-weight:600;}
+.dtable tbody tr{cursor:pointer;transition:background .15s;}
+.dtable tbody tr:hover td{background:var(--surface2);}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.pp{background:var(--gl);color:var(--green);}.pf{background:var(--rl);color:var(--red);}.pw{background:var(--al);color:var(--amber);}.pu{background:var(--purl);color:var(--pur);}.pb{background:var(--bl);color:var(--blue);}
+/* CSAT stars */
+.csat-row{display:flex;align-items:center;gap:9px;margin-bottom:9px;padding:6px 8px;border-radius:6px;cursor:default;transition:background .15s;}
+.csat-row:last-child{margin-bottom:0;}
+.csat-row:hover{background:var(--surface2);}
+.csat-name{width:90px;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+.csat-stars{flex:1;font-size:12px;}
+.csat-score{font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0;width:32px;text-align:right;}
+.footer{margin-top:18px;padding:13px 22px;border-top:3px solid var(--pur);display:flex;align-items:center;justify-content:space-between;background:var(--surface);transition:background .3s;}
+.footer-l{font-size:11px;color:var(--text-muted);}
+.footer-r{display:flex;gap:14px;}
+.fc{font-size:11px;color:var(--text-muted);}
+.fc span{color:var(--pur);font-weight:600;}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.row2,.row3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="tip" id="tip"></div>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="acc-sym">></div>
+    <div><div class="hd-main">Business Consulting KPI Dashboard</div><div class="hd-sub">Accenture · Technology &amp; Operations Practice</div></div>
+    <div class="prac-badge">⚡ STRATEGY &amp; CONSULTING</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:9px;">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div id="liveClock"></div>
+    <div class="theme-btn" onclick="toggleTheme()" id="themeBtnEl">☀ Light</div>
+  </div>
+</div>
+
+<div class="ins-bar">
+  <div style="font-size:15px;margin-top:2px;">📊</div>
+  <div style="flex:1;">
+    <div class="ins-lbl">Portfolio Intelligence</div>
+    <div class="ins-cards">
+      <div class="ins-item"><div class="ins-dot" style="background:var(--red);"></div><div><div class="ins-text">Project Nexus-4: 3 weeks behind — client escalation risk HIGH</div><div class="ins-sub">→ Assign senior resource by end of week</div></div></div>
+      <div class="ins-item"><div class="ins-dot" style="background:var(--amber);"></div><div><div class="ins-text">Team utilisation 68% — 12 consultants on bench</div><div class="ins-sub">→ Deploy to Project Orion pipeline</div></div></div>
+      <div class="ins-item"><div class="ins-dot" style="background:var(--green);"></div><div><div class="ins-text">Q4 revenue: ₹3.8Cr vs ₹3.5Cr target — 108.6% achieved</div><div class="ins-sub">→ Recognise top-performing project teams</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="flbl">Period</div>
+  <div class="ttgl">
+    <button class="tbtn" onclick="setPeriod(this,'Monthly')">Monthly</button>
+    <button class="tbtn active" onclick="setPeriod(this,'Quarterly')">Quarterly</button>
+    <button class="tbtn" onclick="setPeriod(this,'Yearly')">Yearly</button>
+  </div>
+  <div class="dvdr"></div>
+  <div class="flbl">Practice</div>
+  <div class="chip-grp">
+    <div class="chip active" onclick="setPrac(this,'ALL')">All</div>
+    <div class="chip" onclick="setPrac(this,'TECH')">Technology</div>
+    <div class="chip" onclick="setPrac(this,'OPS')">Operations</div>
+    <div class="chip" onclick="setPrac(this,'STRAT')">Strategy</div>
+  </div>
+  <div class="dvdr"></div>
+  <div id="periodLbl" style="font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">Q4 2024 · All Practices</div>
+</div>
+
+<div class="main">
+
+  <div class="kpi-grid">
+    <div class="kpi-card kp" data-tip-key="rev"><div class="kpi-lbl">Revenue Billed</div><div class="kpi-val" id="kv-r" style="color:var(--pur);">₹0Cr</div><div class="kpi-ft"><span class="bup">▲ 8.6%</span><span class="kpi-per">vs target</span></div></div>
+    <div class="kpi-card kg" data-tip-key="proj"><div class="kpi-lbl">Active Projects</div><div class="kpi-val" id="kv-p" style="color:var(--green);">0</div><div class="kpi-ft"><span class="bup">▲ 4</span><span class="kpi-per">vs Q3</span></div></div>
+    <div class="kpi-card ka" data-tip-key="util"><div class="kpi-lbl">Utilisation Rate</div><div class="kpi-val" id="kv-u" style="color:var(--amber);">0%</div><div class="kpi-ft"><span class="bdn">▼ 7%</span><span class="kpi-per">target: 80%</span></div></div>
+    <div class="kpi-card kr" data-tip-key="risk"><div class="kpi-lbl">At-Risk Projects</div><div class="kpi-val" id="kv-ar" style="color:var(--red);">0</div><div class="kpi-ft"><span class="bdn">▲ 1</span><span class="kpi-per">vs Q3</span></div></div>
+    <div class="kpi-card kb" data-tip-key="csat"><div class="kpi-lbl">Avg CSAT Score</div><div class="kpi-val" id="kv-c" style="color:var(--blue);">0/5</div><div class="kpi-ft"><span class="bup">▲ 0.2</span><span class="kpi-per">vs Q3</span></div></div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Revenue Billed vs Target — Monthly</div><div class="card-sub" id="chartSub">All practices combined</div></div><span class="cbadge cb-p" id="chartBadge">—</span></div>
+      <div class="card-body">
+        <div class="chart-wrap"><div class="y-ax" id="yAx"></div><div class="chart-bars" id="chartBars"></div></div>
+        <div style="display:flex;gap:13px;padding-left:28px;margin-top:4px;">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);"><div style="width:9px;height:9px;border-radius:2px;background:var(--pur);"></div>Billed</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);"><div style="width:9px;height:9px;border-radius:2px;background:var(--surface2);border:1px dashed var(--border2);"></div>Target</div>
+        </div>
+        <div id="chartLabels" style="display:flex;gap:5px;padding-left:28px;margin-top:3px;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Utilisation by Practice</div><div class="card-sub">Target: 80% · Hover bars</div></div><span class="cbadge cb-a" id="utilBadge">Avg 68%</span></div>
+      <div class="card-body" id="utilDiv"></div>
+    </div>
+  </div>
+
+  <div class="row3">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Portfolio Alerts</div><div class="card-sub">Escalations &amp; action items</div></div><span class="cbadge cb-r">3 At Risk</span></div>
+      <div class="card-body">
+        <div class="astrip ared"><span class="aico">🔴</span><span class="atxt">Project Nexus-4: 3-week delay — client escalation raised</span><span class="aact" onclick="openModal('escalate_nexus')">Escalate →</span></div>
+        <div class="astrip ared"><span class="aico">🔴</span><span class="atxt">Project Delta-7: SOW scope creep — 28% over budget</span><span class="aact" onclick="openModal('review_delta')">Review →</span></div>
+        <div class="astrip aamber"><span class="aico">🟡</span><span class="atxt">Digital practice: 59% utilisation — 6 bench resources</span><span class="aact" onclick="openModal('deploy_digital')">Deploy →</span></div>
+        <div class="astrip aamber"><span class="aico">🟡</span><span class="atxt">Project Sigma-2: delivery timeline review due today</span><span class="aact" onclick="openModal('schedule_sigma')">Schedule →</span></div>
+        <div class="astrip agreen"><span class="aico">🟢</span><span class="atxt">Project Aurora-1: delivered early — CSAT 4.9/5 ✨</span><span class="aact" onclick="openModal('log_aurora')">Log →</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Client CSAT Scores</div><div class="card-sub">Hover rows for details</div></div><span class="cbadge cb-b">Avg 4.3/5</span></div>
+      <div class="card-body" id="csatDiv"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Billable vs Non-Billable Hours</div><div class="card-sub">Q4 2024 · Hover segments</div></div><span class="cbadge cb-p" id="hrsBadge">8,640 hrs</span></div>
+      <div class="card-body" id="hoursDiv"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-hd"><div><div class="card-title">Project Portfolio — Q4 2024</div><div class="card-sub">Click headers to sort · Hover rows for details</div></div><span class="cbadge cb-p" id="projBadge">24 Active</span></div>
+    <div style="overflow-x:auto;">
+      <table class="dtable">
+        <thead><tr>
+          <th onclick="sortP(0)">Project<span class="th-arr" id="pa0">↕</span></th>
+          <th onclick="sortP(1)">Client<span class="th-arr" id="pa1">↕</span></th>
+          <th onclick="sortP(2)">Practice<span class="th-arr" id="pa2">↕</span></th>
+          <th onclick="sortP(3)">Team<span class="th-arr" id="pa3">↕</span></th>
+          <th onclick="sortP(4)">Billed (₹L)<span class="th-arr" id="pa4">↕</span></th>
+          <th onclick="sortP(5)">Timeline<span class="th-arr" id="pa5">↕</span></th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="projBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hd">
+      <div><div class="modal-title" id="modalTitle">—</div><div class="modal-sub" id="modalSub">—</div></div>
+      <div class="modal-close" onclick="closeModal(true)">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-l">© 2025 Om Bagal Analytics · Accenture Consulting Dashboard · Portfolio use only</div>
+  <div class="footer-r">
+    <div class="fc">📱 <span>9987258696</span></div>
+    <div class="fc">✉ <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a3cccec1c2c4c2cf8dccc5c5cac0cac2cfe3c4cec2cacf8dc0ccce">[email&#160;protected]</a></span></div>
+    <div class="fc">🔗 <span>linkedin.com/in/ombagal-analytics</span></div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const D={
+  ALL:{
+    kpi:{
+      Monthly:  {r:'₹44L', p:24, u:68,  ar:3, c:4.3},
+      Quarterly:{r:'₹3.8Cr',p:24, u:68,  ar:3, c:4.3},
+      Yearly:   {r:'₹14.9Cr',p:31,u:72,  ar:2, c:4.5}
+    },
+    trend:{
+      Monthly:  {b:[28,32,35,38,30,34,36,42,38,40,44,30],t:[30,30,33,36,32,35,35,40,38,40,42,35]},
+      Quarterly:{b:[110,125,138,95],t:[117,117,117,117]},
+      Yearly:   {b:[280,340,410,468],t:[300,350,400,468]}
+    },
+    util:{Technology:78,Operations:72,Strategy:85,Digital:59,Finance:66}},
+  TECH:{
+    kpi:{
+      Monthly:  {r:'₹17L', p:8,  u:78,  ar:1, c:4.5},
+      Quarterly:{r:'₹1.4Cr',p:8,  u:78,  ar:1, c:4.5},
+      Yearly:   {r:'₹5.6Cr',p:11, u:80,  ar:1, c:4.6}
+    },
+    trend:{
+      Monthly:  {b:[9,11,12,14,10,12,13,16,14,15,17,11],t:[10,11,12,13,12,13,13,15,14,15,16,13]},
+      Quarterly:{b:[38,44,51,35],t:[40,42,45,40]},
+      Yearly:   {b:[95,115,140,168],t:[100,120,145,168]}
+    },
+    util:{Technology:78}},
+  OPS:{
+    kpi:{
+      Monthly:  {r:'₹8L',  p:6,  u:72,  ar:1, c:4.2},
+      Quarterly:{r:'₹1.1Cr',p:6,  u:72,  ar:1, c:4.2},
+      Yearly:   {r:'₹4.2Cr',p:8,  u:74,  ar:0, c:4.3}
+    },
+    trend:{
+      Monthly:  {b:[7,8,9,10,8,9,10,12,10,11,13,8],t:[8,8,9,10,9,10,10,12,11,12,13,10]},
+      Quarterly:{b:[32,36,38,28],t:[34,34,36,34]},
+      Yearly:   {b:[80,95,115,132],t:[85,100,120,132]}
+    },
+    util:{Operations:72}},
+  STRAT:{
+    kpi:{
+      Monthly:  {r:'₹12L', p:5,  u:85,  ar:0, c:4.6},
+      Quarterly:{r:'₹1.3Cr',p:5,  u:85,  ar:0, c:4.6},
+      Yearly:   {r:'₹5.1Cr',p:7,  u:86,  ar:0, c:4.7}
+    },
+    trend:{
+      Monthly:  {b:[10,13,14,15,12,14,15,18,16,17,20,12],t:[12,12,13,14,13,14,14,17,16,17,19,14]},
+      Quarterly:{b:[40,45,49,32],t:[43,43,45,43]},
+      Yearly:   {b:[105,130,155,168],t:[110,135,155,168]}
+    },
+    util:{Strategy:85}},
+};
+const PLBL={
+  Monthly:  ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  Quarterly:['Oct','Nov','Dec','Jan'],
+  Yearly:   ['2021','2022','2023','2024']
+};
+const TIPS={
+  rev:{title:'Revenue Billed',rows:[['Q4 Total','₹3.8 Cr'],['vs Target','108.6%'],['Best Month','Dec ₹138L'],['Technology','₹1.4 Cr']]},
+  proj:{title:'Active Projects',rows:[['Total','24'],['On Track','19'],['At Risk','3'],['Completed Q4','5']]},
+  util:{title:'Utilisation Rate',rows:[['Overall','68%'],['Best','Strategy 85%'],['Worst','Digital 59%'],['Target','80%']]},
+  risk:{title:'At-Risk Projects',rows:[['At Risk','3'],['Nexus-4','3wk delay'],['Delta-7','Budget +28%'],['Action','This week']]},
+  csat:{title:'CSAT Score',rows:[['Average','4.3 / 5'],['Highest','Reliance 4.9'],['Lowest','Mahindra 3.2'],['Target','>4.0']]},
+};
+const CSAT=[['Reliance','⭐⭐⭐⭐⭐',4.9,'var(--green)'],['Infosys','⭐⭐⭐⭐⭐',4.7,'var(--green)'],['HDFC Bank','⭐⭐⭐⭐🌟',4.3,'var(--pur)'],['TCS','⭐⭐⭐⭐🌟',4.1,'var(--amber)'],['Mahindra','⭐⭐⭐🌟🌟',3.2,'var(--red)']];
+const PROJECTS=[['Aurora-1','Reliance','Technology',8,42.0,'Oct–Dec 24','COMPLETE'],['Nexus-4','Mahindra','Operations',12,28.5,'Nov–Feb 25','AT RISK'],['Sigma-2','HDFC Bank','Strategy',6,31.2,'Dec–Mar 25','ON TRACK'],['Delta-7','TCS','Digital',9,18.8,'Sep–Jan 25','AT RISK'],['Orion-3','Infosys','Finance',5,24.6,'Jan–Apr 25','ON TRACK'],['Titan-1','Wipro','Technology',14,55.0,'Oct–Mar 25','ON TRACK'],['Vega-6','L&T','Operations',7,19.4,'Nov–Feb 25','REVIEW'],['Mars-2','HCL Tech','Strategy',4,14.0,'Jan–Mar 25','ON TRACK']];
+
+let curPrac='ALL',curPeriod='Quarterly',pSort=-1,pAsc=true;
+const tip=document.getElementById('tip');
+
+setInterval(()=>document.getElementById('liveClock').textContent=new Date().toLocaleTimeString('en-IN'),1000);
+document.getElementById('liveClock').textContent=new Date().toLocaleTimeString('en-IN');
+
+function toggleTheme(){const h=document.documentElement,light=h.getAttribute('data-theme')==='light';h.setAttribute('data-theme',light?'dark':'light');document.getElementById('themeBtnEl').textContent=light?'🌙 Dark':'☀ Light';}
+function showTip(e,html){tip.innerHTML=html;tip.classList.add('show');tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';}
+function hideTip(){tip.classList.remove('show');}
+
+document.querySelectorAll('[data-tip-key]').forEach(el=>{
+  const k=el.getAttribute('data-tip-key');const d=TIPS[k];if(!d)return;
+  const html=`<div class="tip-title">${d.title}</div>${d.rows.map(r=>`<div class="tip-row"><span>${r[0]}</span><span class="tip-val">${r[1]}</span></div>`).join('')}`;
+  el.addEventListener('mousemove',e=>showTip(e,html));el.addEventListener('mouseleave',hideTip);
+});
+
+function counter(el,target,fmt='int'){
+  if(typeof target==='string'){el.textContent=target;return;}
+  const steps=36,dur=800,st=dur/steps;let i=0;
+  const t=setInterval(()=>{i++;const v=target*(i/steps);
+    if(fmt==='pct')el.textContent=v.toFixed(1)+'%';
+    else if(fmt==='dec')el.textContent=v.toFixed(1)+'/5';
+    else el.textContent=Math.round(v);
+    if(i>=steps){if(fmt==='pct')el.textContent=target.toFixed(1)+'%';else if(fmt==='dec')el.textContent=target.toFixed(1)+'/5';else el.textContent=target;clearInterval(t);}
+  },st);
+}
+
+function renderKPIs(d, period){
+  const k = d.kpi[period];
+  document.getElementById('kv-r').textContent = k.r;
+  counter(document.getElementById('kv-p'),  k.p,  'int');
+  counter(document.getElementById('kv-u'),  k.u,  'pct');
+  counter(document.getElementById('kv-ar'), k.ar, 'int');
+  counter(document.getElementById('kv-c'),  k.c,  'dec');
+  // Update footer period labels
+  const perLabel = {Monthly:'vs last month', Quarterly:'vs Q3', Yearly:'vs last year'};
+  document.querySelectorAll('.kpi-per').forEach(el => el.textContent = perLabel[period]);
+}
+
+function barColAcc(v,maxV){const p=v/maxV;return p>=0.85?'#059669':p>=0.65?'#A100FF':p>=0.45?'#D97706':'#DC2626';}
+function renderChart(d,period){
+  const labels=PLBL[period],{b:billed,t:target}=d.trend[period];
+  const maxV=Math.max(...billed,...target);
+  const yAx=document.getElementById('yAx'),bars=document.getElementById('chartBars'),lbls=document.getElementById('chartLabels');
+  yAx.innerHTML=bars.innerHTML=lbls.innerHTML='';
+  ['₹'+Math.round(maxV)+'L','₹'+Math.round(maxV*.66)+'L','₹'+Math.round(maxV*.33)+'L','₹0'].forEach(v=>{const s=document.createElement('span');s.textContent=v;yAx.appendChild(s);});
+  const total=billed.reduce((a,b)=>a+b,0);
+  document.getElementById('chartBadge').textContent='₹'+total+'L Total';
+  document.getElementById('chartSub').textContent=(curPrac==='ALL'?'All practices':curPrac)+' · '+period+' · '+labels.length+' periods';
+  billed.forEach((v,i)=>{
+    const ap=(v/maxV)*100,tp=(target[i]/maxV)*100,isLast=i===billed.length-1;
+    const col=isLast?'var(--pur)':barColAcc(v,maxV);
+    const grp=document.createElement('div');grp.className='cbar-grp';
+    const bA=document.createElement('div');bA.className='cbar';
+    bA.style.cssText=`height:0;background:${col};opacity:${isLast?1:0.8};`;
+    bA.innerHTML=ap>25?`<span class="cbar-val">₹${v}L</span>`:'';
+    setTimeout(()=>bA.style.height=ap+'%',50+i*30);
+    bA.addEventListener('mouseover',()=>{bA.style.opacity='1';bA.style.filter='brightness(1.15)';});
+    bA.addEventListener('mouseout', ()=>{bA.style.opacity=isLast?'1':'0.8';bA.style.filter='none';});
+    const bT=document.createElement('div');bT.className='cbar';
+    bT.style.cssText=`height:0;background:var(--surface2);border:1px dashed var(--border2);`;
+    setTimeout(()=>bT.style.height=tp+'%',50+i*30);
+    const ach=Math.round(v/target[i]*100);
+    const tipHtml=`<div class="tip-title">${labels[i]}</div><div class="tip-row"><span>Billed</span><span class="tip-val">₹${v}L</span></div><div class="tip-row"><span>Target</span><span class="tip-val">₹${target[i]}L</span></div><div class="tip-row"><span>Achievement</span><span class="tip-val">${ach}%</span></div>`;
+    grp.addEventListener('mousemove',e=>showTip(e,tipHtml));grp.addEventListener('mouseleave',hideTip);
+    grp.appendChild(bA);grp.appendChild(bT);bars.appendChild(grp);
+    const lbl=document.createElement('div');lbl.className='cbar-lbl';lbl.style.flex='1';
+    lbl.textContent=period==='Monthly'?labels[i].slice(0,3):labels[i];
+    if(isLast){lbl.style.color='var(--pur)';lbl.style.fontWeight='700';}
+    lbls.appendChild(lbl);
+  });
+}
+
+function renderUtil(d){
+  const c=document.getElementById('utilDiv');c.innerHTML='';
+  const vals=Object.values(d.util);
+  const avg=Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+  document.getElementById('utilBadge').textContent='Avg '+avg+'%';
+  Object.entries(d.util).forEach(([name,val])=>{
+    const col=val>=80?'var(--green)':val>=70?'var(--amber)':'var(--red)';
+    const uid='ut-'+name;
+    const row=document.createElement('div');row.className='brow';
+    row.innerHTML=`<div class="blbl">${name}</div><div class="bwrap"><div class="bfill" id="${uid}" style="width:0;background:${col};">${val}%</div></div><div class="bval" style="color:${col};">${val}%</div>`;
+    c.appendChild(row);
+    setTimeout(()=>{const el=document.getElementById(uid);if(el)el.style.width=val+'%';},100);
+    const tipHtml=`<div class="tip-title">${name} Practice</div><div class="tip-row"><span>Utilisation</span><span class="tip-val">${val}%</span></div><div class="tip-row"><span>Target</span><span class="tip-val">80%</span></div><div class="tip-row"><span>Gap</span><span class="tip-val">${val>=80?'✅ On target':'▼ '+(80-val)+'% below'}</span></div>`;
+    row.querySelector('.bwrap').addEventListener('mousemove',e=>showTip(e,tipHtml));
+    row.querySelector('.bwrap').addEventListener('mouseleave',hideTip);
+  });
+}
+
+function renderCSAT(){
+  const c=document.getElementById('csatDiv');c.innerHTML='';
+  CSAT.forEach(([client,stars,score,col])=>{
+    const row=document.createElement('div');row.className='csat-row';
+    row.innerHTML=`<div class="csat-name">${client}</div><div class="csat-stars">${stars}</div><div class="csat-score" style="color:${col};">${score}</div>`;
+    const tipHtml=`<div class="tip-title">${client}</div><div class="tip-row"><span>CSAT Score</span><span class="tip-val">${score}/5</span></div><div class="tip-row"><span>Rating</span><span class="tip-val">${stars}</span></div><div class="tip-row"><span>Status</span><span class="tip-val">${score>=4.5?'⭐ Excellent':score>=4.0?'✅ Good':score>=3.5?'⚠ Average':'❌ Below target'}</span></div>`;
+    row.addEventListener('mousemove',e=>showTip(e,tipHtml));row.addEventListener('mouseleave',hideTip);
+    c.appendChild(row);
+  });
+}
+
+function renderHours(d){
+  const total=8640,billable=Math.round(total*d.u/100),nonbillable=total-billable;
+  const c=document.getElementById('hoursDiv');
+  c.innerHTML=`
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="flex:1;background:var(--purl);border:1px solid rgba(161,0,255,0.15);border-radius:8px;padding:12px;text-align:center;cursor:default;" id="billBox">
+        <div style="font-size:20px;font-weight:700;color:var(--pur);font-family:'IBM Plex Mono';">${billable.toLocaleString()}</div>
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-top:3px;">Billable hrs</div>
+        <div style="font-size:12px;color:var(--pur);font-weight:600;margin-top:3px;">${d.u}%</div>
+      </div>
+      <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;cursor:default;" id="nbBox">
+        <div style="font-size:20px;font-weight:700;color:var(--text-muted);font-family:'IBM Plex Mono';">${nonbillable.toLocaleString()}</div>
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-top:3px;">Non-Billable</div>
+        <div style="font-size:12px;color:var(--amber);font-weight:600;margin-top:3px;">${100-d.u}%</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;">Non-Billable Breakdown</div>`;
+  const nb=[['Training',Math.round(nonbillable*.45),'var(--blue)'],['Admin',Math.round(nonbillable*.35),'var(--amber)'],['BD/Sales',Math.round(nonbillable*.2),'var(--pur)']];
+  const maxNB=Math.max(...nb.map(x=>x[1]));
+  nb.forEach(([name,val,col])=>{
+    const pct=Math.round(val/maxNB*100);
+    const uid='hr-'+name.replace(/\//g,'');
+    const row=document.createElement('div');row.className='brow';row.style.marginBottom='7px';
+    row.innerHTML=`<div class="blbl">${name}</div><div class="bwrap"><div class="bfill" id="${uid}" style="width:0;background:${col};"></div></div><div class="bval" style="color:${col};font-size:11px;">${val}h</div>`;
+    c.appendChild(row);
+    setTimeout(()=>{const el=document.getElementById(uid);if(el)el.style.width=pct+'%';},120);
+  });
+  document.getElementById('hrsBadge').textContent=total.toLocaleString()+' hrs';
+  document.getElementById('billBox').addEventListener('mousemove',e=>showTip(e,`<div class="tip-title">Billable Hours</div><div class="tip-row"><span>Count</span><span class="tip-val">${billable.toLocaleString()}</span></div><div class="tip-row"><span>Rate</span><span class="tip-val">${d.u}%</span></div><div class="tip-row"><span>Target</span><span class="tip-val">80%</span></div>`));
+  document.getElementById('billBox').addEventListener('mouseleave',hideTip);
+}
+
+let pData=[...PROJECTS];
+function renderProjects(prac){
+  const tbody=document.getElementById('projBody');tbody.innerHTML='';
+  const rows=prac==='ALL'?pData:pData.filter(r=>r[2].toUpperCase().startsWith(prac==='TECH'?'T':prac==='OPS'?'O':'S'));
+  document.getElementById('projBadge').textContent=rows.length+' Projects';
+  rows.forEach(r=>{
+    const pc=r[6]==='COMPLETE'?'pu':r[6]==='ON TRACK'?'pp':r[6]==='AT RISK'?'pf':'pw';
+    const bc=r[4]>=40?'var(--green)':r[4]>=25?'var(--amber)':'var(--red)';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="font-family:'IBM Plex Mono';">${r[3]}</td><td style="color:${bc};font-family:'IBM Plex Mono';">₹${r[4]}</td><td>${r[5]}</td><td><span class="pill ${pc}">${r[6]}</span></td>`;
+    const tipHtml=`<div class="tip-title">Project ${r[0]}</div><div class="tip-row"><span>Client</span><span class="tip-val">${r[1]}</span></div><div class="tip-row"><span>Billed</span><span class="tip-val">₹${r[4]}L</span></div><div class="tip-row"><span>Team</span><span class="tip-val">${r[3]} people</span></div><div class="tip-row"><span>Status</span><span class="tip-val">${r[6]}</span></div>`;
+    tr.addEventListener('mousemove',e=>showTip(e,tipHtml));tr.addEventListener('mouseleave',hideTip);
+    tbody.appendChild(tr);
+  });
+}
+function sortP(col){if(pSort===col)pAsc=!pAsc;else{pSort=col;pAsc=true;}pData.sort((a,b)=>typeof a[col]==='number'?(pAsc?a[col]-b[col]:b[col]-a[col]):(pAsc?String(a[col]).localeCompare(String(b[col])):String(b[col]).localeCompare(String(a[col]))));for(let i=0;i<6;i++)document.getElementById('pa'+i).textContent=i===col?(pAsc?'↑':'↓'):'↕';renderProjects(curPrac);}
+
+function setPeriod(btn,period){
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  curPeriod=period;
+  updateLbl();
+  renderKPIs(D[curPrac], period);
+  renderChart(D[curPrac], period);
+}
+function setPrac(el,prac){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  curPrac=prac;
+  updateLbl();
+  const d=D[prac];
+  renderKPIs(d, curPeriod);
+  renderChart(d, curPeriod);
+  renderUtil(d);
+  renderHours(d);
+  renderProjects(prac);
+}
+function updateLbl(){const n={ALL:'All Practices',TECH:'Technology',OPS:'Operations',STRAT:'Strategy'};document.getElementById('periodLbl').textContent=curPeriod+' · '+n[curPrac];}
+
+
+// ===== MODAL SYSTEM =====
+const MODALS = {
+  escalate_nexus: {
+    title: '🔴 Project Nexus-4 — Escalation Report',
+    sub: 'Operations Practice · Client: Mahindra · PM: Ananya R.',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Project Status</div>
+        <div class="mrow"><span class="mrow-label">Project</span><span class="mrow-val">Nexus-4 — Supply Chain Optimisation</span></div>
+        <div class="mrow"><span class="mrow-label">Client</span><span class="mrow-val">Mahindra & Mahindra — Auto Division</span></div>
+        <div class="mrow"><span class="mrow-label">Practice</span><span class="mrow-val">Operations</span></div>
+        <div class="mrow"><span class="mrow-label">Original Go-Live</span><span class="mrow-val danger">20 Dec 2024</span></div>
+        <div class="mrow"><span class="mrow-label">Current Date</span><span class="mrow-val">08 Jan 2025</span></div>
+        <div class="mrow"><span class="mrow-label">Delay</span><span class="mrow-val danger">3 weeks (15 working days)</span></div>
+        <div class="mrow"><span class="mrow-label">Client Escalation</span><span class="mrow-val danger">VP Operations called Director — HIGH RISK</span></div>
+        <div class="mrow"><span class="mrow-label">Status</span><span class="sc-red">AT RISK — CLIENT ESCALATED</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Root Cause</div>
+        <div class="mrow"><span class="mrow-label">Primary</span><span class="mrow-val warn">Client data migration incomplete (client-side)</span></div>
+        <div class="mrow"><span class="mrow-label">Secondary</span><span class="mrow-val warn">2 key team members reassigned to Titan-1</span></div>
+        <div class="mrow"><span class="mrow-label">Budget Position</span><span class="mrow-val">₹28.5L billed of ₹35L contracted</span></div>
+        <div class="mrow"><span class="mrow-label">Penalty Risk</span><span class="mrow-val danger">₹2.5L SLA penalty clause if >30 days late</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Recovery Plan</div>
+        <div class="mrow"><span class="mrow-label">Revised Go-Live</span><span class="mrow-val warn">24 Jan 2025</span></div>
+        <div class="mrow"><span class="mrow-label">Action 1</span><span class="mrow-val">Return 1 resource from Titan-1 immediately</span></div>
+        <div class="mrow"><span class="mrow-label">Action 2</span><span class="mrow-val">Director call with Mahindra VP this week</span></div>
+        <div class="mrow"><span class="mrow-label">Action 3</span><span class="mrow-val">Daily stand-ups with client data team</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Director escalation call scheduled with Mahindra VP — 09 Jan 10:00 AM')">Schedule Director Call</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('Resource transferred from Titan-1 to Nexus-4 with immediate effect')">Transfer Resource</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  review_delta: {
+    title: '🔴 Project Delta-7 — Budget Overrun Review',
+    sub: 'Digital Practice · Client: TCS · PM: Rohit V.',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Budget Analysis</div>
+        <div class="mrow"><span class="mrow-label">Project</span><span class="mrow-val">Delta-7 — Digital Transformation</span></div>
+        <div class="mrow"><span class="mrow-label">Client</span><span class="mrow-val">TCS — Enterprise Division</span></div>
+        <div class="mrow"><span class="mrow-label">Contracted Value</span><span class="mrow-val">₹18.8L</span></div>
+        <div class="mrow"><span class="mrow-label">Current Spend</span><span class="mrow-val danger">₹24.1L (128% of contract)</span></div>
+        <div class="mrow"><span class="mrow-label">Overrun</span><span class="mrow-val danger">₹5.3L — 28% over SOW budget</span></div>
+        <div class="mrow"><span class="mrow-label">Additional Billed</span><span class="mrow-val warn">₹2.1L approved · ₹3.2L pending approval</span></div>
+        <div class="mrow"><span class="mrow-label">Status</span><span class="sc-red">BUDGET BREACH — REVIEW REQUIRED</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Scope Creep Details</div>
+        <div class="mrow"><span class="mrow-label">Original Scope</span><span class="mrow-val">5 module integrations, 3 months</span></div>
+        <div class="mrow"><span class="mrow-label">Actual Scope</span><span class="mrow-val warn">8 modules — client added 3 post-sign-off</span></div>
+        <div class="mrow"><span class="mrow-label">Change Requests</span><span class="mrow-val warn">4 CRs raised, only 2 signed by client</span></div>
+        <div class="mrow"><span class="mrow-label">Unsigned CRs Value</span><span class="mrow-val danger">₹3.2L at risk of non-recovery</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Resolution Path</div>
+        <div class="mrow"><span class="mrow-label">Immediate</span><span class="mrow-val">Freeze all unsigned scope additions</span></div>
+        <div class="mrow"><span class="mrow-label">This Week</span><span class="mrow-val">Commercial discussion with TCS sponsor</span></div>
+        <div class="mrow"><span class="mrow-label">Recovery Target</span><span class="mrow-val ok">₹3.2L CR sign-off by 15 Jan</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Scope freeze actioned. Commercial meeting booked with TCS for 10 Jan.')">Freeze Scope & Book Meeting</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('CR documentation compiled and sent to TCS sponsor for sign-off')">Send CR for Sign-off</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  deploy_digital: {
+    title: '🟡 Digital Practice — Low Utilisation Alert',
+    sub: 'Resource Management · 6 Bench Consultants · W1 Jan 2025',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Bench Summary</div>
+        <div class="mrow"><span class="mrow-label">Practice</span><span class="mrow-val">Digital</span></div>
+        <div class="mrow"><span class="mrow-label">Current Utilisation</span><span class="mrow-val danger">59% (target: 80%)</span></div>
+        <div class="mrow"><span class="mrow-label">Bench Headcount</span><span class="mrow-val warn">6 consultants unallocated this week</span></div>
+        <div class="mrow"><span class="mrow-label">Revenue at Risk</span><span class="mrow-val danger">~₹8.4L/week unbilled (6 × ₹1.4L/week)</span></div>
+        <div class="mrow"><span class="mrow-label">Avg Bench Duration</span><span class="mrow-val warn">11 days — exceeds 7-day target</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Available Bench Resources</div>
+        <div class="mrow"><span class="mrow-label">Priya M. (Sr. Consultant)</span><span class="mrow-val">UI/UX, React — 8 yrs exp</span></div>
+        <div class="mrow"><span class="mrow-label">Karan S. (Consultant)</span><span class="mrow-val">Data Engineering, Python — 5 yrs</span></div>
+        <div class="mrow"><span class="mrow-label">Neha R. (Analyst)</span><span class="mrow-val">Business Analysis, Agile — 3 yrs</span></div>
+        <div class="mrow"><span class="mrow-label">3 Others</span><span class="mrow-val">Cloud, DevOps, Java profiles</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Deployment Options</div>
+        <div class="mrow"><span class="mrow-label">Project Orion-3</span><span class="mrow-val ok">Needs 2 analysts — match: Neha R + 1</span></div>
+        <div class="mrow"><span class="mrow-label">Project Titan-1</span><span class="mrow-val ok">Needs Sr. Dev — match: Priya M.</span></div>
+        <div class="mrow"><span class="mrow-label">New Pipeline</span><span class="mrow-val warn">Infosys RFP — proposal due 15 Jan</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Priya M. deployed to Titan-1. Neha R. + Karan S. deployed to Orion-3.')">Deploy to Active Projects</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('Remaining 3 consultants assigned to Infosys RFP proposal team')">Assign to Infosys Proposal</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  schedule_sigma: {
+    title: '🟡 Project Sigma-2 — Timeline Review',
+    sub: 'Strategy Practice · Client: HDFC Bank · Review Due: Today',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Project Health Check</div>
+        <div class="mrow"><span class="mrow-label">Project</span><span class="mrow-val">Sigma-2 — Digital Banking Strategy</span></div>
+        <div class="mrow"><span class="mrow-label">Client</span><span class="mrow-val">HDFC Bank — Retail Division</span></div>
+        <div class="mrow"><span class="mrow-label">Phase</span><span class="mrow-val">Phase 2 — Market Analysis</span></div>
+        <div class="mrow"><span class="mrow-label">Phase 2 Due</span><span class="mrow-val warn">15 Jan 2025 (7 days remaining)</span></div>
+        <div class="mrow"><span class="mrow-label">Completion</span><span class="mrow-val warn">62% complete — needs 35% in 7 days</span></div>
+        <div class="mrow"><span class="mrow-label">CSAT So Far</span><span class="mrow-val ok">4.3/5 — client satisfied with quality</span></div>
+        <div class="mrow"><span class="mrow-label">Status</span><span class="sc-amber">NEEDS ATTENTION</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Outstanding Deliverables</div>
+        <div class="mrow"><span class="mrow-label">Competitive Analysis</span><span class="mrow-val warn">80% done — needs 2 more days</span></div>
+        <div class="mrow"><span class="mrow-label">Customer Survey Analysis</span><span class="mrow-val danger">40% done — 600 responses pending</span></div>
+        <div class="mrow"><span class="mrow-label">Final Presentation Deck</span><span class="mrow-val">Not started — needed by 14 Jan</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Resource Plan to Close</div>
+        <div class="mrow"><span class="mrow-label">Add 1 Analyst</span><span class="mrow-val ok">Neha R. available — can start today</span></div>
+        <div class="mrow"><span class="mrow-label">Weekend Work</span><span class="mrow-val warn">11 Jan required — team agreement needed</span></div>
+        <div class="mrow"><span class="mrow-label">Client Informed</span><span class="mrow-val">Status call with HDFC — schedule today</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Neha R. added to Sigma-2. HDFC status call booked for 09 Jan 3PM.')">Add Resource & Book Client Call</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('Weekend working request sent to team for 11 Jan')">Request Weekend Working</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  log_aurora: {
+    title: '✅ Project Aurora-1 — Early Delivery & Top CSAT',
+    sub: 'Technology Practice · Client: Reliance · Completed 05 Jan 2025',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Delivery Summary</div>
+        <div class="mrow"><span class="mrow-label">Project</span><span class="mrow-val">Aurora-1 — ERP Cloud Migration</span></div>
+        <div class="mrow"><span class="mrow-label">Client</span><span class="mrow-val">Reliance Industries — IT Division</span></div>
+        <div class="mrow"><span class="mrow-label">Original Deadline</span><span class="mrow-val">15 Jan 2025</span></div>
+        <div class="mrow"><span class="mrow-label">Actual Delivery</span><span class="mrow-val ok">05 Jan 2025 — 10 days early 🎉</span></div>
+        <div class="mrow"><span class="mrow-label">Revenue Billed</span><span class="mrow-val ok">₹42.0L — 100% of contract value</span></div>
+        <div class="mrow"><span class="mrow-label">Client CSAT</span><span class="mrow-val ok">4.9 / 5.0 ⭐⭐⭐⭐⭐</span></div>
+        <div class="mrow"><span class="mrow-label">Status</span><span class="sc-green">COMPLETE — EXCELLENCE AWARD</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Client Feedback (Reliance VP IT)</div>
+        <div class="mrow"><span class="mrow-label">Delivery Quality</span><span class="mrow-val ok">Exceptional — zero critical bugs at go-live</span></div>
+        <div class="mrow"><span class="mrow-label">Team Communication</span><span class="mrow-val ok">Best project management seen in 3 years</span></div>
+        <div class="mrow"><span class="mrow-label">Follow-on Interest</span><span class="mrow-val ok">Phase 2 discussion already initiated</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Recognition & Next Steps</div>
+        <div class="mrow"><span class="mrow-label">Lead PM</span><span class="mrow-val">Kavitha S. — nominate for Excellence Award</span></div>
+        <div class="mrow"><span class="mrow-label">Team Bonus</span><span class="mrow-val">₹15,000 per person (8 members)</span></div>
+        <div class="mrow"><span class="mrow-label">Case Study</span><span class="mrow-val">Document for BD / proposal use</span></div>
+        <div class="mrow"><span class="mrow-label">Phase 2 Pipeline</span><span class="mrow-val ok">Estimated ₹65L — proposal due 20 Jan</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Excellence Award nominated for Kavitha S. Team bonus of ₹15K/person approved.')">Approve Bonus & Nominate Award</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('Phase 2 proposal preparation initiated — deadline 20 Jan')">Start Phase 2 Proposal</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  }
+};
+
+function openModal(key){
+  const m=MODALS[key];if(!m)return;
+  document.getElementById('modalTitle').innerHTML=m.title;
+  document.getElementById('modalSub').textContent=m.sub;
+  document.getElementById('modalBody').innerHTML=m.body;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(force){
+  if(force===true||force.target===document.getElementById('modalOverlay')){
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow='';
+  }
+}
+document.addEventListener(
