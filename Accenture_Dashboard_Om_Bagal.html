@@ -706,4 +706,9 @@ function closeModal(force){
     document.body.style.overflow='';
   }
 }
-document.addEventListener(
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal(true);});
+
+window.onload=()=>{renderKPIs(D.ALL,'Quarterly');renderChart(D.ALL,'Quarterly');renderUtil(D.ALL);renderCSAT();renderHours(D.ALL);renderProjects('ALL');};
+</script>
+</body>
+</html>
