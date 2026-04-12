@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coaching Institute Dashboard | Om Bagal Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F4FF; --surface:#FFFFFF; --surface2:#F0EFF9; --border:#E0DEFA;
+    --text-primary:#1A1335; --text-secondary:#4A4470; --text-muted:#8E8BAE;
+    --indigo:#4F46E5; --indigo-light:#EEF2FF; --indigo-dark:#3730A3;
+    --green:#059669; --green-light:#ECFDF5;
+    --red:#DC2626; --red-light:#FEF2F2;
+    --amber:#D97706; --amber-light:#FFFBEB;
+    --teal:#0891B2; --teal-light:#E0F7FA;
+    --rose:#E11D48; --rose-light:#FFF1F2;
+    --shadow-sm:0 1px 3px rgba(79,70,229,.07),0 1px 2px rgba(79,70,229,.04);
+    --radius-lg:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;}
+  svg text{font-family:'Outfit',sans-serif;}
+
+  /* HEADER */
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+  .header-left{display:flex;align-items:center;gap:14px;}
+  .logo-badge{width:36px;height:36px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;box-shadow:0 2px 10px rgba(79,70,229,.4);}
+  .header-title{font-size:15px;font-weight:700;letter-spacing:-0.3px;}
+  .header-sub{font-size:11px;color:var(--text-muted);}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .live-badge{display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid #A7F3D0;}
+  .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.85);}}
+  .last-updated{font-size:11px;color:var(--text-muted);}
+
+  /* AI INSIGHTS */
+  .insights-bar{background:linear-gradient(135deg,#2D1B8E 0%,#4F46E5 100%);color:white;padding:13px 28px;display:flex;align-items:flex-start;gap:16px;}
+  .insights-icon{font-size:20px;margin-top:1px;flex-shrink:0;}
+  .insights-label{font-size:10px;font-weight:700;letter-spacing:1.4px;opacity:.6;margin-bottom:5px;text-transform:uppercase;}
+  .insights-cards{display:flex;gap:14px;flex-wrap:wrap;}
+  .insight-item{display:flex;align-items:flex-start;gap:9px;background:rgba(255,255,255,.1);border-radius:9px;padding:9px 13px;min-width:215px;border:1px solid rgba(255,255,255,.18);}
+  .insight-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+  .insight-text{font-size:12px;line-height:1.55;opacity:.93;}
+  .insight-action{font-size:11px;font-weight:600;opacity:.58;margin-top:2px;font-style:italic;}
+
+  /* FILTER BAR */
+  .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .filter-label{font-size:12px;color:var(--text-muted);font-weight:500;}
+  .filter-group{display:flex;align-items:center;gap:8px;}
+  .time-toggle{display:flex;background:var(--surface2);border-radius:8px;padding:3px;border:1px solid var(--border);}
+  .time-btn{padding:5px 14px;border:none;background:none;border-radius:6px;font-size:12px;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;color:var(--text-secondary);transition:all .15s;}
+  .time-btn.active{background:var(--indigo);color:white;box-shadow:0 1px 4px rgba(79,70,229,.4);}
+  .batch-select{display:flex;gap:6px;}
+  .batch-chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);transition:all .15s;}
+  .chip-active-all{border-color:var(--indigo)!important;background:var(--indigo-light)!important;color:var(--indigo)!important;}
+  .chip-active-JEE{border-color:#D97706!important;background:#FFFBEB!important;color:#D97706!important;}
+  .chip-active-NEET{border-color:#059669!important;background:#ECFDF5!important;color:#059669!important;}
+  .chip-active-CET{border-color:#0891B2!important;background:#E0F7FA!important;color:#0891B2!important;}
+  .divider{width:1px;height:24px;background:var(--border);}
+
+  /* MAIN */
+  .main{padding:20px 28px;max-width:1400px;margin:0 auto;}
+
+  /* KPI CARDS */
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+  .kpi-card{background:var(--surface);border-radius:var(--radius-lg);padding:18px 20px;border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+  .kpi-indigo::before{background:var(--indigo);}  .kpi-green::before{background:var(--green);}
+  .kpi-amber::before{background:var(--amber);}    .kpi-red::before{background:var(--red);}
+  .kpi-teal::before{background:var(--teal);}
+  .kpi-label{font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+  .kpi-value{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
+  .kpi-footer{display:flex;align-items:center;gap:6px;font-size:11px;}
+  .kpi-change{font-weight:600;padding:2px 7px;border-radius:4px;}
+  .up{color:var(--green);background:var(--green-light);}
+  .down{color:var(--red);background:var(--red-light);}
+  .kpi-period{color:var(--text-muted);}
+
+  /* ALERTS */
+  .alert-strip{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;margin-bottom:8px;font-size:12px;border:1px solid;line-height:1.5;}
+  .alert-red{background:var(--red-light);border-color:#FECACA;color:#7F1D1D;}
+  .alert-amber{background:var(--amber-light);border-color:#FDE68A;color:#78350F;}
+  .alert-green{background:var(--green-light);border-color:#A7F3D0;color:#064E3B;}
+  .alert-indigo{background:var(--indigo-light);border-color:#C7D2FE;color:#312E81;}
+  .alert-icon{font-size:13px;flex-shrink:0;font-weight:900;margin-top:1px;}
+  .alert-text{flex:1;} .alert-action{font-weight:700;font-size:11px;padding:3px 8px;border-radius:4px;background:rgba(0,0,0,.07);cursor:pointer;flex-shrink:0;white-space:nowrap;}
+
+  /* LAYOUT */
+  .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;}
+  .charts-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+  .charts-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .card{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;}
+  .card-header{padding:15px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .card-title{font-size:13px;font-weight:700;letter-spacing:-0.2px;}
+  .card-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+  .card-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+  .badge-indigo{background:var(--indigo-light);color:var(--indigo);}
+  .badge-green{background:var(--green-light);color:var(--green);}
+  .badge-red{background:var(--red-light);color:var(--red);}
+  .badge-amber{background:var(--amber-light);color:var(--amber);}
+  .badge-teal{background:var(--teal-light);color:var(--teal);}
+  .badge-rose{background:var(--rose-light);color:var(--rose);}
+  .card-body{padding:18px 20px;}
+
+  /* HORIZONTAL BARS */
+  .hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:13px;cursor:default;}
+  .hbar-row:last-child{margin-bottom:0;}
+  .hbar-label{width:60px;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+  .hbar-wrap{flex:1;background:var(--surface2);border-radius:6px;height:22px;overflow:hidden;}
+  .hbar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:white;}
+  .hbar-val{width:44px;text-align:right;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+
+  /* SCORE BARS */
+  .score-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;cursor:default;}
+  .score-row:last-child{margin-bottom:0;}
+  .score-label{width:88px;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+  .score-track{flex:1;height:10px;background:var(--surface2);border-radius:10px;overflow:hidden;}
+  .score-fill{height:100%;border-radius:10px;}
+  .score-val{width:36px;font-size:11px;font-weight:600;text-align:right;font-family:'JetBrains Mono',monospace;}
+
+  /* AT-RISK STUDENTS */
+  .risk-table{width:100%;border-collapse:collapse;}
+  .risk-table th{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 8px 10px 0;text-align:left;}
+  .risk-table td{padding:9px 8px 9px 0;font-size:12px;border-top:1px solid var(--border);}
+  .risk-table tr:first-child td{border-top:none;}
+
+  /* FEE LOG */
+  .fee-table{width:100%;border-collapse:collapse;}
+  .fee-table th{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 8px 10px 0;text-align:left;}
+  .fee-table td{padding:8px 8px 8px 0;font-size:11.5px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+  .fee-table tr:first-child td{border-top:none;}
+
+  /* STATUS PILLS */
+  .status-pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+  .pill-ok{background:var(--green-light);color:var(--green);}
+  .pill-warn{background:var(--amber-light);color:var(--amber);}
+  .pill-fail{background:var(--red-light);color:var(--red);}
+  .pill-indigo{background:var(--indigo-light);color:var(--indigo);}
+  .pill-teal{background:var(--teal-light);color:var(--teal);}
+
+  /* RISK LEVEL BADGE */
+  .risk-high{background:#FEE2E2;color:#991B1B;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+  .risk-med{background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+  .risk-low{background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+
+  /* TOOLTIP */
+  #TT{position:fixed;background:#1A1335;color:white;font-size:12px;padding:10px 14px;border-radius:9px;
+    pointer-events:none;display:none;z-index:9999;font-family:'Outfit',sans-serif;white-space:nowrap;
+    box-shadow:0 6px 24px rgba(79,70,229,.3);border:1px solid rgba(255,255,255,.08);line-height:1.8;min-width:165px;}
+  .tt-title{font-weight:700;font-size:10px;letter-spacing:.8px;color:rgba(255,255,255,.45);text-transform:uppercase;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px;}
+  .tt-row{display:flex;justify-content:space-between;gap:22px;}
+  .tt-lbl{color:rgba(255,255,255,.62);font-size:11px;display:flex;align-items:center;gap:5px;}
+  .tt-val{font-weight:700;font-size:13px;font-family:'JetBrains Mono',monospace;}
+  .tt-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  .tt-note{margin-top:5px;font-size:10px;opacity:.6;border-top:1px solid rgba(255,255,255,.08);padding-top:4px;}
+
+  /* FOOTER */
+  .footer{text-align:center;padding:16px 28px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);margin-top:8px;}
+  .footer strong{color:var(--indigo);}
+
+  @media(max-width:1100px){
+    .kpi-grid{grid-template-columns:repeat(3,1fr);}
+    .charts-row,.charts-row-2{grid-template-columns:1fr;}
+    .charts-row-3{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-badge">&#127979;</div>
+    <div>
+      <div class="header-title">Coaching Institute Dashboard</div>
+      <div class="header-sub">Fees &middot; Attendance &middot; Performance &middot; At-Risk Students &middot; Insights</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="last-updated">Updated: Today, 7:45 AM</div>
+  </div>
+</div>
+
+<!-- AI INSIGHTS -->
+<div class="insights-bar">
+  <div class="insights-icon">&#129302;</div>
+  <div style="flex:1">
+    <div class="insights-label">AI-Generated Insights &amp; Recommended Actions</div>
+    <div class="insights-cards" id="insightsContainer"></div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">View By:</span>
+    <div class="time-toggle">
+      <button class="time-btn" id="btnDay">Day</button>
+      <button class="time-btn active" id="btnWeek">Week</button>
+      <button class="time-btn" id="btnMonth">Month</button>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Batch:</span>
+    <div class="batch-select">
+      <div class="batch-chip chip-active-all" id="chipAll">All Batches</div>
+      <div class="batch-chip" id="chipJEE">JEE</div>
+      <div class="batch-chip" id="chipNEET">NEET</div>
+      <div class="batch-chip" id="chipCET">MHT-CET</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Period:</span>
+    <span id="periodLabel" style="font-size:12px;font-weight:700;color:var(--indigo)">Week 1-4, April 2025</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div id="alertStrips" style="margin-bottom:16px"></div>
+
+  <!-- ROW 1: Fee Collection Chart + Batch Breakdown -->
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Fee Collection vs Target</div>
+          <div class="card-sub" id="feeSubtitle">Weekly fee collected across all batches</div>
+        </div>
+        <div class="card-badge badge-indigo" id="feeBadge">4 Weeks</div>
+      </div>
+      <div class="card-body">
+        <svg id="feeChart" width="100%" height="220" viewBox="0 0 680 220" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Fee Collection by Batch</div>
+          <div class="card-sub">% share of total fees collected</div>
+        </div>
+        <div class="card-badge badge-indigo">Breakdown</div>
+      </div>
+      <div class="card-body"><div id="batchBars"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Attendance + Test Scores + Subject Performance -->
+  <div class="charts-row-3">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Attendance Trend</div>
+          <div class="card-sub" id="attSubtitle">Average daily attendance %</div>
+        </div>
+        <div class="card-badge badge-teal" id="attBadge">Trend</div>
+      </div>
+      <div class="card-body">
+        <svg id="attChart" width="100%" height="150" viewBox="0 0 300 150" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Avg Test Scores by Batch</div>
+          <div class="card-sub">Out of 100 marks</div>
+        </div>
+        <div class="card-badge badge-amber" id="scoreBadge">Latest Test</div>
+      </div>
+      <div class="card-body"><div id="scoreBars"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Subject-wise Performance</div>
+          <div class="card-sub">Class average score per subject</div>
+        </div>
+        <div class="card-badge badge-indigo">All Batches</div>
+      </div>
+      <div class="card-body"><div id="subjectBars"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 3: At-Risk Students + Fee Log -->
+  <div class="charts-row-2">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">At-Risk Students</div>
+          <div class="card-sub">Low attendance or test score below threshold</div>
+        </div>
+        <div class="card-badge badge-red" id="riskBadge">Action Needed</div>
+      </div>
+      <div class="card-body">
+        <table class="risk-table" id="riskTable"></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Recent Fee Collection Log</div>
+          <div class="card-sub">Latest payments &amp; pending dues</div>
+        </div>
+        <div class="card-badge badge-indigo" id="feeLogBadge">10 Records</div>
+      </div>
+      <div class="card-body">
+        <table class="fee-table" id="feeTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="TT"></div>
+
+<div class="footer">
+  Built by <strong>Om Bagal Analytics</strong> &nbsp;|&nbsp; Data Analytics Solutions for Coaching Institutes, Clinics, Manufacturing &amp; Retail &nbsp;|&nbsp; Pune, Maharashtra
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+var DATA = {
+  week:{
+    labels:['Week 1','Week 2','Week 3','Week 4'],
+    fees:[142000,168000,155000,181000],
+    target:[160000,160000,160000,160000],
+    attendance:[82,78,85,80],
+    jee_fee:38, neet_fee:35, cet_fee:27,
+    kpi:{fees:646000, students:284, atRisk:18, avgScore:64.2, pending:31},
+    kpi_delta:{fees:'+9.4%', students:'+12', atRisk:'-3', avgScore:'+2.1', pending:'-5'},
+    kpi_dir:{fees:'up', students:'up', atRisk:'up', avgScore:'up', pending:'up'},
+    period:'Week 1-4, April 2025', feeSub:'Weekly fee collected across all batches', attSub:'Weekly avg attendance %', badge:'4 Weeks'
+  },
+  day:{
+    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    fees:[28000,34000,31000,38000,26000,42000,0],
+    target:[32000,32000,32000,32000,32000,38000,0],
+    attendance:[84,81,88,79,83,76,0],
+    jee_fee:39, neet_fee:34, cet_fee:27,
+    kpi:{fees:199000, students:284, atRisk:18, avgScore:63.8, pending:9},
+    kpi_delta:{fees:'+6.2%', students:'+4', atRisk:'-1', avgScore:'+1.4', pending:'-2'},
+    kpi_dir:{fees:'up', students:'up', atRisk:'up', avgScore:'up', pending:'up'},
+    period:'This Week (Mon-Sun), Apr 2025', feeSub:'Daily fee collected', attSub:'Daily attendance %', badge:'7 Days'
+  },
+  month:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    fees:[580000,625000,598000,646000,710000,682000],
+    target:[620000,620000,620000,620000,620000,620000],
+    attendance:[80,77,83,80,86,84],
+    jee_fee:37, neet_fee:36, cet_fee:27,
+    kpi:{fees:3841000, students:284, atRisk:18, avgScore:65.1, pending:61},
+    kpi_delta:{fees:'+11.2%', students:'+28', atRisk:'-6', avgScore:'+4.3', pending:'-9'},
+    kpi_dir:{fees:'up', students:'up', atRisk:'up', avgScore:'up', pending:'up'},
+    period:'Jan-Jun 2025', feeSub:'Monthly fee collected across all batches', attSub:'Monthly avg attendance %', badge:'6 Months'
+  }
+};
+
+var INSIGHTS = {
+  week:[
+    {color:'#DC2626', text:'18 students below 60% attendance - scholarship risk for 6 of them', action:'Send parent notifications today'},
+    {color:'#D97706', text:'Week 2 fee collection dipped to Rs.1.68L - follow up on 9 pending EMIs', action:'Call defaulting parents'},
+    {color:'#059669', text:'Week 4 highest fee collection (Rs.1.81L) - 13% above weekly target', action:'Replicate Week 4 reminder system'}
+  ],
+  day:[
+    {color:'#DC2626', text:'Sunday attendance 0% - Sunday batch not scheduled, review timetable', action:'Check Sunday batch status'},
+    {color:'#059669', text:'Saturday fee collection Rs.42,000 - highest single day this week', action:'Keep Saturday fee counter open till 6pm'},
+    {color:'#D97706', text:'Thursday attendance dropped to 79% - check if test scheduled same day', action:'Review clash with board exams'}
+  ],
+  month:[
+    {color:'#059669', text:'May 2025 best month: Rs.7.1L fees - 14.5% above target, new admission high', action:'Push referral program in June'},
+    {color:'#DC2626', text:'61 fee payments pending across period - 3 students may face enrollment cancellation', action:'Issue final payment notices'},
+    {color:'#4F46E5', text:'Avg test score improved from 61 to 65.1 over 6 months - consistent upward trend', action:'Share performance report with parents'}
+  ]
+};
+
+var ALERTS = {
+  week:[
+    {type:'alert-red',    icon:'!!', text:'18 students have attendance below 60% - 6 are below 50% which disqualifies them from appearing in mock tests. Contact parents immediately.',action:'View List'},
+    {type:'alert-amber',  icon:'!',  text:'31 fee payments overdue this period. Total outstanding: Rs.93,000. 3 students approaching enrollment cancellation threshold.',action:'Send Reminders'},
+    {type:'alert-green',  icon:'OK', text:'JEE batch average score improved to 68.4 in latest test - up from 62.1 last month. Top 5 students scoring above 85.',action:'Share Results'}
+  ],
+  day:[
+    {type:'alert-amber',  icon:'!',  text:'9 pending fee payments due this week. Follow up with parents before weekend to avoid month-end defaults.',action:'Call Parents'},
+    {type:'alert-indigo', icon:'i',  text:'Saturday highest attendance day (76%) despite being optional day. Consider making Saturday sessions regular.',action:'Review Schedule'}
+  ],
+  month:[
+    {type:'alert-green',  icon:'OK', text:'28 new admissions this period - highest monthly intake in 6 months. NEET batch demand is highest. Consider opening new batch.',action:'Plan New Batch'},
+    {type:'alert-red',    icon:'!!', text:'61 pending fee payments totalling Rs.2.44L. 3 students may be removed from enrollment if unpaid by month end.',action:'Audit Dues'}
+  ]
+};
+
+var BATCHES = [
+  {name:'JEE Main',   code:'JEE',  students:98,  avgScore:68.4, att:82, color:'#D97706'},
+  {name:'NEET UG',    code:'NEET', students:112, avgScore:61.8, att:79, color:'#059669'},
+  {name:'MHT-CET',    code:'CET',  students:74,  avgScore:62.1, att:81, color:'#0891B2'}
+];
+
+var SUBJECTS = [
+  {name:'Physics',   avg:61, color:'#4F46E5'},
+  {name:'Chemistry', avg:67, color:'#0891B2'},
+  {name:'Maths',     avg:58, color:'#D97706'},
+  {name:'Biology',   avg:71, color:'#059669'},
+  {name:'English',   avg:74, color:'#7C3AED'}
+];
+
+var AT_RISK = [
+  {name:'R. Sharma',  batch:'JEE',  att:48, score:41, dues:'Rs.4,200', risk:'high'},
+  {name:'P. Desai',   batch:'NEET', att:52, score:38, dues:'Rs.0',     risk:'high'},
+  {name:'A. Kulkarni',batch:'CET',  att:55, score:49, dues:'Rs.2,800', risk:'high'},
+  {name:'V. Joshi',   batch:'JEE',  att:61, score:52, dues:'Rs.0',     risk:'med'},
+  {name:'S. Patil',   batch:'NEET', att:58, score:55, dues:'Rs.5,600', risk:'med'},
+  {name:'M. Rao',     batch:'CET',  att:63, score:50, dues:'Rs.0',     risk:'med'},
+  {name:'T. Singh',   batch:'JEE',  att:67, score:57, dues:'Rs.2,100', risk:'low'},
+  {name:'N. Mehta',   batch:'NEET', att:65, score:59, dues:'Rs.0',     risk:'low'}
+];
+
+var FEE_LOG = [
+  {id:'F-2241', name:'K. Iyer',     batch:'JEE',  amount:18000, date:'28 Apr', mode:'Online', status:'ok'},
+  {id:'F-2240', name:'R. Gupta',    batch:'NEET', amount:16500, date:'28 Apr', mode:'Cash',   status:'ok'},
+  {id:'F-2239', name:'A. Sharma',   batch:'CET',  amount:14000, date:'27 Apr', mode:'Online', status:'ok'},
+  {id:'F-2238', name:'P. Kulkarni', batch:'JEE',  amount:18000, date:'27 Apr', mode:'UPI',    status:'ok'},
+  {id:'F-2237', name:'V. Desai',    batch:'NEET', amount:0,     date:'26 Apr', mode:'-',      status:'pend'},
+  {id:'F-2236', name:'S. Joshi',    batch:'CET',  amount:14000, date:'26 Apr', mode:'Cheque', status:'ok'},
+  {id:'F-2235', name:'M. Patil',    batch:'JEE',  amount:0,     date:'25 Apr', mode:'-',      status:'pend'},
+  {id:'F-2234', name:'T. Mehta',    batch:'NEET', amount:16500, date:'25 Apr', mode:'Online', status:'ok'},
+  {id:'F-2233', name:'N. Singh',    batch:'JEE',  amount:0,     date:'24 Apr', mode:'-',      status:'late'},
+  {id:'F-2232', name:'R. Rao',      batch:'CET',  amount:14000, date:'24 Apr', mode:'UPI',    status:'ok'}
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+var currentTime = 'week';
+var currentBatch = 'all';
+
+// ── TOOLTIP ──────────────────────────────────────────────────────────────────
+var TT = document.getElementById('TT');
+function showTT(e, title, rows, note){
+  var h='';
+  if(title) h+='<div class="tt-title">'+title+'</div>';
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    var dot=r.dot?'<span class="tt-dot" style="background:'+r.dot+'"></span>':'';
+    h+='<div class="tt-row"><span class="tt-lbl">'+dot+r.lbl+'</span><span class="tt-val" style="color:'+(r.col||'#fff')+'">'+r.val+'</span></div>';
+  }
+  if(note) h+='<div class="tt-note">'+note+'</div>';
+  TT.innerHTML=h; TT.style.display='block'; posTT(e);
+}
+function posTT(e){
+  var off=14,l=e.clientX+off,t=e.clientY+off;
+  var w=TT.offsetWidth,h=TT.offsetHeight;
+  if(l+w>window.innerWidth-10) l=e.clientX-w-off;
+  if(t+h>window.innerHeight-10) t=e.clientY-h-off;
+  TT.style.left=l+'px'; TT.style.top=t+'px';
+}
+function hideTT(){ TT.style.display='none'; }
+document.addEventListener('mousemove',function(e){ if(TT.style.display==='block') posTT(e); });
+
+// ── CONTROLS ─────────────────────────────────────────────────────────────────
+document.getElementById('btnDay').addEventListener('click',function(){ setTime('day',this); });
+document.getElementById('btnWeek').addEventListener('click',function(){ setTime('week',this); });
+document.getElementById('btnMonth').addEventListener('click',function(){ setTime('month',this); });
+document.getElementById('chipAll').addEventListener('click',function(){ setBatch('all',this); });
+document.getElementById('chipJEE').addEventListener('click',function(){ setBatch('JEE',this); });
+document.getElementById('chipNEET').addEventListener('click',function(){ setBatch('NEET',this); });
+document.getElementById('chipCET').addEventListener('click',function(){ setBatch('CET',this); });
+
+function setTime(t,btn){
+  currentTime=t;
+  ['btnDay','btnWeek','btnMonth'].forEach(function(id){ document.getElementById(id).classList.remove('active'); });
+  btn.classList.add('active');
+  renderAll();
+}
+function setBatch(b,chip){
+  currentBatch=b;
+  ['chipAll','chipJEE','chipNEET','chipCET'].forEach(function(id){ document.getElementById(id).className='batch-chip'; });
+  var map={all:'chip-active-all',JEE:'chip-active-JEE',NEET:'chip-active-NEET',CET:'chip-active-CET'};
+  chip.classList.add(map[b]);
+  renderAll();
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+function renderAll(){
+  var d=DATA[currentTime];
+  document.getElementById('periodLabel').textContent=d.period;
+  document.getElementById('feeSubtitle').textContent=d.feeSub;
+  document.getElementById('attSubtitle').textContent=d.attSub;
+  document.getElementById('feeBadge').textContent=d.badge;
+  document.getElementById('attBadge').textContent=d.badge;
+  renderKPIs(d); renderInsights(); renderAlerts();
+  renderFeeChart(d); renderBatchBars(d);
+  renderAttChart(d); renderScoreBars(); renderSubjectBars();
+  renderAtRisk(); renderFeeLog();
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function renderKPIs(d){
+  var k=d.kpi,dd=d.kpi_delta,dr=d.kpi_dir;
+  function fmtF(n){ return 'Rs.'+(n>=100000?(n/100000).toFixed(1)+'L':(n>=1000?(n/1000).toFixed(0)+'K':n)); }
+  var cards=[
+    {lbl:'Fee Collected',    val:fmtF(k.fees),          delta:dd.fees,     dir:dr.fees,     cls:'kpi-indigo', per:'vs previous period'},
+    {lbl:'Total Students',   val:k.students,             delta:dd.students, dir:dr.students, cls:'kpi-teal',   per:'enrolled'},
+    {lbl:'Avg Test Score',   val:k.avgScore+'%',         delta:dd.avgScore, dir:dr.avgScore, cls:'kpi-green',  per:'all batches'},
+    {lbl:'Fees Pending',     val:k.pending+' students',  delta:dd.pending,  dir:'up',        cls:'kpi-amber',  per:'overdue payment'},
+    {lbl:'At-Risk Students', val:k.atRisk+' students',   delta:dd.atRisk,   dir:'up',        cls:'kpi-red',    per:'low att or score'}
+  ];
+  document.getElementById('kpiGrid').innerHTML=cards.map(function(c,i){
+    var dirClass = (i===3||i===4) ? (parseInt(c.delta)<0?'up':'down') : c.dir;
+    return '<div class="kpi-card '+c.cls+'">'
+      +'<div class="kpi-label">'+c.lbl+'</div>'
+      +'<div class="kpi-value">'+c.val+'</div>'
+      +'<div class="kpi-footer"><span class="kpi-change '+dirClass+'">'+c.delta+'</span>'
+      +'<span class="kpi-period">'+c.per+'</span></div></div>';
+  }).join('');
+}
+
+// ── INSIGHTS ──────────────────────────────────────────────────────────────────
+function renderInsights(){
+  document.getElementById('insightsContainer').innerHTML=INSIGHTS[currentTime].map(function(i){
+    return '<div class="insight-item"><div class="insight-dot" style="background:'+i.color+'"></div>'
+      +'<div><div class="insight-text">'+i.text+'</div>'
+      +'<div class="insight-action">&#8594; '+i.action+'</div></div></div>';
+  }).join('');
+}
+
+// ── ALERTS ────────────────────────────────────────────────────────────────────
+function renderAlerts(){
+  document.getElementById('alertStrips').innerHTML=ALERTS[currentTime].map(function(a){
+    return '<div class="alert-strip '+a.type+'">'
+      +'<div class="alert-icon">'+a.icon+'</div>'
+      +'<div class="alert-text">'+a.text+'</div>'
+      +'<div class="alert-action">'+a.action+'</div></div>';
+  }).join('');
+}
+
+// ── FEE COLLECTION CHART ──────────────────────────────────────────────────────
+function renderFeeChart(d){
+  var svg=document.getElementById('feeChart');
+  var W=680,H=220,pad={t:16,r:64,b:36,l:62};
+  var cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  var n=d.labels.length;
+  var maxVal=Math.max.apply(null,d.fees.concat(d.target))*1.12;
+  var barW=Math.min(40,(cW/n)*0.4);
+  var gap=cW/n;
+  function X(i){return pad.l+gap*i+gap/2;}
+  function Y(v){return pad.t+cH-(v/maxVal)*cH;}
+  function fmtK(v){return v>=100000?(v/100000).toFixed(1)+'L':v>=1000?(v/1000).toFixed(0)+'K':v===0?'0':v;}
+
+  var h='';
+  for(var g=0;g<=4;g++){
+    var yy=pad.t+(cH/4)*g;
+    var val=Math.round(maxVal-(maxVal/4)*g);
+    h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="#E0DEFA" stroke-width="1" stroke-dasharray="4,3"/>';
+    h+='<text x="'+(pad.l-6)+'" y="'+(yy+4)+'" text-anchor="end" fill="#8E8BAE" font-size="10">'+fmtK(val)+'</text>';
+  }
+  var ty=Y(d.target[0]||1);
+  h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+ty+'" y2="'+ty+'" stroke="#D97706" stroke-width="1.5" stroke-dasharray="6,4"/>';
+  h+='<text x="'+(W-pad.r+4)+'" y="'+(ty+4)+'" fill="#D97706" font-size="9" font-weight="600">TARGET</text>';
+
+  for(var i=0;i<d.fees.length;i++){
+    var v=d.fees[i], t=d.target[i];
+    if(v===0){ // Sunday - no class
+      h+='<text x="'+X(i)+'" y="'+(H-pad.b+14)+'" text-anchor="middle" fill="#8E8BAE" font-size="10">'+d.labels[i]+'</text>';
+      continue;
+    }
+    var bx=X(i)-barW/2, by=Y(v), bh=H-pad.b-by;
+    var color=v>=t?'#4F46E5':'#A5B4FC';
+    h+='<rect class="fbhit" data-i="'+i+'" x="'+(bx-6)+'" y="'+pad.t+'" width="'+(barW+12)+'" height="'+cH+'" fill="transparent" style="cursor:crosshair"/>';
+    h+='<rect x="'+bx+'" y="'+by+'" width="'+barW+'" height="'+bh+'" rx="4" fill="'+color+'" opacity="0.9" style="pointer-events:none"/>';
+    h+='<text x="'+(bx+barW/2)+'" y="'+(by-5)+'" text-anchor="middle" fill="#4A4470" font-size="10" font-weight="600" style="pointer-events:none">'+fmtK(v)+'</text>';
+    h+='<text x="'+X(i)+'" y="'+(H-pad.b+14)+'" text-anchor="middle" fill="#8E8BAE" font-size="10" style="pointer-events:none">'+d.labels[i]+'</text>';
+  }
+  h+='<rect x="'+pad.l+'" y="'+(H-10)+'" width="10" height="10" rx="2" fill="#4F46E5"/>';
+  h+='<text x="'+(pad.l+14)+'" y="'+(H-2)+'" font-size="9" fill="#4A4470">Above Target</text>';
+  h+='<rect x="'+(pad.l+92)+'" y="'+(H-10)+'" width="10" height="10" rx="2" fill="#A5B4FC"/>';
+  h+='<text x="'+(pad.l+106)+'" y="'+(H-2)+'" font-size="9" fill="#4A4470">Below Target</text>';
+  h+='<line x1="'+(pad.l+186)+'" x2="'+(pad.l+202)+'" y1="'+(H-5)+'" y2="'+(H-5)+'" stroke="#D97706" stroke-width="1.5" stroke-dasharray="4,3"/>';
+  h+='<text x="'+(pad.l+206)+'" y="'+(H-2)+'" font-size="9" fill="#4A4470">Target</text>';
+  svg.innerHTML=h;
+
+  svg.querySelectorAll('.fbhit').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var idx=parseInt(this.getAttribute('data-i'));
+      var v=d.fees[idx], tgt=d.target[idx];
+      function fF(n){return 'Rs.'+n.toLocaleString('en-IN');}
+      var diff=v-tgt, dStr=(diff>=0?'+':'')+fF(Math.abs(diff));
+      var col=v>=tgt?'#A5B4FC':'#FCA5A5';
+      showTT(e, d.labels[idx]+' Fees',[
+        {lbl:'Collected', val:fF(v),   col:'#A5B4FC', dot:'#4F46E5'},
+        {lbl:'Target',    val:fF(tgt), col:'#FDE68A', dot:'#D97706'},
+        {lbl:'vs Target', val:dStr,    col:col}
+      ], v>=tgt?'Above Target':'Below Target');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── BATCH FEE BREAKDOWN BARS ──────────────────────────────────────────────────
+function renderBatchBars(d){
+  var items=[
+    {lbl:'JEE',     pct:d.jee_fee,  color:'#D97706'},
+    {lbl:'NEET',    pct:d.neet_fee, color:'#059669'},
+    {lbl:'MHT-CET', pct:d.cet_fee,  color:'#0891B2'},
+    {lbl:'Others',  pct:100-d.jee_fee-d.neet_fee-d.cet_fee, color:'#7C3AED'}
+  ];
+  var c=document.getElementById('batchBars');
+  c.innerHTML=items.map(function(item,i){
+    return '<div class="hbar-row" data-bi="'+i+'">'
+      +'<div class="hbar-label">'+item.lbl+'</div>'
+      +'<div class="hbar-wrap"><div class="hbar-fill" style="width:'+item.pct+'%;background:'+item.color+';">'+(item.pct>=16?item.pct+'%':'')+'</div></div>'
+      +'<div class="hbar-val" style="color:'+item.color+'">'+item.pct+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.hbar-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var item=items[parseInt(this.getAttribute('data-bi'))];
+      var totalFee=DATA[currentTime].kpi.fees;
+      var batchFee=Math.round(totalFee*item.pct/100);
+      showTT(e, item.lbl+' Batch',[
+        {lbl:'Fee Share', val:item.pct+'%', col:item.color},
+        {lbl:'Est. Fees', val:'Rs.'+batchFee.toLocaleString('en-IN'), col:'#fff'}
+      ],'of total period fees');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── ATTENDANCE LINE CHART ─────────────────────────────────────────────────────
+function renderAttChart(d){
+  var svg=document.getElementById('attChart');
+  var W=300,H=150,pad={t:14,r:14,b:28,l:36};
+  var cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  var vals=d.attendance.filter(function(v){return v>0;});
+  var lbls=d.labels.filter(function(_,i){return d.attendance[i]>0;});
+  var n=vals.length;
+  var maxV=100, minV=60;
+  function PX(i){return pad.l+(i/(n-1))*cW;}
+  function PY(v){return pad.t+cH-((v-minV)/(maxV-minV))*cH;}
+
+  var pts=vals.map(function(v,i){return PX(i)+','+PY(v);}).join(' ');
+  var area=PX(0)+','+(pad.t+cH)+' '+pts+' '+PX(n-1)+','+(pad.t+cH);
+
+  var h='<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="#4F46E5" stop-opacity="0.2"/>'
+    +'<stop offset="100%" stop-color="#4F46E5" stop-opacity="0.02"/>'
+    +'</linearGradient></defs>';
+
+  // Target line at 75%
+  var targetY=PY(75);
+  h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+targetY+'" y2="'+targetY+'" stroke="#D97706" stroke-width="1" stroke-dasharray="4,3"/>';
+  h+='<text x="'+(W-pad.r+2)+'" y="'+(targetY+3)+'" font-size="8" fill="#D97706" font-weight="600">75%</text>';
+
+  [75,85,95].forEach(function(v){
+    var yy=PY(v);
+    h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="#E0DEFA" stroke-width="1" stroke-dasharray="3,3"/>';
+    h+='<text x="'+(pad.l-4)+'" y="'+(yy+3)+'" text-anchor="end" font-size="8" fill="#8E8BAE">'+v+'%</text>';
+  });
+
+  h+='<polygon points="'+area+'" fill="url(#ag)" style="pointer-events:none"/>';
+  h+='<polyline points="'+pts+'" fill="none" stroke="#4F46E5" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" style="pointer-events:none"/>';
+  vals.forEach(function(v,i){
+    h+='<text x="'+PX(i)+'" y="'+(H-3)+'" text-anchor="middle" font-size="8" fill="#8E8BAE">'+lbls[i]+'</text>';
+  });
+  svg.innerHTML=h;
+
+  var avg=(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1);
+  vals.forEach(function(v,i){
+    var color=v>=80?'#4F46E5':v>=75?'#D97706':'#DC2626';
+    var vCol=v>=80?'#A5B4FC':v>=75?'#FDE68A':'#FCA5A5';
+    var hz=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    hz.setAttribute('cx',PX(i)); hz.setAttribute('cy',PY(v)); hz.setAttribute('r','13');
+    hz.setAttribute('fill','transparent'); hz.style.cursor='crosshair';
+    (function(v,i,color,vCol){
+      hz.addEventListener('mouseenter',function(e){
+        var status=v>=80?'Good attendance':v>=75?'Minimum threshold - monitor':'Below minimum - action required';
+        showTT(e, lbls[i]+' Attendance',[
+          {lbl:'Attendance', val:v+'%',  col:vCol, dot:color},
+          {lbl:'Period Avg', val:avg+'%', col:'#C7D2FE'},
+          {lbl:'Min Target', val:'75%',  col:'#FDE68A'}
+        ], status);
+      });
+    })(v,i,color,vCol);
+    hz.addEventListener('mouseleave',hideTT);
+    var dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',PX(i)); dot.setAttribute('cy',PY(v)); dot.setAttribute('r','4');
+    dot.setAttribute('fill',color); dot.setAttribute('stroke','white'); dot.setAttribute('stroke-width','1.5');
+    dot.style.pointerEvents='none';
+    var lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PX(i)); lbl.setAttribute('y',PY(v)-9);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-size','9');
+    lbl.setAttribute('fill','#4A4470'); lbl.setAttribute('font-weight','600');
+    lbl.style.pointerEvents='none'; lbl.textContent=v+'%';
+    svg.appendChild(hz); svg.appendChild(dot); svg.appendChild(lbl);
+  });
+}
+
+// ── BATCH SCORE BARS ──────────────────────────────────────────────────────────
+function renderScoreBars(){
+  var batches=currentBatch==='all'?BATCHES:BATCHES.filter(function(b){return b.code===currentBatch;});
+  document.getElementById('scoreBadge').textContent='Avg: '+(batches.reduce(function(a,b){return a+b.avgScore;},0)/batches.length).toFixed(1)+'%';
+  var c=document.getElementById('scoreBars');
+  c.innerHTML=batches.map(function(b,i){
+    var col=b.avgScore>=70?'#059669':b.avgScore>=60?'#D97706':'#DC2626';
+    return '<div class="hbar-row" data-si="'+i+'">'
+      +'<div class="hbar-label">'+b.code+'</div>'
+      +'<div class="hbar-wrap"><div class="hbar-fill" style="width:'+b.avgScore+'%;background:'+b.color+';">'+b.avgScore+'%</div></div>'
+      +'<div class="hbar-val" style="color:'+col+'">'+b.avgScore+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.hbar-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var b=batches[parseInt(this.getAttribute('data-si'))];
+      var col=b.avgScore>=70?'#6EE7B7':b.avgScore>=60?'#FDE68A':'#FCA5A5';
+      var status=b.avgScore>=70?'Strong performance':b.avgScore>=60?'Average - needs improvement':'Below target - intervention needed';
+      showTT(e, b.name+' Scores',[
+        {lbl:'Avg Score',  val:b.avgScore+'%', col:col, dot:b.color},
+        {lbl:'Students',   val:b.students,      col:'#fff'},
+        {lbl:'Attendance', val:b.att+'%',       col:'#C7D2FE'}
+      ], status);
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── SUBJECT PERFORMANCE BARS ──────────────────────────────────────────────────
+function renderSubjectBars(){
+  var c=document.getElementById('subjectBars');
+  c.innerHTML=SUBJECTS.map(function(s,i){
+    var col=s.avg>=70?'#059669':s.avg>=60?'#D97706':'#DC2626';
+    return '<div class="score-row" data-subi="'+i+'">'
+      +'<div class="score-label">'+s.name+'</div>'
+      +'<div class="score-track"><div class="score-fill" style="width:'+s.avg+'%;background:'+s.color+'"></div></div>'
+      +'<div class="score-val" style="color:'+col+'">'+s.avg+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.score-row').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var s=SUBJECTS[parseInt(this.getAttribute('data-subi'))];
+      var col=s.avg>=70?'#6EE7B7':s.avg>=60?'#FDE68A':'#FCA5A5';
+      var status=s.avg>=70?'Class performing well':s.avg>=60?'Needs extra attention':'Weak subject - add extra sessions';
+      showTT(e, s.name+' Performance',[
+        {lbl:'Class Avg', val:s.avg+'%', col:col, dot:s.color},
+        {lbl:'Target',    val:'70%',     col:'#FDE68A'}
+      ], status);
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ── AT-RISK STUDENTS ──────────────────────────────────────────────────────────
+function renderAtRisk(){
+  var rows=currentBatch==='all'?AT_RISK:AT_RISK.filter(function(s){return s.batch===currentBatch;});
+  document.getElementById('riskBadge').textContent=rows.filter(function(r){return r.risk==='high';}).length+' Critical';
+  var riskClass={high:'risk-high',med:'risk-med',low:'risk-low'};
+  var riskLabel={high:'HIGH RISK',med:'MODERATE',low:'WATCH'};
+  document.getElementById('riskTable').innerHTML=
+    '<thead><tr><th>Student</th><th>Batch</th><th>Attendance</th><th>Last Score</th><th>Dues</th><th>Risk Level</th></tr></thead><tbody>'
+    +rows.map(function(s){
+      var attCol=s.att<55?'var(--red)':s.att<65?'var(--amber)':'var(--text-secondary)';
+      var scCol=s.score<45?'var(--red)':s.score<55?'var(--amber)':'var(--text-secondary)';
+      return '<tr>'
+        +'<td style="font-weight:600">'+s.name+'</td>'
+        +'<td><span class="status-pill pill-indigo">'+s.batch+'</span></td>'
+        +'<td style="font-family:JetBrains Mono,monospace;font-weight:700;color:'+attCol+'">'+s.att+'%</td>'
+        +'<td style="font-family:JetBrains Mono,monospace;font-weight:700;color:'+scCol+'">'+s.score+'/100</td>'
+        +'<td style="font-family:JetBrains Mono,monospace;color:'+(s.dues==='Rs.0'?'var(--green)':'var(--red)')+'">'+s.dues+'</td>'
+        +'<td><span class="'+riskClass[s.risk]+'">'+riskLabel[s.risk]+'</span></td>'
+        +'</tr>';
+    }).join('')+'</tbody>';
+}
+
+// ── FEE LOG ───────────────────────────────────────────────────────────────────
+function renderFeeLog(){
+  var rows=currentBatch==='all'?FEE_LOG:FEE_LOG.filter(function(f){return f.batch===currentBatch;});
+  document.getElementById('feeLogBadge').textContent=rows.length+' Records';
+  var stM={ok:'pill-ok',pend:'pill-warn',late:'pill-fail'};
+  var stL={ok:'PAID',pend:'PENDING',late:'OVERDUE'};
+  document.getElementById('feeTable').innerHTML=
+    '<thead><tr><th>ID</th><th>Student</th><th>Batch</th><th>Amount</th><th>Date</th><th>Mode</th><th>Status</th></tr></thead><tbody>'
+    +rows.map(function(f){
+      var amtStr=f.amount>0?'Rs.'+f.amount.toLocaleString('en-IN'):'-';
+      var amtCol=f.amount>0?'var(--text-primary)':'var(--red)';
+      return '<tr>'
+        +'<td><strong>'+f.id+'</strong></td>'
+        +'<td style="font-family:Outfit,sans-serif;font-weight:600">'+f.name+'</td>'
+        +'<td><span class="status-pill pill-indigo">'+f.batch+'</span></td>'
+        +'<td style="color:'+amtCol+';font-weight:700">'+amtStr+'</td>'
+        +'<td>'+f.date+'</td>'
+        +'<td style="font-family:Outfit,sans-serif">'+f.mode+'</td>'
+        +'<td><span class="status-pill '+stM[f.status]+'">'+stL[f.status]+'</span></td>'
+        +'</tr>';
+    }).join('')+'</tbody>';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>
