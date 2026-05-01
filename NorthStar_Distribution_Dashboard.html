@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bran-O · Distribution Intelligence · Lucknow 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ═══════════════════════════════════════
+   THEME TOKENS
+═══════════════════════════════════════ */
+:root {
+  --bg:         #08090d;
+  --surface:    #0f1117;
+  --card:       #13161f;
+  --card2:      #181c28;
+  --border:     rgba(255,255,255,0.07);
+  --border2:    rgba(255,255,255,0.13);
+  --txt:        #e8eaf0;
+  --txt2:       #7a8295;
+  --txt3:       #4a5168;
+  --accent:     #5b8fff;
+  --green:      #22d48a;
+  --green-bg:   rgba(34,212,138,0.10);
+  --green-bd:   rgba(34,212,138,0.22);
+  --amber:      #f5a623;
+  --amber-bg:   rgba(245,166,35,0.10);
+  --amber-bd:   rgba(245,166,35,0.22);
+  --red:        #ff5c5c;
+  --red-bg:     rgba(255,92,92,0.08);
+  --red-bd:     rgba(255,92,92,0.20);
+  --blue-dim:   rgba(91,143,255,0.12);
+  --shadow:     0 8px 32px rgba(0,0,0,0.45);
+}
+
+[data-theme="light"] {
+  --bg:         #f0f4fb;
+  --surface:    #e8edf6;
+  --card:       #ffffff;
+  --card2:      #f5f8ff;
+  --border:     rgba(0,0,0,0.08);
+  --border2:    rgba(0,0,0,0.14);
+  --txt:        #0f172a;
+  --txt2:       #4b5a72;
+  --txt3:       #9aa3b2;
+  --accent:     #2563eb;
+  --green:      #16a34a;
+  --green-bg:   rgba(22,163,74,0.08);
+  --green-bd:   rgba(22,163,74,0.22);
+  --amber:      #b45309;
+  --amber-bg:   rgba(180,83,9,0.08);
+  --amber-bd:   rgba(180,83,9,0.22);
+  --red:        #dc2626;
+  --red-bg:     rgba(220,38,38,0.06);
+  --red-bd:     rgba(220,38,38,0.20);
+  --blue-dim:   rgba(37,99,235,0.07);
+  --shadow:     0 4px 20px rgba(0,0,0,0.10);
+}
+
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+}
+/* noise */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.35;
+}
+[data-theme="light"] body::after { opacity: 0.12; }
+
+/* ambient glow */
+.glow1 { position:fixed;top:-15%;left:-5%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(91,143,255,0.06) 0%,transparent 70%);pointer-events:none;animation:g1 18s ease-in-out infinite alternate; }
+.glow2 { position:fixed;bottom:-15%;right:-5%;width:45%;height:45%;background:radial-gradient(ellipse,rgba(34,212,138,0.04) 0%,transparent 70%);pointer-events:none;animation:g2 22s ease-in-out infinite alternate; }
+@keyframes g1 { to{transform:translate(4%,3%)} }
+@keyframes g2 { to{transform:translate(-3%,-4%)} }
+[data-theme="light"] .glow1 { background:radial-gradient(ellipse,rgba(37,99,235,0.04) 0%,transparent 70%); }
+[data-theme="light"] .glow2 { background:radial-gradient(ellipse,rgba(22,163,74,0.03) 0%,transparent 70%); }
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.wrap { position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:22px 26px; }
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.header {
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  padding:0 26px;height:60px;
+  background:var(--card);border-bottom:3px solid var(--accent);
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 12px rgba(0,0,0,0.35);
+  animation:fadeDown .6s ease both;
+  transition:background .3s;
+}
+.logo {
+  width:42px;height:42px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#5b8fff 0%,#8b5cf6 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;letter-spacing:-0.5px;
+  box-shadow:0 0 20px rgba(91,143,255,0.35);
+}
+.header-meta h1 { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.3px; }
+.header-meta p { font-size:10px;color:var(--txt2);margin-top:2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.pulse-dot { width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;display:inline-block; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
+
+.header-right { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+
+/* Channel toggle — the 3 buttons */
+.channel-group { display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px; }
+.ch-btn {
+  padding:5px 14px;border-radius:7px;font-size:11px;font-weight:600;
+  font-family:'Instrument Sans',sans-serif;cursor:pointer;border:none;
+  background:transparent;color:var(--txt2);transition:all .2s;
+}
+.ch-btn:hover { color:var(--txt); }
+.ch-btn.active {
+  background:var(--card);color:var(--txt);
+  box-shadow:var(--shadow);border:1px solid var(--border2);
+}
+.ch-btn[data-ch="online"].active  { color:var(--accent); }
+.ch-btn[data-ch="offline"].active { color:var(--amber); }
+
+/* Theme toggle */
+.theme-btn {
+  padding:6px 14px;border-radius:8px;font-size:11px;font-weight:500;
+  background:var(--card);border:1px solid var(--border2);color:var(--txt2);
+  cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px;
+}
+.theme-btn:hover { color:var(--txt);border-color:var(--border2); }
+
+.live-pill { display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:var(--green-bg);border:1px solid var(--green-bd);font-size:11px;font-weight:500;color:var(--green); }
+
+/* ═══════════════════════════════════════
+   KPI ROW
+═══════════════════════════════════════ */
+.kpi-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;animation:fadeUp .6s .1s ease both; }
+
+.kpi {
+  background:var(--card);border:1px solid var(--border);border-radius:13px;padding:15px 16px;
+  cursor:pointer;transition:all .22s;position:relative;overflow:hidden;
+}
+.kpi::before { content:'';position:absolute;inset:0;border-radius:13px;background:var(--blue-dim);opacity:0;transition:opacity .2s; }
+.kpi:hover { transform:translateY(-2px);border-color:var(--border2);box-shadow:var(--shadow); }
+.kpi:hover::before { opacity:1; }
+.kpi-lbl { font-size:9.5px;color:var(--txt3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;font-weight:500; }
+.kpi-val { font-family:'Syne',sans-serif;font-size:26px;font-weight:700;line-height:1; }
+.kpi-denom { font-size:12px;color:var(--txt2);font-weight:400; }
+.kpi-track { margin-top:9px;height:3px;background:rgba(128,128,128,0.12);border-radius:10px;overflow:hidden; }
+.kpi-fill { height:100%;border-radius:10px;transition:width 1.1s cubic-bezier(.4,0,.2,1); }
+.kpi-note { margin-top:7px;font-size:10px;font-family:'DM Mono',monospace; }
+
+/* ═══════════════════════════════════════
+   PANELS
+═══════════════════════════════════════ */
+.panel {
+  background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;
+  transition:background .3s,border-color .3s;
+}
+.panel-hd { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+.panel-title { font-family:'Syne',sans-serif;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px; }
+.pnum { font-family:'DM Mono',monospace;font-size:10px;color:var(--txt3);background:rgba(128,128,128,0.08);border:1px solid var(--border);padding:2px 7px;border-radius:5px; }
+
+/* ═══════════════════════════════════════
+   SECTION LABEL
+═══════════════════════════════════════ */
+.sec-label { font-family:'DM Mono',monospace;font-size:9.5px;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:10px;margin:18px 0 12px; }
+.sec-label::after { content:'';flex:1;height:1px;background:var(--border); }
+
+/* ═══════════════════════════════════════
+   CHANNEL SECTIONS (the actual show/hide logic)
+═══════════════════════════════════════ */
+.section-online, .section-offline, .section-both { transition:opacity .3s; }
+
+/* ═══════════════════════════════════════
+   GRID LAYOUTS
+═══════════════════════════════════════ */
+.grid-2-1 { display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin-bottom:14px;animation:fadeUp .6s .15s ease both; }
+.grid-3   { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;animation:fadeUp .6s .2s ease both; }
+
+/* ═══════════════════════════════════════
+   DATA TABLE
+═══════════════════════════════════════ */
+.search-wrap { position:relative;margin-bottom:10px; }
+.search-input {
+  width:100%;background:rgba(128,128,128,0.06);border:1px solid var(--border);border-radius:7px;
+  padding:7px 10px 7px 30px;font-size:11.5px;color:var(--txt);font-family:'Instrument Sans',sans-serif;outline:none;
+  transition:border-color .2s;
+}
+.search-input::placeholder { color:var(--txt3); }
+.search-input:focus { border-color:var(--border2); }
+.search-icon { position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:13px;pointer-events:none; }
+
+.filter-row { display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap; }
+.f-btn { font-size:9.5px;padding:3px 10px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--txt3);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;font-weight:500; }
+.f-btn:hover { color:var(--txt2); }
+.f-btn.f-all  { border-color:var(--border2);color:var(--txt2); }
+.f-btn.f-y    { background:var(--green-bg);color:var(--green);border-color:var(--green-bd); }
+.f-btn.f-so   { background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd); }
+.f-btn.f-n    { background:rgba(128,128,128,0.07);color:var(--txt2);border-color:var(--border2); }
+
+.dt { width:100%;border-collapse:collapse;font-size:11px; }
+.dt thead th { font-size:9px;color:var(--txt3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;padding:0 7px 8px;border-bottom:1px solid var(--border);font-weight:500;text-align:left; }
+.dt thead th.tc { text-align:center; }
+.dt tbody tr { border-bottom:1px solid rgba(128,128,128,0.06);transition:background .12s;cursor:pointer; }
+.dt tbody tr:hover { background:rgba(128,128,128,0.04); }
+.dt tbody tr:last-child { border-bottom:none; }
+.dt td { padding:7px; vertical-align:middle; }
+.pin { font-family:'DM Mono',monospace;font-size:10px;color:var(--txt2); }
+.aname { font-size:11px;font-weight:500; }
+
+/* ═══════════════════════════════════════
+   CHIPS
+═══════════════════════════════════════ */
+.chip {
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:8.5px;font-weight:700;font-family:'DM Mono',monospace;
+  border-radius:5px;padding:3px 6px;min-width:26px;letter-spacing:.03em;
+  transition:transform .15s;cursor:default;
+}
+.chip:hover { transform:scale(1.12); }
+.cy { background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd); }
+.cn { background:rgba(128,128,128,0.07);color:var(--txt3);border:1px solid var(--border); }
+.cso{ background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd); }
+.cni{ background:rgba(128,128,128,0.04);color:var(--txt3);border:1px dashed var(--border2); }
+
+/* score dots */
+.sdots { display:flex;gap:3px; }
+.sd { width:7px;height:7px;border-radius:50%;transition:transform .15s;cursor:default; }
+.sd:hover { transform:scale(1.35); }
+
+/* ═══════════════════════════════════════
+   PLATFORM BAR SECTION
+═══════════════════════════════════════ */
+.plat-row { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(128,128,128,0.06); }
+.plat-row:last-child { border-bottom:none; }
+.plat-name { font-size:11.5px;font-weight:500;width:105px;flex-shrink:0; }
+.plat-track { flex:1;height:9px;background:rgba(128,128,128,0.08);border-radius:10px;overflow:hidden;position:relative; }
+.plat-segs  { position:absolute;inset:0;display:flex;border-radius:10px;overflow:hidden; }
+.seg { height:100%;transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+.sg  { background:var(--green); }
+.sa  { background:var(--amber); }
+.plat-stat { font-family:'DM Mono',monospace;font-size:9.5px;color:var(--txt2);min-width:64px;text-align:right; }
+
+/* ═══════════════════════════════════════
+   HEATMAP
+═══════════════════════════════════════ */
+.hm-grid { display:grid;grid-template-columns:88px repeat(4,1fr);gap:3px; }
+.hm-hdr  { font-size:8.5px;font-family:'DM Mono',monospace;color:var(--txt3);text-align:center;padding:3px 2px;text-transform:uppercase;letter-spacing:.06em; }
+.hm-lbl  { font-size:9px;color:var(--txt2);text-align:right;padding:2px 7px 2px 0;display:flex;align-items:center;justify-content:flex-end;line-height:1.2; }
+.hm-cell {
+  border-radius:5px;height:20px;display:flex;align-items:center;justify-content:center;
+  font-size:7.5px;font-weight:700;font-family:'DM Mono',monospace;cursor:pointer;
+  transition:transform .15s;
+}
+.hm-cell:hover { transform:scale(1.12);z-index:5;position:relative; }
+.hmy { background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd); }
+.hmn { background:rgba(128,128,128,0.07);color:var(--txt3);border:1px solid var(--border); }
+.hmso{ background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd); }
+
+/* ═══════════════════════════════════════
+   STOCK-OUT TRACKER
+═══════════════════════════════════════ */
+.alert-item {
+  display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:9px;
+  margin-bottom:7px;background:rgba(128,128,128,0.03);border:1px solid var(--border);
+  cursor:pointer;transition:all .18s;
+}
+.alert-item:hover { background:rgba(128,128,128,0.07);border-color:var(--border2); }
+.alert-item:last-child { margin-bottom:0; }
+.a-type { font-size:9px;font-family:'DM Mono',monospace;font-weight:700;padding:2px 7px;border-radius:5px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em; }
+.a-online  { background:var(--blue-dim);color:var(--accent);border:1px solid rgba(91,143,255,0.2); }
+.a-offline { background:rgba(128,128,128,0.08);color:var(--txt2);border:1px solid var(--border2); }
+.a-plat { font-size:11px;font-weight:600;color:var(--amber);width:72px;flex-shrink:0; }
+.a-loc  { font-size:11px;color:var(--txt2);flex:1; }
+
+.urgent {
+  margin-top:10px;padding:11px 13px;
+  background:var(--red-bg);border:1px solid var(--red-bd);border-left:3px solid var(--red);border-radius:9px;
+}
+.urgent-t { font-size:9.5px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px; }
+.urgent-d { font-size:11px;color:var(--txt2);line-height:1.5; }
+
+/* ═══════════════════════════════════════
+   RANK BARS
+═══════════════════════════════════════ */
+.rank-row { display:flex;align-items:center;gap:10px;margin-bottom:9px; }
+.rank-row:last-child { margin-bottom:0; }
+.rank-lbl { font-size:10.5px;color:var(--txt2);width:70px;flex-shrink:0;text-align:right;font-family:'DM Mono',monospace; }
+.rank-track { flex:1;height:9px;background:rgba(128,128,128,0.08);border-radius:10px;overflow:hidden; }
+.rank-fill { height:100%;border-radius:10px;transition:width 1.3s cubic-bezier(.4,0,.2,1); }
+.rank-val { font-family:'DM Mono',monospace;font-size:11.5px;font-weight:500;min-width:22px;text-align:right; }
+
+/* ═══════════════════════════════════════
+   OFFLINE STORES
+═══════════════════════════════════════ */
+.store-item { display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(128,128,128,0.06); }
+.store-item:last-child { border-bottom:none; }
+.store-name-col { flex-shrink:0;width:115px; }
+.store-nm { font-size:11px;font-weight:500; }
+.store-area { font-size:9px;color:var(--txt3);font-family:'DM Mono',monospace;margin-top:2px; }
+.store-bar-col { flex:1; }
+.store-track { height:6px;background:rgba(128,128,128,0.08);border-radius:10px;overflow:hidden;margin-bottom:3px; }
+.store-fill { height:100%;border-radius:10px;transition:width 1.1s ease; }
+.store-meta { font-size:9px;color:var(--txt3);font-family:'DM Mono',monospace; }
+.store-right { display:flex;align-items:center;gap:7px;flex-shrink:0; }
+.store-pct-tag { font-size:9px;font-family:'DM Mono',monospace;font-weight:700;padding:2px 7px;border-radius:5px; }
+.store-comp { font-family:'DM Mono',monospace;font-size:9.5px;color:var(--txt3);width:18px;text-align:right; }
+
+/* ═══════════════════════════════════════
+   AI INSIGHTS BAR (Accenture-style)
+═══════════════════════════════════════ */
+.ins-bar {
+  background:rgba(91,143,255,0.04);
+  border-bottom:1px solid rgba(91,143,255,0.12);
+  padding:9px 26px;
+  display:flex;align-items:flex-start;gap:10px;
+  position:sticky;top:60px;z-index:190;
+  backdrop-filter:blur(10px);
+  transition:background .3s;
+}
+[data-theme="light"] .ins-bar { background:rgba(37,99,235,0.04);border-bottom:1px solid rgba(37,99,235,0.10); }
+.ins-lbl { font-size:9px;font-weight:700;letter-spacing:1.8px;color:var(--accent);opacity:.85;margin-bottom:3px;text-transform:uppercase;font-family:'DM Mono',monospace; }
+.ins-cards { display:flex;gap:9px;flex-wrap:wrap; }
+.ins-item {
+  display:flex;gap:7px;background:var(--card);border-radius:7px;padding:6px 11px;
+  border:1px solid rgba(91,143,255,0.14);min-width:190px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.15);
+}
+[data-theme="light"] .ins-item { box-shadow:0 1px 3px rgba(0,0,0,0.06);border-color:rgba(37,99,235,0.12); }
+.ins-dot { width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0; }
+.ins-text { font-size:11px;line-height:1.5;color:var(--txt2);font-family:'Instrument Sans',sans-serif; }
+.ins-sub  { font-size:10px;color:var(--txt3);margin-top:1px;font-family:'DM Mono',monospace; }
+
+/* ═══════════════════════════════════════
+   TOP INSIGHT GROWTH STRIP
+═══════════════════════════════════════ */
+.growth-bar {
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:8px 26px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  transition:background .3s;
+}
+.growth-lbl { font-size:9px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--txt3);font-family:'DM Mono',monospace;flex-shrink:0; }
+.growth-chips { display:flex;gap:7px;flex-wrap:wrap; }
+.gchip {
+  display:flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;
+  font-family:'Instrument Sans',sans-serif;cursor:default;border:1px solid;
+  transition:transform .15s;
+}
+.gchip:hover { transform:translateY(-1px); }
+.gchip-green { background:var(--green-bg);border-color:var(--green-bd);color:var(--green); }
+.gchip-amber { background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber); }
+.gchip-red   { background:var(--red-bg);  border-color:var(--red-bd);  color:var(--red);   }
+.gchip-blue  { background:var(--blue-dim);border-color:rgba(91,143,255,0.25);color:var(--accent); }
+.gdvdr { width:1px;height:20px;background:var(--border2);flex-shrink:0; }
+.growth-period { font-size:10px;color:var(--txt3);font-family:'DM Mono',monospace;margin-left:auto; }
+
+  margin-top:12px;padding:12px 14px;
+  background:linear-gradient(135deg,rgba(91,143,255,0.07) 0%,rgba(139,92,246,0.04) 100%);
+  border:1px solid rgba(91,143,255,0.16);border-radius:10px;
+}
+.insight-lbl { font-size:9px;font-family:'DM Mono',monospace;color:var(--accent);text-transform:uppercase;letter-spacing:.09em;font-weight:600;margin-bottom:5px; }
+.insight-txt { font-size:11.5px;color:var(--txt2);line-height:1.55; }
+
+/* mini stats */
+.mini-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px; }
+.mini { background:rgba(128,128,128,0.05);border:1px solid var(--border);border-radius:9px;padding:10px 12px; }
+.mini-v { font-family:'Syne',sans-serif;font-size:20px;font-weight:700; }
+.mini-l { font-size:9.5px;color:var(--txt3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-top:3px; }
+
+/* legend */
+.legend { display:flex;gap:12px;flex-wrap:wrap;margin-top:10px; }
+.lg-item { display:flex;align-items:center;gap:5px;font-size:10px;color:var(--txt3);font-family:'DM Mono',monospace; }
+.lg-dot  { width:8px;height:8px;border-radius:3px; }
+
+/* chart wrap */
+.chart-wrap { position:relative;height:210px; }
+
+/* tooltip */
+.tt {
+  position:fixed;background:var(--card2);border:1px solid var(--border2);border-radius:9px;
+  padding:9px 13px;font-size:11.5px;pointer-events:none;z-index:1000;
+  opacity:0;transition:opacity .12s;max-width:220px;box-shadow:var(--shadow);color:var(--txt2);
+  line-height:1.45;
+}
+.tt.show { opacity:1; }
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(10px)}  to{opacity:1;transform:translateY(0)} }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(128,128,128,0.15);border-radius:10px; }
+
+/* ═══════════════════════════════════════
+   HIDDEN / VISIBLE HELPERS
+═══════════════════════════════════════ */
+.hide { display:none !important; }
+
+/* ═══════════════════════════════════════
+   PLATFORM FILTER BUTTONS
+═══════════════════════════════════════ */
+.plat-filter-bar {
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:10px 26px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  transition:background .3s;
+}
+.plat-filter-lbl { font-size:9px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--txt3);font-family:'DM Mono',monospace;flex-shrink:0; }
+.pf-btn {
+  display:flex;align-items:center;gap:7px;
+  padding:6px 16px;border-radius:8px;font-size:12px;font-weight:600;
+  font-family:'Instrument Sans',sans-serif;cursor:pointer;
+  border:1px solid var(--border2);background:var(--surface);color:var(--txt2);
+  transition:all .2s;
+}
+.pf-btn:hover { transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.pf-btn.active { color:#fff;border-color:transparent;box-shadow:0 4px 16px rgba(0,0,0,0.3); }
+.pf-btn[data-plat="all"].active    { background:linear-gradient(135deg,#5b8fff,#8b5cf6); }
+.pf-btn[data-plat="blinkit"].active   { background:linear-gradient(135deg,#1ca672,#22d48a); }
+.pf-btn[data-plat="swiggy"].active    { background:linear-gradient(135deg,#e8520a,#f5783a); }
+.pf-btn[data-plat="bigbasket"].active { background:linear-gradient(135deg,#c8022e,#e8315a); }
+.pf-btn[data-plat="zepto"].active     { background:linear-gradient(135deg,#5b21b6,#8b5cf6); }
+.pf-icon { font-size:14px; }
+
+</style>
+</head>
+<body>
+<div class="glow1"></div>
+<div class="glow2"></div>
+<div class="tt" id="tt"></div>
+
+<!-- ── STICKY HEADER ── -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="logo">B·O</div>
+    <div class="header-meta">
+      <h1>Bran-O · Distribution Intelligence</h1>
+      <p>
+        <span class="pulse-dot"></span>
+        Lucknow &nbsp;·&nbsp; 15 Pin Codes &nbsp;·&nbsp; 11 Stores &nbsp;·&nbsp; Q1 2025
+      </p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-pill"><span class="pulse-dot"></span>Live</div>
+
+    <!-- CHANNEL TOGGLE -->
+    <div class="channel-group">
+      <button class="ch-btn active" data-ch="all"     onclick="setChannel('all',this)">All Channels</button>
+      <button class="ch-btn"        data-ch="online"  onclick="setChannel('online',this)">Online</button>
+      <button class="ch-btn"        data-ch="offline" onclick="setChannel('offline',this)">Offline</button>
+    </div>
+
+    <!-- THEME TOGGLE -->
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀ Light Mode</button>
+  </div>
+</div>
+
+<!-- ── AI INSIGHTS BAR ── -->
+<div class="ins-bar">
+  <div style="font-size:15px;margin-top:2px;">💡</div>
+  <div style="flex:1;">
+    <div class="ins-lbl">Insights · Distribution Intelligence</div>
+    <div class="ins-cards" id="ins-cards">
+      <div class="ins-item">
+        <div class="ins-dot" style="background:var(--red);"></div>
+        <div>
+          <div class="ins-text">Indira Nagar: simultaneous stock-out on Swiggy + Reliance SMART — dual-channel pressure</div>
+          <div class="ins-sub">→ Urgent replenishment required today</div>
+        </div>
+      </div>
+      <div class="ins-item">
+        <div class="ins-dot" style="background:var(--amber);"></div>
+        <div>
+          <div class="ins-text">BigBasket covers 13/15 pins but has worst listing rank — 13 pins rank below inferior brands</div>
+          <div class="ins-sub">→ Catalogue position fix = highest-ROI action</div>
+        </div>
+      </div>
+      <div class="ins-item">
+        <div class="ins-dot" style="background:var(--green);"></div>
+        <div>
+          <div class="ins-text">Blinkit covers only 7/15 pins — 8 uncovered pin codes with high growth potential</div>
+          <div class="ins-sub">→ Activate listings to capture untapped reach</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOP INSIGHT GROWTH STRIP ── -->
+<div class="growth-bar">
+  <div class="growth-lbl">Top Insight Growth</div>
+  <div class="growth-chips" id="growth-chips">
+    <div class="gchip gchip-green">📈 BigBasket 86.7% reach — best platform coverage</div>
+    <div class="gchip gchip-blue">🚀 Zepto: +4 new listings this audit</div>
+    <div class="gchip gchip-amber">⚠ Avg shelf share 20% — target 35%</div>
+    <div class="gchip gchip-red">🔴 5 active stock-outs across both channels</div>
+  </div>
+  <div class="gdvdr"></div>
+  <div class="growth-period">Q1 2025 · Lucknow</div>
+</div>
+
+
+<!-- ── PLATFORM FILTER BAR ── -->
+<div class="plat-filter-bar">
+  <div class="plat-filter-lbl">Filter by Platform</div>
+  <button class="pf-btn active" data-plat="all"       onclick="setPlatform('all',this)"><span class="pf-icon">📊</span>All Platforms</button>
+  <button class="pf-btn"        data-plat="blinkit"   onclick="setPlatform('blinkit',this)"><span class="pf-icon">🟢</span>Blinkit</button>
+  <button class="pf-btn"        data-plat="swiggy"    onclick="setPlatform('swiggy',this)"><span class="pf-icon">🟠</span>Swiggy Instamart</button>
+  <button class="pf-btn"        data-plat="bigbasket" onclick="setPlatform('bigbasket',this)"><span class="pf-icon">🔴</span>BigBasket</button>
+  <button class="pf-btn"        data-plat="zepto"     onclick="setPlatform('zepto',this)"><span class="pf-icon">🟣</span>Zepto</button>
+</div>
+
+<div class="wrap" style="padding-top:18px;">
+<!-- ── KPI ── -->
+<div class="kpi-grid" id="kpi-grid">
+  <!-- rendered by JS -->
+</div>
+
+<!-- ── ONLINE SECTION ── -->
+<div class="section-online" id="sec-online">
+  <div class="sec-label">Online Channel</div>
+  <div class="grid-2-1">
+
+    <!-- TABLE -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title"><span class="pnum">01</span> Online Coverage by Pin Code</div>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" id="pin-search" placeholder="Search area or pin code..." oninput="renderTable()">
+      </div>
+      <div class="filter-row" id="filter-row">
+        <button class="f-btn f-all" onclick="setFilter('all',this)">All</button>
+        <button class="f-btn f-y"   onclick="setFilter('Yes',this)">✓ Available</button>
+        <button class="f-btn f-so"  onclick="setFilter('Stock out',this)">⚠ Stock Out</button>
+        <button class="f-btn f-n"   onclick="setFilter('No',this)">✕ Not Listed</button>
+      </div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>PIN</th>
+            <th>Area</th>
+            <th class="tc">Blinkit</th>
+            <th class="tc">Swiggy</th>
+            <th class="tc">BigBasket</th>
+            <th class="tc">Zepto</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="online-tbody"></tbody>
+      </table>
+      <div class="legend">
+        <div class="lg-item"><div class="lg-dot" style="background:var(--green)"></div>Available</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--amber)"></div>Stock Out</div>
+        <div class="lg-item"><div class="lg-dot" style="background:rgba(128,128,128,0.2)"></div>Not Listed</div>
+      </div>
+    </div>
+
+    <!-- RIGHT COL -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <!-- Platform bars -->
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title"><span class="pnum">02</span> Platform Reach</div>
+        </div>
+        <div class="plat-row">
+          <div class="plat-name">BigBasket</div>
+          <div class="plat-track"><div class="plat-segs"><div class="seg sg" data-w="86.7%" style="width:0"></div></div></div>
+          <div class="plat-stat">13 / 15 pins</div>
+        </div>
+        <div class="plat-row">
+          <div class="plat-name">Zepto</div>
+          <div class="plat-track"><div class="plat-segs"><div class="seg sg" data-w="60%" style="width:0"></div><div class="seg sa" data-w="6.7%" style="width:0"></div></div></div>
+          <div class="plat-stat">10 / 15 pins</div>
+        </div>
+        <div class="plat-row">
+          <div class="plat-name">Swiggy</div>
+          <div class="plat-track"><div class="plat-segs"><div class="seg sg" data-w="53.3%" style="width:0"></div><div class="seg sa" data-w="13.3%" style="width:0"></div></div></div>
+          <div class="plat-stat">9 / 15 pins</div>
+        </div>
+        <div class="plat-row">
+          <div class="plat-name">Blinkit</div>
+          <div class="plat-track"><div class="plat-segs"><div class="seg sg" data-w="46.7%" style="width:0"></div></div></div>
+          <div class="plat-stat">7 / 15 pins</div>
+        </div>
+        <div class="insight">
+          <div class="insight-lbl">⬡ Insight</div>
+          <div class="insight-txt">BigBasket leads reach (13/15) but has worst listing rank. Blinkit has the highest growth potential — 8 uncovered pin codes to activate.</div>
+        </div>
+      </div>
+
+      <!-- mini stats -->
+      <div class="panel" style="padding:14px 16px">
+        <div class="panel-title" style="margin-bottom:10px"><span class="pnum">03</span> Summary</div>
+        <div class="mini-grid">
+          <div class="mini"><div class="mini-v" style="color:var(--green)">39</div><div class="mini-l">Active listings</div></div>
+          <div class="mini"><div class="mini-v" style="color:var(--amber)">3</div><div class="mini-l">Online stock-outs</div></div>
+          <div class="mini"><div class="mini-v" style="color:var(--accent)">65%</div><div class="mini-l">Avg online coverage</div></div>
+          <div class="mini"><div class="mini-v" style="color:var(--red)">BB×13</div><div class="mini-l">Rank gap (BigBasket)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS ROW -->
+  <div class="grid-3">
+
+    <!-- HEATMAP -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title"><span class="pnum">04</span> Availability Heatmap</div>
+        <span style="font-size:9.5px;color:var(--txt3);font-family:'DM Mono',monospace">hover cells</span>
+      </div>
+      <div class="hm-grid" id="hm-grid">
+        <div class="hm-hdr"></div>
+        <div class="hm-hdr">Blinkit</div>
+        <div class="hm-hdr">Swiggy</div>
+        <div class="hm-hdr">BigBskt</div>
+        <div class="hm-hdr">Zepto</div>
+      </div>
+      <div class="legend" style="margin-top:8px">
+        <div class="lg-item"><div class="lg-dot" style="background:var(--green)"></div>Available</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--amber)"></div>Stock Out</div>
+        <div class="lg-item"><div class="lg-dot" style="background:rgba(128,128,128,0.2)"></div>Not Avail</div>
+      </div>
+    </div>
+
+    <!-- PLATFORM CHART -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title"><span class="pnum">05</span> Platform Bar Chart</div>
+      </div>
+      <div class="chart-wrap"><canvas id="c1"></canvas></div>
+      <div class="legend" style="margin-top:8px">
+        <div class="lg-item"><div class="lg-dot" style="background:var(--green)"></div>Available</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--amber)"></div>Stock Out</div>
+        <div class="lg-item"><div class="lg-dot" style="background:rgba(128,128,128,0.15)"></div>Not Avail</div>
+      </div>
+    </div>
+
+    <!-- LISTING RANK -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title"><span class="pnum">06</span> Listing Quality Flags</div>
+      </div>
+      <div style="font-size:11px;color:var(--txt3);margin-bottom:13px;line-height:1.5">Pin codes where Bran-O ranks below inferior brands</div>
+      <div class="rank-row">
+        <div class="rank-lbl">BigBasket</div>
+        <div class="rank-track"><div class="rank-fill" data-w="100%" style="width:0;background:linear-gradient(90deg,var(--red),var(--amber))"></div></div>
+        <div class="rank-val" style="color:var(--red)">13</div>
+      </div>
+      <div class="rank-row">
+        <div class="rank-lbl">Zepto</div>
+        <div class="rank-track"><div class="rank-fill" data-w="61.5%" style="width:0;background:linear-gradient(90deg,var(--amber),var(--accent))"></div></div>
+        <div class="rank-val" style="color:var(--amber)">8</div>
+      </div>
+      <div class="rank-row">
+        <div class="rank-lbl">Blinkit</div>
+        <div class="rank-track"><div class="rank-fill" data-w="23%" style="width:0;background:var(--accent)"></div></div>
+        <div class="rank-val" style="color:var(--accent)">3</div>
+      </div>
+      <div class="rank-row">
+        <div class="rank-lbl">Swiggy</div>
+        <div class="rank-track"><div class="rank-fill" data-w="15.4%" style="width:0;background:var(--green)"></div></div>
+        <div class="rank-val" style="color:var(--green)">2</div>
+      </div>
+      <div class="insight">
+        <div class="insight-lbl">⬡ Priority Action</div>
+        <div class="insight-txt">BigBasket has widest reach but worst listing rank across 13 pins. Catalogue position optimisation = highest-ROI action.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN PRIORITY CHART (full width) -->
+  <div class="panel" style="margin-bottom:14px">
+    <div class="panel-hd">
+      <div class="panel-title"><span class="pnum">07</span> Pin Code Push Priority (Coverage Score 0–4)</div>
+      <div style="display:flex;gap:10px">
+        <div class="lg-item"><div class="lg-dot" style="background:var(--red)"></div>Urgent (≤1.5)</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--amber)"></div>Needs push</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--accent)"></div>Good</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--green)"></div>Strong</div>
+      </div>
+    </div>
+    <div style="height:230px"><canvas id="c2"></canvas></div>
+  </div>
+</div>
+<!-- /section-online -->
+
+<!-- ── OFFLINE SECTION ── -->
+<div class="section-offline" id="sec-offline">
+  <div class="sec-label">Offline Channel</div>
+  <div class="grid-2-1">
+
+    <!-- OFFLINE TABLE -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title"><span class="pnum">08</span> Modern Trade Shelf Presence</div>
+        <span style="font-size:9.5px;color:var(--txt3);font-family:'DM Mono',monospace">Cmp = competitor brands on shelf</span>
+      </div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Store</th>
+            <th>Area</th>
+            <th class="tc">Status</th>
+            <th>Shelf %</th>
+            <th class="tc">Cmp</th>
+          </tr>
+        </thead>
+        <tbody id="offline-tbody"></tbody>
+      </table>
+      <div class="legend">
+        <div class="lg-item"><div class="lg-dot" style="background:var(--green)"></div>Available</div>
+        <div class="lg-item"><div class="lg-dot" style="background:var(--amber)"></div>Stock Out</div>
+        <div class="lg-item"><div class="lg-dot" style="background:rgba(128,128,128,0.2)"></div>Not Stocked</div>
+        <div class="lg-item"><div class="lg-dot" style="background:rgba(128,128,128,0.08);border:1px dashed rgba(128,128,128,0.3)"></div>Not in Inventory</div>
+      </div>
+    </div>
+
+    <!-- OFFLINE RIGHT -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div class="panel">
+        <div class="panel-hd"><div class="panel-title"><span class="pnum">09</span> Offline Survey Grid</div></div>
+        <div id="store-list"></div>
+      </div>
+
+      <div class="panel" style="padding:14px 16px">
+        <div class="panel-title" style="margin-bottom:10px"><span class="pnum">10</span> Offline Summary</div>
+        <div class="mini-grid">
+          <div class="mini"><div class="mini-v" style="color:var(--green)">6</div><div class="mini-l">Stocked stores</div></div>
+          <div class="mini"><div class="mini-v" style="color:var(--amber)">2</div><div class="mini-l">Active stock-outs</div></div>
+          <div class="mini"><div class="mini-v" style="color:var(--red)">2</div><div class="mini-l">Not stocked</div></div>
+          <div class="mini"><div class="mini-v" style="color:var(--txt2)">20%</div><div class="mini-l">Avg shelf share</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFLINE CHARTS -->
+  <div class="grid-3">
+
+    <!-- STOCK-OUT TRACKER -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title"><span class="pnum">11</span> Stock-Out Tracker</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9.5px;color:var(--red);background:var(--red-bg);padding:2px 9px;border-radius:5px;border:1px solid var(--red-bd)">5 active</div>
+      </div>
+      <div class="alert-item"><div class="a-type a-online">Online</div><div class="a-plat">Swiggy</div><div class="a-loc">Indira Nagar (226016)</div></div>
+      <div class="alert-item"><div class="a-type a-online">Online</div><div class="a-plat">Swiggy</div><div class="a-loc">Mahanagar (226022)</div></div>
+      <div class="alert-item"><div class="a-type a-online">Online</div><div class="a-plat">Zepto</div><div class="a-loc">Chowk / Sadatganj (226003)</div></div>
+      <div class="alert-item"><div class="a-type a-offline">Offline</div><div class="a-plat" style="color:var(--txt2)">Spencers</div><div class="a-loc">Jankipuram Extension</div></div>
+      <div class="alert-item"><div class="a-type a-offline">Offline</div><div class="a-plat" style="color:var(--txt2)">Reliance</div><div class="a-loc">Indira Nagar</div></div>
+      <div class="urgent">
+        <div class="urgent-t">⚡ Critical Alert</div>
+        <div class="urgent-d">Indira Nagar has simultaneous stock-out pressure online (Swiggy) + offline (Reliance SMART). Urgent replenishment required.</div>
+      </div>
+    </div>
+
+    <!-- SHELF SHARE CHART -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title"><span class="pnum">12</span> Shelf Share by Store</div></div>
+      <div class="chart-wrap" style="height:230px"><canvas id="c3"></canvas></div>
+    </div>
+
+    <!-- COMPETITOR COUNT CHART -->
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title"><span class="pnum">13</span> Competitor Count on Shelf</div></div>
+      <div class="chart-wrap" style="height:230px"><canvas id="c4"></canvas></div>
+    </div>
+
+  </div>
+</div>
+<!-- /section-offline -->
+
+</div><!-- /wrap -->
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+// ─── RAW DATA (from Excel) ───────────────────────────────────────
+const onlineData = [
+  { pin:'226001', area:'Hazratganj / GPO',          bl:'Yes', sw:'No',        bb:'Yes', ze:'No',        remark:'Lower listing on BigBasket vs inferior brands' },
+  { pin:'226010', area:'Gomti Nagar',                bl:'Yes', sw:'Yes',       bb:'Yes', ze:'Yes',       remark:'Lower listing on Blinkit, Zepto, BigBasket vs inferior brands' },
+  { pin:'226016', area:'Indira Nagar / Faizabad Rd', bl:'Yes', sw:'Stock out', bb:'Yes', ze:'Yes',       remark:'Lower listing on Zepto & BigBasket; Swiggy stock-out' },
+  { pin:'226018', area:'Aminabad / Naza Market',     bl:'No',  sw:'No',        bb:'Yes', ze:'Yes',       remark:'Lower listing on BigBasket vs inferior brands' },
+  { pin:'226005', area:'Alambagh / Adarsh Nagar',    bl:'Yes', sw:'Yes',       bb:'Yes', ze:'Yes',       remark:'Lower listing on BigBasket & Zepto vs inferior brands' },
+  { pin:'226011', area:'Talkatora / Industrial',     bl:'No',  sw:'No',        bb:'Yes', ze:'No',        remark:'Lower listing on BigBasket vs inferior brands' },
+  { pin:'226002', area:'Arjunganj / Ahmamau',        bl:'Yes', sw:'Yes',       bb:'Yes', ze:'Yes',       remark:'Lower listing on BigBasket vs inferior brands' },
+  { pin:'226004', area:'Aishbagh / Rajajipuram',     bl:'No',  sw:'Yes',       bb:'Yes', ze:'Yes',       remark:'Lower listing on BigBasket & Zepto vs inferior brands' },
+  { pin:'226021', area:'Chinhat / Industrial Area',  bl:'No',  sw:'Yes',       bb:'Yes', ze:'No',        remark:'Lower listing on BigBasket vs inferior brands' },
+  { pin:'226022', area:'Mahanagar, Kursi Road',      bl:'No',  sw:'Stock out', bb:'Yes', ze:'Yes',       remark:'Lower listing on BigBasket & Zepto; Swiggy stock-out' },
+  { pin:'226024', area:'Ashiyana / Kanpur Road',     bl:'No',  sw:'Yes',       bb:'Yes', ze:'Yes',       remark:'Lower listing on BigBasket & Zepto vs inferior brands' },
+  { pin:'226003', area:'Chowk / Sadatganj',          bl:'Yes', sw:'Yes',       bb:'Yes', ze:'Stock out', remark:'Lower listing on Blinkit, BigBasket & Zepto; Zepto SO' },
+  { pin:'226031', area:'Jankipuram Extension',       bl:'No',  sw:'No',        bb:'No',  ze:'Yes',       remark:'Only on Zepto — not available on other platforms' },
+  { pin:'226012', area:'Chinhat Extension',          bl:'Yes', sw:'Yes',       bb:'Yes', ze:'Yes',       remark:'Lower listing on Blinkit, BigBasket & Swiggy' },
+  { pin:'226019', area:'Deva Road, Chinhat',         bl:'No',  sw:'Yes',       bb:'No',  ze:'No',        remark:'Only on Swiggy — not available on other platforms' },
+];
+
+const offlineData = [
+  { store:'Spencers',              area:'Aliganj, Lucknow',          avail:'Yes',   shelf:10, comp:5 },
+  { store:'Spencers',              area:'H.A.L. Colony, Lucknow',    avail:'Yes',   shelf:15, comp:4 },
+  { store:'Spencers',              area:'Jankipuram Ext., Lucknow',  avail:'Stock out', shelf:0, comp:5 },
+  { store:'Spencers',              area:'Gomti Nagar, Lucknow',      avail:'Yes',   shelf:20, comp:6 },
+  { store:'Reliance SMART Bazaar', area:'Sahara Mall, Hazrat Ganj',  avail:'No',    shelf:0,  comp:6 },
+  { store:'LuLu Hypermarket',      area:'LuLu Mall, Lucknow',        avail:'No',    shelf:0,  comp:5 },
+  { store:'Kolkata Mart',          area:'Nazirabad Rd, Aminabad',    avail:'Not in inventory', shelf:0, comp:6 },
+  { store:'Reliance Smart Point',  area:'Sector-4, Jankipuram Ext.', avail:'Yes',   shelf:25, comp:3 },
+  { store:'Reliance SMART Bazaar', area:'Indira Nagar, Lucknow',     avail:'Stock out', shelf:0, comp:5 },
+  { store:'Baba Super Store',      area:'IIM Road, Mubarakpur',      avail:'Yes',   shelf:30, comp:2 },
+  { store:'BANSAL SUPER STORE',    area:'Mehndiganj, Lucknow',       avail:'Yes',   shelf:20, comp:4 },
+];
+
+const priorityData = [
+  {a:'Talkatora',s:1},{a:'Jankipuram Ext.',s:1},{a:'Deva Road',s:1},
+  {a:'Hazratganj',s:2},{a:'Aminabad',s:2},{a:'Chinhat Ind.',s:2},
+  {a:'Mahanagar',s:2.5},{a:'Aishbagh',s:3},{a:'Ashiyana',s:3},
+  {a:'Indira Nagar',s:3.5},{a:'Chowk/Sadatganj',s:3.5},
+  {a:'Alambagh',s:4},{a:'Arjunganj',s:4},{a:'Gomti Nagar',s:4},{a:'Chinhat Ext.',s:4}
+];
+
+// ─── STATE ───────────────────────────────────────────────────────
+let darkMode  = true;
+let channel   = 'all';    // 'all' | 'online' | 'offline'
+let platform  = 'all';    // 'all' | 'blinkit' | 'swiggy' | 'bigbasket' | 'zepto'
+let filterVal = 'all';
+let charts    = [];
+
+// ─── THEME ───────────────────────────────────────────────────────
+function toggleTheme() {
+  darkMode = !darkMode;
+  document.documentElement.setAttribute('data-theme', darkMode ? '' : 'light');
+  document.getElementById('theme-btn').textContent = darkMode ? '☀ Light Mode' : '🌙 Dark Mode';
+  rebuildCharts();
+}
+
+// ─── CHANNEL TOGGLE ──────────────────────────────────────────────
+function setChannel(ch, btn) {
+  channel = ch;
+  // update button states
+  document.querySelectorAll('.ch-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const onEl  = document.getElementById('sec-online');
+  const offEl = document.getElementById('sec-offline');
+
+  if (ch === 'all') {
+    onEl.classList.remove('hide');
+    offEl.classList.remove('hide');
+  } else if (ch === 'online') {
+    onEl.classList.remove('hide');
+    offEl.classList.add('hide');
+  } else {
+    onEl.classList.add('hide');
+    offEl.classList.remove('hide');
+  }
+
+  // update KPI visibility
+  renderKPIs();
+  // re-animate bars after show
+  setTimeout(animateBars, 50);
+}
+
+
+// ─── PLATFORM FILTER ─────────────────────────────────────────────
+const platKey = { blinkit:'bl', swiggy:'sw', bigbasket:'bb', zepto:'ze' };
+const platLabels = { blinkit:'Blinkit', swiggy:'Swiggy Instamart', bigbasket:'BigBasket', zepto:'Zepto' };
+const platColors = {
+  blinkit:   { main:'#22d48a', dim:'rgba(34,212,138,0.15)',  border:'rgba(34,212,138,0.3)'  },
+  swiggy:    { main:'#f5783a', dim:'rgba(245,120,58,0.15)',   border:'rgba(245,120,58,0.3)'  },
+  bigbasket: { main:'#e8315a', dim:'rgba(232,49,90,0.15)',    border:'rgba(232,49,90,0.3)'   },
+  zepto:     { main:'#8b5cf6', dim:'rgba(139,92,246,0.15)',   border:'rgba(139,92,246,0.3)'  },
+};
+
+// Insights per platform
+const platInsights = {
+  all: [
+    { dot:'var(--red)',   text:'Indira Nagar: simultaneous stock-out on Swiggy + Reliance SMART — dual-channel pressure', sub:'→ Urgent replenishment required today' },
+    { dot:'var(--amber)', text:'BigBasket covers 13/15 pins but has worst listing rank — 13 pins rank below inferior brands', sub:'→ Catalogue position fix = highest-ROI action' },
+    { dot:'var(--green)', text:'Blinkit covers only 7/15 pins — 8 uncovered pin codes with high growth potential', sub:'→ Activate listings to capture untapped reach' },
+  ],
+  blinkit: [
+    { dot:'var(--green)', text:'Blinkit available in 7 out of 15 pin codes across Lucknow', sub:'→ 8 pin codes have zero Blinkit presence — high growth opportunity' },
+    { dot:'var(--amber)', text:'Listing rank below inferior brands in Gomti Nagar, Chowk/Sadatganj & Chinhat Extension', sub:'→ Catalogue optimisation needed urgently' },
+    { dot:'var(--red)',   text:'Talkatora, Jankipuram Ext., Deva Road, Aminabad — no Blinkit listing at all', sub:'→ Priority expansion zones for Blinkit onboarding' },
+  ],
+  swiggy: [
+    { dot:'var(--red)',   text:'Active stock-outs on Swiggy Instamart in Indira Nagar (226016) and Mahanagar (226022)', sub:'→ Urgent replenishment required — stock-out impacts ranking' },
+    { dot:'var(--amber)', text:'Swiggy reaches 9/15 pins with 2 active stock-outs reducing effective coverage to 7/15', sub:'→ Resolve stock-outs to restore full platform visibility' },
+    { dot:'var(--green)', text:'Swiggy has lowest listing quality flags (2 pins) — best catalogue health among all platforms', sub:'→ Use Swiggy as benchmark for other platform catalogue fixes' },
+  ],
+  bigbasket: [
+    { dot:'var(--red)',   text:'BigBasket has worst listing rank — ranked below inferior brands in 13 out of 13 active pins', sub:'→ Catalogue position fix is the single highest-ROI action' },
+    { dot:'var(--green)', text:'BigBasket leads reach with 13/15 pins — strongest platform footprint across Lucknow', sub:'→ Fix listing rank to convert reach into actual sales' },
+    { dot:'var(--amber)', text:'Jankipuram Extension (226031), Deva Road (226019) have zero BigBasket presence', sub:'→ Prioritise listing activation in these 2 expansion zones' },
+  ],
+  zepto: [
+    { dot:'var(--red)',   text:'Active Zepto stock-out in Chowk/Sadatganj (226003) — immediate replenishment needed', sub:'→ Stock-out on Zepto causes rank drop and lost quick-commerce sales' },
+    { dot:'var(--amber)', text:'Zepto ranks below inferior brands in 8 pin codes despite being available', sub:'→ Search ranking optimisation required across Zepto catalogue' },
+    { dot:'var(--green)', text:'Zepto added 4 new listings this audit — strongest growth momentum among all platforms', sub:'→ Sustain expansion into Talkatora and Deva Road next' },
+  ],
+};
+
+// Growth strip chips per platform
+const platGrowthChips = {
+  all: [
+    { cls:'gchip-green', text:'📈 BigBasket 86.7% reach — best platform coverage' },
+    { cls:'gchip-blue',  text:'🚀 Zepto: +4 new listings this audit' },
+    { cls:'gchip-amber', text:'⚠ Avg shelf share 20% — target 35%' },
+    { cls:'gchip-red',   text:'🔴 5 active stock-outs across both channels' },
+  ],
+  blinkit: [
+    { cls:'gchip-green', text:'✅ 7/15 pin codes active on Blinkit' },
+    { cls:'gchip-red',   text:'🔴 8 pin codes with zero Blinkit presence' },
+    { cls:'gchip-amber', text:'⚠ Listing rank issue in 3 active pins' },
+  ],
+  swiggy: [
+    { cls:'gchip-green', text:'✅ 9/15 pins covered on Swiggy Instamart' },
+    { cls:'gchip-red',   text:'🔴 2 active stock-outs: Indira Nagar, Mahanagar' },
+    { cls:'gchip-blue',  text:'💡 Best catalogue health — only 2 rank issues' },
+  ],
+  bigbasket: [
+    { cls:'gchip-green', text:'✅ 13/15 pins — widest platform reach' },
+    { cls:'gchip-red',   text:'🔴 Listing rank below inferior brands in 13 pins' },
+    { cls:'gchip-amber', text:'⚠ Catalogue fix = highest priority action' },
+  ],
+  zepto: [
+    { cls:'gchip-green', text:'🚀 +4 new listings — strongest growth this audit' },
+    { cls:'gchip-red',   text:'🔴 1 active stock-out: Chowk/Sadatganj' },
+    { cls:'gchip-amber', text:'⚠ Rank below inferior brands in 8 pins' },
+  ],
+};
+
+function setPlatform(plat, btn) {
+  platform = plat;
+  document.querySelectorAll('.pf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateInsightsBar();
+  updateGrowthStrip();
+  renderKPIs();
+  renderTable();
+  rebuildCharts();
+  setTimeout(animateBars, 50);
+}
+
+function updateInsightsBar() {
+  const items = platInsights[platform] || platInsights.all;
+  const cards = document.getElementById('ins-cards');
+  if (!cards) return;
+  cards.innerHTML = items.map(i => `
+    <div class="ins-item">
+      <div class="ins-dot" style="background:${i.dot};"></div>
+      <div>
+        <div class="ins-text">${i.text}</div>
+        <div class="ins-sub">${i.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateGrowthStrip() {
+  const chips = platGrowthChips[platform] || platGrowthChips.all;
+  const el = document.getElementById('growth-chips');
+  if (!el) return;
+  el.innerHTML = chips.map(c => `<div class="gchip ${c.cls}">${c.text}</div>`).join('');
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function chipHTML(v) {
+  if (v === 'Yes')       return `<span class="chip cy">Y</span>`;
+  if (v === 'Stock out') return `<span class="chip cso">SO</span>`;
+  if (v === 'Not in inventory') return `<span class="chip cni">N/I</span>`;
+  return `<span class="chip cn">N</span>`;
+}
+
+function scoreDots(row) {
+  return ['bl','sw','bb','ze'].map(k => {
+    const v = row[k];
+    const c = v==='Yes'?'var(--green)':v==='Stock out'?'var(--amber)':'rgba(128,128,128,0.18)';
+    return `<div class="sd" style="background:${c}" title="${k}: ${v}"></div>`;
+  }).join('');
+}
+
+function shelfColor(pct) {
+  if (pct >= 25) return 'var(--green)';
+  if (pct >= 15) return 'var(--accent)';
+  return 'var(--amber)';
+}
+
+// ─── KPI RENDER ──────────────────────────────────────────────────
+function renderKPIs() {
+  // Compute platform-specific KPI
+  function platKPI(key, label, grad, noteUp) {
+    const data = onlineData.filter(r => r[key] !== undefined);
+    const avail = data.filter(r => r[key] === 'Yes').length;
+    const so    = data.filter(r => r[key] === 'Stock out').length;
+    const total = data.length;
+    const pct   = (avail / total * 100).toFixed(1);
+    const noteColor = so > 0 ? 'var(--amber)' : 'var(--green)';
+    const noteText  = so > 0 ? `⚠ ${so} stock-out${so>1?'s':''}` : noteUp;
+    return { lbl:label, val:String(avail), denom:`/${total}`, fill: avail/total*100, grad, note:noteText, nc:noteColor };
+  }
+
+  let kpis = [];
+  if (channel !== 'offline') {
+    if (platform === 'all') {
+      kpis = [
+        platKPI('bl', 'Blinkit',          '#5b8fff,#22d48a', '↑ 2 from last audit'),
+        platKPI('sw', 'Swiggy Instamart',  '#f5783a,#22d48a', '↑ 3 new pins'),
+        platKPI('bb', 'BigBasket',         '#22d48a,#5b8fff', '↑ 1 from last audit'),
+        platKPI('ze', 'Zepto',             '#8b5cf6,#5b8fff', '↑ 4 new listings'),
+      ];
+    } else {
+      const key = platKey[platform];
+      const label = platLabels[platform];
+      const pc = platColors[platform];
+      const d = onlineData;
+      const avail = d.filter(r=>r[key]==='Yes').length;
+      const so    = d.filter(r=>r[key]==='Stock out').length;
+      const notCovered = d.filter(r=>r[key]==='No').length;
+      kpis = [
+        { lbl:'Available Pins',   val:String(avail),      denom:'/15', fill:avail/15*100,      grad:`${pc.main},#22d48a`, note:avail>0?`Coverage: ${(avail/15*100).toFixed(0)}%`:'No coverage', nc:'var(--green)' },
+        { lbl:'Stock-Outs',       val:String(so),         denom:'',    fill:so/15*100,          grad:'#f5a623,#ff5c5c',   note:so>0?'Urgent replenishment':'No stock-outs', nc:so>0?'var(--red)':'var(--green)' },
+        { lbl:'Not Listed',       val:String(notCovered), denom:'/15', fill:notCovered/15*100,  grad:'#4a5168,#7a8295',   note:'Expansion opportunity', nc:'var(--txt3)' },
+        { lbl:'Effective Reach',  val:`${((avail/(avail+so+notCovered))*100).toFixed(0)}`,denom:'%',fill:(avail/(avail+so+notCovered))*100,grad:`${pc.main},#5b8fff`,note:`${label} coverage`, nc:'var(--accent)' },
+      ];
+    }
+  }
+
+  const offlineKpis = channel !== 'online' ? [
+    { lbl:'Modern Trade',  val:'6',  denom:'/11', fill:54.5, grad:'#f5a623,#5b8fff', note:'2 stock-outs active',nc:'var(--amber)' },
+    { lbl:'Avg Shelf Share',val:'20',denom:'%',  fill:20,   grad:'#5b8fff,#8b5cf6', note:'↓ Target 35%',       nc:'var(--red)' },
+  ] : [];
+
+  const all = [...kpis, ...offlineKpis];
+
+  const grid = document.getElementById('kpi-grid');
+  grid.style.gridTemplateColumns = `repeat(${all.length},1fr)`;
+  grid.innerHTML = all.map(k => `
+    <div class="kpi">
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val">${k.val}<span class="kpi-denom">${k.denom}</span></div>
+      <div class="kpi-track"><div class="kpi-fill" data-w="${k.fill}%" style="width:0;background:linear-gradient(90deg,${k.grad})"></div></div>
+      <div class="kpi-note" style="color:${k.nc}">${k.note}</div>
+    </div>
+  `).join('');
+}
+
+// ─── ONLINE TABLE ────────────────────────────────────────────────
+function renderTable() {
+  const search = (document.getElementById('pin-search')?.value || '').toLowerCase();
+  const rows = onlineData.filter(r => {
+    const matchSearch = !search || r.area.toLowerCase().includes(search) || r.pin.includes(search);
+    if (!matchSearch) return false;
+    if (filterVal === 'all') return true;
+    return [r.bl, r.sw, r.bb, r.ze].includes(filterVal);
+  });
+
+  const pk = platform !== 'all' ? platKey[platform] : null;
+  const pc = platform !== 'all' ? platColors[platform] : null;
+
+  // filter rows by platform if selected
+  const filteredRows = platform !== 'all'
+    ? rows.filter(r => {
+        if (filterVal === 'all') return true;
+        return r[pk] === filterVal;
+      })
+    : rows;
+
+  document.getElementById('online-tbody').innerHTML = filteredRows.map(r => {
+    const highlight = pk ? `background:${pc.dim};` : '';
+    return `
+    <tr title="${r.remark}" style="${pk && r[pk]==='Yes'?`border-left:2px solid ${pc.main}`:''}">
+      <td><div class="pin">${r.pin}</div></td>
+      <td><div class="aname">${r.area}</div></td>
+      <td style="text-align:center;${pk==='bl'?highlight:''}">${chipHTML(r.bl)}</td>
+      <td style="text-align:center;${pk==='sw'?highlight:''}">${chipHTML(r.sw)}</td>
+      <td style="text-align:center;${pk==='bb'?highlight:''}">${chipHTML(r.bb)}</td>
+      <td style="text-align:center;${pk==='ze'?highlight:''}">${chipHTML(r.ze)}</td>
+      <td><div class="sdots">${scoreDots(r)}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function setFilter(val, btn) {
+  filterVal = val;
+  renderTable();
+}
+
+// ─── OFFLINE TABLE ───────────────────────────────────────────────
+function renderOfflineTable() {
+  document.getElementById('offline-tbody').innerHTML = offlineData.map(s => {
+    let barHTML = '';
+    if (s.avail === 'Yes' && s.shelf > 0) {
+      barHTML = `<div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+        <div style="width:52px;height:6px;background:rgba(128,128,128,0.1);border-radius:10px;overflow:hidden">
+          <div style="height:100%;width:${s.shelf}%;background:${shelfColor(s.shelf)};border-radius:10px"></div>
+        </div>
+        <span style="font-size:10px;font-family:'DM Mono',monospace;font-weight:600">${s.shelf}%</span>
+      </div>`;
+    } else {
+      barHTML = `<span style="font-size:10px;color:var(--txt3);font-family:'DM Mono',monospace">—</span>`;
+    }
+    return `<tr>
+      <td><div class="aname">${s.store}</div></td>
+      <td><div style="font-size:10px;color:var(--txt2);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.area}</div></td>
+      <td style="text-align:center">${chipHTML(s.avail)}</td>
+      <td style="text-align:right">${barHTML}</td>
+      <td style="text-align:center"><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--txt2)">${s.comp}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── STORE LIST ──────────────────────────────────────────────────
+function renderStoreList() {
+  document.getElementById('store-list').innerHTML = offlineData.map(s => {
+    let pctTag = '', fillStyle = '', barVisible = false;
+    if (s.avail === 'Yes') {
+      const c = shelfColor(s.shelf);
+      pctTag = `<span class="store-pct-tag" style="background:${c}22;color:${c};border:1px solid ${c}55">${s.shelf}%</span>`;
+      fillStyle = `width:${s.shelf}%;background:${c}`;
+      barVisible = true;
+    } else if (s.avail === 'Stock out') {
+      pctTag = `<span class="store-pct-tag" style="background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)">S/O</span>`;
+    } else if (s.avail === 'Not in inventory') {
+      pctTag = `<span class="store-pct-tag" style="background:rgba(128,128,128,0.06);color:var(--txt3);border:1px dashed var(--border2)">N/I</span>`;
+    } else {
+      pctTag = `<span class="store-pct-tag" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)">Not</span>`;
+    }
+    return `<div class="store-item">
+      <div class="store-name-col">
+        <div class="store-nm">${s.store}</div>
+        <div class="store-area">${s.area.split(',')[0]}</div>
+      </div>
+      <div class="store-bar-col">
+        ${barVisible ? `<div class="store-track"><div class="store-fill" style="width:0;${fillStyle}" data-w="${s.shelf}%"></div></div>` : ''}
+        ${s.avail === 'Stock out' ? '<div style="font-size:9px;color:var(--amber);font-family:\'DM Mono\',monospace">Out of stock</div>' : ''}
+        ${s.avail === 'No' ? '<div style="font-size:9px;color:var(--txt3);font-family:\'DM Mono\',monospace">Not stocked</div>' : ''}
+        ${s.avail === 'Not in inventory' ? '<div style="font-size:9px;color:var(--txt3);font-family:\'DM Mono\',monospace">Not in inventory</div>' : ''}
+      </div>
+      <div class="store-right">${pctTag}<div class="store-comp" title="Competitors on shelf">${s.comp}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── HEATMAP ─────────────────────────────────────────────────────
+function renderHeatmap() {
+  const grid = document.getElementById('hm-grid');
+  grid.querySelectorAll('.hm-lbl,.hm-cell').forEach(e => e.remove());
+
+  onlineData.forEach(r => {
+    const lbl = document.createElement('div');
+    lbl.className = 'hm-lbl';
+    lbl.textContent = r.area.split('/')[0].trim();
+    grid.appendChild(lbl);
+
+    ['bl','sw','bb','ze'].forEach((k,i) => {
+      const v = r[k];
+      const cell = document.createElement('div');
+      cell.className = `hm-cell ${v==='Yes'?'hmy':v==='Stock out'?'hmso':'hmn'}`;
+      cell.textContent = v==='Yes'?'Y':v==='Stock out'?'SO':'N';
+      const pName = ['Blinkit','Swiggy','BigBasket','Zepto'][i];
+      cell.addEventListener('mouseover', e => showTT(e,`${r.area}\n${pName}: ${v}`));
+      cell.addEventListener('mouseleave', hideTT);
+      grid.appendChild(cell);
+    });
+  });
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────────
+function gc() {
+  const s = getComputedStyle(document.documentElement);
+  const g = k => { const el = document.createElement('div'); el.style.color = k; return k; };
+  return {
+    green:   darkMode ? '#22d48a' : '#16a34a',
+    amber:   darkMode ? '#f5a623' : '#b45309',
+    accent:  darkMode ? '#5b8fff' : '#2563eb',
+    red:     darkMode ? '#ff5c5c' : '#dc2626',
+    txt2:    darkMode ? '#7a8295' : '#4b5a72',
+    txt3:    darkMode ? '#4a5168' : '#9aa3b2',
+    grid:    darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+  };
+}
+
+function rebuildCharts() {
+  charts.forEach(c => c.destroy()); charts = [];
+  const c = gc();
+
+  // c1 — platform bar (platform-aware)
+  const platKeys   = ['bl','sw','bb','ze'];
+  const platNames  = ['Blinkit','Swiggy','BigBasket','Zepto'];
+  const platMainColors = ['#22d48a','#f5783a','#e8315a','#8b5cf6'];
+  const availData  = platKeys.map(k => onlineData.filter(r=>r[k]==='Yes').length);
+  const soData     = platKeys.map(k => onlineData.filter(r=>r[k]==='Stock out').length);
+  const noData     = platKeys.map(k => onlineData.filter(r=>r[k]==='No').length);
+  const barBg      = platform === 'all'
+    ? platNames.map(()=>c.green+'aa')
+    : platNames.map((_,i) => platKeys[i] === platKey[platform] ? platMainColors[i]+'ee' : darkMode?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)');
+  const barBgSO    = platform === 'all'
+    ? platNames.map(()=>c.amber+'aa')
+    : platNames.map((_,i) => platKeys[i] === platKey[platform] ? c.amber+'cc' : darkMode?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.03)');
+  const barBgNo    = darkMode?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.08)';
+
+  charts.push(new Chart(document.getElementById('c1'), {
+    type:'bar',
+    data:{
+      labels: platNames,
+      datasets:[
+        { label:'Available', data:availData, backgroundColor:barBg,   borderRadius:5, borderSkipped:false },
+        { label:'Stock Out', data:soData,    backgroundColor:barBgSO, borderRadius:5, borderSkipped:false },
+        { label:'Not Avail', data:noData,    backgroundColor:barBgNo, borderRadius:5, borderSkipped:false },
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:darkMode?'#181c28':'#fff',borderColor:darkMode?'rgba(255,255,255,0.13)':'rgba(0,0,0,0.1)',borderWidth:1,titleColor:c.txt2,bodyColor:c.txt2} },
+      scales:{
+        x:{ stacked:true, ticks:{color:c.txt3,font:{size:10,family:'DM Mono'}}, grid:{color:c.grid}, border:{display:false} },
+        y:{ stacked:true, max:15, ticks:{color:c.txt3,font:{size:10,family:'DM Mono'},stepSize:5}, grid:{color:c.grid}, border:{display:false} }
+      }
+    }
+  }));
+
+  // c2 — priority (platform-aware)
+  function getPlatformPriorityData() {
+    if (platform === 'all') return priorityData;
+    const key = platKey[platform];
+    return onlineData.map(r => {
+      const v = r[key];
+      const score = v === 'Yes' ? 4 : v === 'Stock out' ? 1.5 : 0;
+      return { a: r.area.split('/')[0].trim(), s: score };
+    }).sort((a,b) => a.s - b.s);
+  }
+  const pd2 = getPlatformPriorityData();
+  const pc2 = platform !== 'all' ? platColors[platform].main : null;
+  const pColors = pd2.map(d => {
+    if (platform !== 'all') {
+      return d.s === 0 ? darkMode?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'
+           : d.s <= 1.5 ? c.red+'aa'
+           : pc2+'cc';
+    }
+    return d.s<=1.5?c.red+'aa':d.s<=2.5?c.amber+'aa':d.s<=3?c.accent+'88':c.green+'aa';
+  });
+  charts.push(new Chart(document.getElementById('c2'), {
+    type:'bar',
+    data:{
+      labels:pd2.map(d=>d.a),
+      datasets:[{ label:'Coverage Score', data:pd2.map(d=>d.s), backgroundColor:pColors, borderRadius:4, borderSkipped:false }]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:darkMode?'#181c28':'#fff',borderColor:darkMode?'rgba(255,255,255,0.13)':'rgba(0,0,0,0.1)',borderWidth:1,titleColor:c.txt2,bodyColor:c.txt2, callbacks:{label:ctx=>` Score: ${ctx.parsed.x}/4`}} },
+      scales:{
+        x:{ max:4, ticks:{color:c.txt3,font:{size:9,family:'DM Mono'},stepSize:1}, grid:{color:c.grid}, border:{display:false} },
+        y:{ ticks:{color:c.txt3,font:{size:9,family:'DM Mono'},maxRotation:0}, grid:{display:false}, border:{display:false} }
+      }
+    }
+  }));
+
+  // c3 — shelf share
+  const stocked = offlineData.filter(s=>s.shelf>0);
+  charts.push(new Chart(document.getElementById('c3'), {
+    type:'bar',
+    data:{
+      labels: stocked.map(s=>s.store.replace('Reliance ','Rel. ')),
+      datasets:[{ label:'Shelf %', data:stocked.map(s=>s.shelf), backgroundColor:stocked.map(s=>shelfColorHex(s.shelf,c)), borderRadius:5, borderSkipped:false }]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:darkMode?'#181c28':'#fff',borderColor:darkMode?'rgba(255,255,255,0.13)':'rgba(0,0,0,0.1)',borderWidth:1,titleColor:c.txt2,bodyColor:c.txt2, callbacks:{label:ctx=>` ${ctx.parsed.x}% shelf share`}} },
+      scales:{
+        x:{ max:35, ticks:{color:c.txt3,font:{size:9,family:'DM Mono'},stepSize:5}, grid:{color:c.grid}, border:{display:false} },
+        y:{ ticks:{color:c.txt3,font:{size:9,family:'DM Mono'},maxRotation:0}, grid:{display:false}, border:{display:false} }
+      }
+    }
+  }));
+
+  // c4 — competitor count
+  charts.push(new Chart(document.getElementById('c4'), {
+    type:'bar',
+    data:{
+      labels: offlineData.map(s=>s.store.replace('Reliance ','Rel. ').substring(0,16)),
+      datasets:[{ label:'Competitors', data:offlineData.map(s=>s.comp), backgroundColor:c.red+'77', borderRadius:4, borderSkipped:false }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:darkMode?'#181c28':'#fff',borderColor:darkMode?'rgba(255,255,255,0.13)':'rgba(0,0,0,0.1)',borderWidth:1,titleColor:c.txt2,bodyColor:c.txt2, callbacks:{label:ctx=>` ${ctx.parsed.y} competing brands`}} },
+      scales:{
+        x:{ ticks:{color:c.txt3,font:{size:8,family:'DM Mono'},maxRotation:45}, grid:{display:false}, border:{display:false} },
+        y:{ ticks:{color:c.txt3,font:{size:9,family:'DM Mono'},stepSize:2}, grid:{color:c.grid}, border:{display:false} }
+      }
+    }
+  }));
+}
+
+function shelfColorHex(pct, c) {
+  if (pct >= 25) return c.green + 'aa';
+  if (pct >= 15) return c.accent + '99';
+  return c.amber + 'aa';
+}
+
+// ─── ANIMATE BARS ────────────────────────────────────────────────
+function animateBars() {
+  requestAnimationFrame(() => {
+    document.querySelectorAll('[data-w]').forEach(el => {
+      el.style.width = el.dataset.w;
+    });
+  });
+}
+
+// ─── TOOLTIP ─────────────────────────────────────────────────────
+const ttEl = document.getElementById('tt');
+function showTT(e, txt) { ttEl.innerHTML = txt.replace('\n','<br>'); ttEl.classList.add('show'); moveTT(e); }
+function hideTT()       { ttEl.classList.remove('show'); }
+document.addEventListener('mousemove', e => { if(ttEl.classList.contains('show')) moveTT(e); });
+function moveTT(e) { ttEl.style.left=(e.clientX+14)+'px'; ttEl.style.top=(e.clientY-8)+'px'; }
+
+// ─── INIT ─────────────────────────────────────────────────────────
+renderKPIs();
+renderTable();
+updateInsightsBar();
+updateGrowthStrip();
+renderOfflineTable();
+renderStoreList();
+renderHeatmap();
+rebuildCharts();
+setTimeout(animateBars, 350);
+</script>
+</body>
+</html>
