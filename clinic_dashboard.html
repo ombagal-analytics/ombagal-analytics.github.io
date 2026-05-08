@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinic Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F0F4F8;--surface:#FFFFFF;--surface2:#F7F9FC;--surface3:#EEF2F7;
+  --border:#DDE3EC;--border2:#E8ECF2;
+  --text-primary:#0F1B2D;--text-secondary:#4A5568;--text-muted:#8A98A8;
+  --teal:#0891B2;--teal-light:#E0F7FA;--teal-dark:#0E7490;
+  --green:#059669;--green-light:#ECFDF5;--green-mid:#D1FAE5;
+  --red:#DC2626;--red-light:#FEF2F2;--red-mid:#FECACA;
+  --amber:#D97706;--amber-light:#FFFBEB;--amber-mid:#FDE68A;
+  --blue:#2563EB;--blue-light:#EFF6FF;
+  --purple:#7C3AED;--purple-light:#F5F3FF;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 28px rgba(0,0,0,.14);
+  --radius:10px;--radius-lg:14px;--header-h:60px;
+}
+[data-theme="dark"]{
+  --bg:#0C1117;--surface:#141C26;--surface2:#1A2535;--surface3:#1F2D3F;
+  --border:#253346;--border2:#2A3A50;
+  --text-primary:#E8F0F8;--text-secondary:#8EA8C3;--text-muted:#4E6A84;
+  --teal:#22B8D4;--teal-light:#0C2D38;--teal-dark:#14899E;
+  --green:#10B981;--green-light:#0A2820;--green-mid:#14432E;
+  --red:#F87171;--red-light:#2A0E0E;--red-mid:#3D1515;
+  --amber:#FBBF24;--amber-light:#2A1C08;--amber-mid:#3D2A0A;
+  --blue:#60A5FA;--blue-light:#0D1F3C;
+  --purple:#A78BFA;--purple-light:#1C1035;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg:0 8px 28px rgba(0,0,0,.55);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;transition:background .25s,color .25s;}
+svg text{font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:var(--header-h);position:sticky;top:0;z-index:200;box-shadow:var(--shadow-sm);transition:background .25s,border-color .25s;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo-badge{width:34px;height:34px;background:linear-gradient(135deg,#0891B2,#0E7490);border-radius:9px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;box-shadow:0 2px 8px rgba(8,145,178,.35);flex-shrink:0;}
+.header-title{font-size:14px;font-weight:800;letter-spacing:-.3px;}
+.header-sub{font-size:10.5px;color:var(--text-muted);margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid var(--green-mid);}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.last-updated{font-size:10.5px;color:var(--text-muted);}
+.theme-toggle{width:40px;height:22px;background:var(--surface3);border-radius:20px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;padding:2px;transition:all .25s;}
+.theme-knob{width:16px;height:16px;background:var(--teal);border-radius:50%;transition:transform .25s;display:flex;align-items:center;justify-content:center;font-size:9px;color:white;}
+[data-theme="dark"] .theme-knob{transform:translateX(18px);}
+
+/* PRIORITY BAR */
+.priority-bar{background:linear-gradient(135deg,#7C0010,#DC2626 60%,#B91C1C);color:white;overflow:hidden;}
+[data-theme="dark"] .priority-bar{background:linear-gradient(135deg,#4A0008,#991B1B 60%,#7F1D1D);}
+.priority-header{display:flex;align-items:center;gap:10px;padding:8px 24px;cursor:pointer;user-select:none;border-bottom:1px solid rgba(255,255,255,.12);}
+.priority-header-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.7;}
+.priority-count{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;}
+.priority-chevron{margin-left:auto;font-size:10px;transition:transform .25s;opacity:.6;}
+.priority-chevron.open{transform:rotate(180deg);}
+.priority-items{display:flex;gap:12px;flex-wrap:wrap;overflow:hidden;max-height:0;transition:max-height .35s ease,padding .35s ease;}
+.priority-items.open{max-height:300px;padding:10px 24px 14px;}
+.priority-item{display:flex;align-items:flex-start;gap:9px;background:rgba(255,255,255,.13);border-radius:9px;padding:10px 13px;border:1px solid rgba(255,255,255,.2);flex:1;min-width:200px;}
+.priority-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.priority-text{font-size:11.5px;line-height:1.5;font-weight:500;}
+.priority-btn{font-size:10px;font-weight:700;margin-top:5px;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.35);border-radius:5px;padding:3px 9px;cursor:pointer;color:white;display:inline-block;transition:background .15s;}
+.priority-btn:hover{background:rgba(255,255,255,.38);}
+
+/* INSIGHTS BAR */
+.insights-bar{background:linear-gradient(135deg,#0E4C60,#0891B2);color:white;padding:11px 24px;display:flex;align-items:flex-start;gap:14px;}
+[data-theme="dark"] .insights-bar{background:linear-gradient(135deg,#082636,#0C5F7A);}
+.insights-label{font-size:9.5px;font-weight:700;letter-spacing:1.4px;opacity:.6;margin-bottom:5px;text-transform:uppercase;}
+.insights-cards{display:flex;gap:10px;flex-wrap:wrap;}
+.insight-item{display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.1);border-radius:8px;padding:8px 11px;min-width:200px;border:1px solid rgba(255,255,255,.15);}
+.insight-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.insight-text{font-size:11.5px;line-height:1.5;opacity:.92;}
+.insight-action{font-size:10px;font-weight:700;opacity:.55;margin-top:2px;font-style:italic;}
+
+/* FILTER BAR */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;transition:background .25s,border-color .25s;}
+.filter-label{font-size:11px;color:var(--text-muted);font-weight:600;}
+.filter-group{display:flex;align-items:center;gap:8px;}
+.time-toggle{display:flex;background:var(--surface2);border-radius:8px;padding:3px;border:1px solid var(--border);}
+.time-btn{padding:4px 13px;border:none;background:none;border-radius:6px;font-size:11.5px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;color:var(--text-secondary);transition:all .15s;}
+.time-btn.active{background:var(--teal);color:white;box-shadow:0 1px 4px rgba(8,145,178,.4);}
+.divider{width:1px;height:22px;background:var(--border);}
+
+/* DROPDOWN */
+.dd-wrap{position:relative;}
+.dd-btn{display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;font-size:11.5px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;color:var(--text-secondary);transition:all .15s;white-space:nowrap;}
+.dd-btn:hover,.dd-btn.open{border-color:var(--teal);color:var(--teal);}
+.dd-btn.dd-active-all{border-color:var(--teal)!important;background:var(--teal-light)!important;color:var(--teal)!important;}
+.dd-btn.dd-active-OPD{border-color:var(--blue)!important;background:var(--blue-light)!important;color:var(--blue)!important;}
+.dd-btn.dd-active-LAB{border-color:var(--purple)!important;background:var(--purple-light)!important;color:var(--purple)!important;}
+.dd-btn.dd-active-IMG{border-color:var(--green)!important;background:var(--green-light)!important;color:var(--green)!important;}
+.dd-btn.dd-active-doc{border-color:var(--amber)!important;background:var(--amber-light)!important;color:var(--amber)!important;}
+.dd-arrow{font-size:9px;transition:transform .15s;opacity:.5;}
+.dd-btn.open .dd-arrow{transform:rotate(180deg);}
+.dd-menu{position:absolute;top:calc(100% + 5px);left:0;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);z-index:500;overflow:hidden;opacity:0;transform:translateY(-5px);transition:all .18s;pointer-events:none;}
+.dd-menu.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+.dd-item{padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--text-secondary);transition:background .1s;}
+.dd-item:hover{background:var(--surface2);}
+.dd-item.selected{color:var(--teal);background:var(--teal-light);}
+.dd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dd-sep{height:1px;background:var(--border);margin:3px 0;}
+
+/* CROSS FILTER BAR */
+.cf-bar{display:none;align-items:center;gap:8px;padding:7px 24px;background:linear-gradient(90deg,var(--teal-light),var(--surface2));border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--teal);}
+.cf-bar.active{display:flex;}
+.cf-tag{display:inline-flex;align-items:center;gap:4px;background:var(--teal);color:white;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:700;}
+.cf-x{cursor:pointer;font-weight:900;margin-left:2px;opacity:.8;}
+.cf-x:hover{opacity:1;}
+.cf-clear-all{margin-left:auto;cursor:pointer;font-size:10.5px;color:var(--text-muted);}
+
+/* MAIN */
+.main{padding:18px 24px 24px;max-width:1440px;margin:0 auto;}
+.section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;margin-top:4px;}
+.section-title{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;}
+.section-line{flex:1;height:1px;background:var(--border);}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px;}
+.kpi-card{background:var(--surface);border-radius:var(--radius-lg);padding:16px 18px;border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s,border-color .2s;}
+.kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.kpi-teal::before{background:var(--teal);}
+.kpi-green::before{background:var(--green);}
+.kpi-amber::before{background:var(--amber);}
+.kpi-red::before{background:var(--red);}
+.kpi-purple::before{background:var(--purple);}
+.kpi-label{font-size:9.5px;color:var(--text-muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-bottom:7px;}
+.kpi-value{font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:8px;font-family:'JetBrains Mono',monospace;transition:color .3s;}
+.kpi-footer{display:flex;align-items:center;gap:6px;font-size:10.5px;}
+.kpi-change{font-weight:700;padding:2px 7px;border-radius:4px;}
+.up{color:var(--green);background:var(--green-light);}
+.down{color:var(--red);background:var(--red-light);}
+.kpi-period{color:var(--text-muted);}
+.kpi-context{font-size:9.5px;color:var(--text-muted);margin-top:4px;font-style:italic;opacity:.8;}
+
+/* ALERTS */
+.alerts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-bottom:16px;}
+.alert-strip{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:9px;font-size:11.5px;border:1px solid;line-height:1.5;transition:transform .15s;}
+.alert-strip:hover{transform:translateX(2px);}
+.alert-red{background:var(--red-light);border-color:var(--red-mid);color:var(--red);}
+.alert-amber{background:var(--amber-light);border-color:var(--amber-mid);color:var(--amber);}
+.alert-green{background:var(--green-light);border-color:var(--green-mid);color:var(--green);}
+.alert-teal{background:var(--teal-light);border-color:#A5F3FC;color:var(--teal);}
+.alert-icon{width:20px;height:20px;border-radius:50%;background:currentColor;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.alert-icon span{color:var(--surface);font-size:9px;font-weight:900;}
+.alert-body{flex:1;color:var(--text-primary);}
+.alert-action-btn{font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;border:1.5px solid currentColor;cursor:pointer;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;white-space:nowrap;transition:all .15s;}
+.alert-action-btn:hover{opacity:.75;}
+
+/* CARDS & CHARTS */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px;}
+.charts-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.charts-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.card{background:var(--surface);border-radius:var(--radius-lg);border:1.5px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:background .25s,border-color .25s;}
+.card.cf-lit{border-color:var(--teal)!important;box-shadow:0 0 0 2px rgba(8,145,178,.18)!important;}
+.card.cf-dim{opacity:.45;transition:opacity .25s;}
+.card-header{padding:13px 18px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:12.5px;font-weight:700;letter-spacing:-.2px;}
+.card-sub{font-size:10px;color:var(--text-muted);margin-top:1px;}
+.card-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.badge-teal{background:var(--teal-light);color:var(--teal);}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-blue{background:var(--blue-light);color:var(--blue);}
+.badge-purple{background:var(--purple-light);color:var(--purple);}
+.card-body{padding:16px 18px;}
+
+/* HBARS */
+.hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer;border-radius:6px;padding:3px 4px;transition:background .1s,outline .1s;}
+.hbar-row:last-child{margin-bottom:0;}
+.hbar-row:hover{background:var(--surface2);}
+.hbar-row.cf-sel{background:var(--teal-light)!important;outline:1.5px solid var(--teal);border-radius:6px;}
+.hbar-row.cf-dim{opacity:.3;}
+.hbar-label{width:68px;font-size:10.5px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+.hbar-wrap{flex:1;background:var(--surface2);border-radius:6px;height:20px;overflow:hidden;border:1px solid var(--border2);}
+.hbar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:7px;font-size:9.5px;font-weight:700;color:white;transition:width .5s ease;}
+.hbar-val{width:60px;text-align:right;font-size:11.5px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+
+/* WAIT BARS */
+.wait-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer;border-radius:6px;padding:3px 4px;transition:background .1s;}
+.wait-row:last-child{margin-bottom:0;}
+.wait-row:hover{background:var(--surface2);}
+.wait-row.cf-sel{background:var(--teal-light)!important;outline:1.5px solid var(--teal);border-radius:6px;}
+.wait-row.cf-dim{opacity:.3;}
+.wait-label{width:76px;font-size:10.5px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+.wait-track{flex:1;height:10px;background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border2);}
+.wait-fill{height:100%;border-radius:10px;transition:width .5s ease;}
+.wait-val{width:42px;font-size:10.5px;font-weight:700;text-align:right;font-family:'JetBrains Mono',monospace;}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;}
+.doc-table th{font-size:9.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 8px 9px 0;text-align:left;}
+.doc-table td{padding:8px 8px 8px 0;font-size:11.5px;border-top:1px solid var(--border);}
+.doc-table tr.doc-row{cursor:pointer;transition:background .1s;}
+.doc-table tr.doc-row:hover td{background:var(--surface2);}
+.doc-table tr.doc-row.cf-sel td{background:var(--teal-light);}
+.doc-table tr.doc-row.cf-dim td{opacity:.3;}
+.doc-table tr:first-child td{border-top:none;}
+.sat-bar{display:inline-block;height:3px;border-radius:10px;vertical-align:middle;margin-left:5px;}
+
+/* PATIENT TABLE */
+.patient-table{width:100%;border-collapse:collapse;}
+.patient-table th{font-size:9.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 6px 9px 0;text-align:left;}
+.patient-table td{padding:7px 6px 7px 0;font-size:11px;border-top:1px solid var(--border);}
+.patient-table tr.pat-row{cursor:default;transition:background .1s;}
+.patient-table tr.pat-row:hover td{background:var(--surface2);}
+.patient-table tr.pat-row.cf-dim td{opacity:.25;}
+.patient-table tr:first-child td{border-top:none;}
+
+/* STATUS PILLS */
+.pill{display:inline-block;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.2px;}
+.pill-ok{background:var(--green-light);color:var(--green);}
+.pill-warn{background:var(--amber-light);color:var(--amber);}
+.pill-fail{background:var(--red-light);color:var(--red);}
+.pill-teal{background:var(--teal-light);color:var(--teal);}
+
+/* TOOLTIP */
+#TT{position:fixed;background:#0F1B2D;color:white;font-size:12px;padding:10px 14px;border-radius:10px;pointer-events:none;display:none;z-index:9999;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;box-shadow:0 8px 28px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);line-height:1.8;min-width:165px;}
+[data-theme="dark"] #TT{background:#1A2535;}
+.tt-title{font-weight:700;font-size:9.5px;letter-spacing:.8px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px;}
+.tt-row{display:flex;justify-content:space-between;gap:22px;}
+.tt-lbl{color:rgba(255,255,255,.6);font-size:10.5px;display:flex;align-items:center;gap:5px;}
+.tt-val{font-weight:700;font-size:12.5px;font-family:'JetBrains Mono',monospace;}
+.tt-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.tt-note{margin-top:5px;font-size:9.5px;opacity:.55;border-top:1px solid rgba(255,255,255,.08);padding-top:4px;}
+
+/* CONCLUSION */
+.conclusion-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;box-shadow:var(--shadow-sm);}
+.conclusion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;}
+.ci{padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);}
+.ci-green{border-left:3px solid var(--green);}
+.ci-red{border-left:3px solid var(--red);}
+.ci-amber{border-left:3px solid var(--amber);}
+.ci-teal{border-left:3px solid var(--teal);}
+.ci-purple{border-left:3px solid var(--purple);}
+.ci-blue{border-left:3px solid var(--blue);}
+.ci-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;color:var(--text-secondary);}
+.ci-text{font-size:12px;color:var(--text-secondary);line-height:1.55;}
+
+/* MODAL OVERLAY */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg),0 0 0 1px var(--border);width:90%;max-width:680px;max-height:85vh;overflow-y:auto;animation:modalIn .22s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-header{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.modal-title{font-size:17px;font-weight:800;letter-spacing:-.3px;}
+.modal-sub{font-size:11.5px;color:var(--text-muted);margin-top:3px;}
+.modal-close{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:background .15s;}
+.modal-close:hover{background:var(--red-light);color:var(--red);}
+.modal-body{padding:22px 26px;}
+.modal-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.modal-kpi{background:var(--surface2);border-radius:10px;padding:14px 16px;border:1px solid var(--border);}
+.modal-kpi-val{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:2px;}
+.modal-kpi-lbl{font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.modal-section{margin-bottom:16px;}
+.modal-section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:10px;}
+.modal-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-action-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;cursor:pointer;transition:all .15s;}
+.modal-action-card:hover{border-color:var(--teal);background:var(--teal-light);}
+.mac-icon{font-size:20px;margin-bottom:6px;}
+.mac-title{font-size:12px;font-weight:700;margin-bottom:3px;}
+.mac-desc{font-size:10.5px;color:var(--text-muted);line-height:1.4;}
+.modal-timeline{position:relative;padding-left:22px;}
+.modal-timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:14px;}
+.tl-item:last-child{margin-bottom:0;}
+.tl-dot{position:absolute;left:-19px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid var(--surface);}
+.tl-title{font-size:12px;font-weight:700;margin-bottom:2px;}
+.tl-text{font-size:11px;color:var(--text-muted);line-height:1.4;}
+.modal-footer{padding:14px 26px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+.btn{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all .15s;border:none;}
+.btn-primary{background:var(--teal);color:white;box-shadow:0 2px 8px rgba(8,145,178,.35);}
+.btn-primary:hover{background:var(--teal-dark);}
+.btn-ghost{background:var(--surface2);color:var(--text-secondary);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+
+/* FOOTER */
+.footer{background:var(--surface);border-top:1px solid var(--border);padding:14px 24px;margin-top:8px;}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;max-width:1440px;margin:0 auto;}
+.footer-brand{font-size:11px;color:var(--text-secondary);}
+.footer-brand strong{color:var(--teal);font-weight:700;}
+.footer-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.footer-meta-item{font-size:10.5px;color:var(--text-muted);}
+.footer-sep{width:3px;height:3px;background:var(--border);border-radius:50%;}
+
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.charts-row,.charts-row-2{grid-template-columns:1fr;}.charts-row-3{grid-template-columns:1fr 1fr;}.conclusion-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.charts-row-3{grid-template-columns:1fr;}.conclusion-grid{grid-template-columns:1fr;}.modal-kpi-row,.modal-action-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Report</div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" id="modalPrimaryBtn">Download Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-badge">🏥</div>
+    <div>
+      <div class="header-title">Clinic Intelligence Dashboard</div>
+      <div class="header-sub">Revenue · Patients · Tests · Doctors · Reports · Insights</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="last-updated">Updated: Today, 8:30 AM</div>
+    <div class="theme-toggle" id="themeToggle" title="Toggle light / dark">
+      <div class="theme-knob" id="themeKnob">☀</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIORITY ACTIONS -->
+<div class="priority-bar">
+  <div class="priority-header" id="priorityHdr">
+    <span style="font-size:15px">🚨</span>
+    <span class="priority-header-label">Priority Actions Required</span>
+    <span class="priority-count" id="priorityCount">3 CRITICAL</span>
+    <span class="priority-chevron open" id="priorityChevron">▼</span>
+  </div>
+  <div class="priority-items open" id="priorityItems"></div>
+</div>
+
+<!-- INSIGHTS -->
+<div class="insights-bar">
+  <span style="font-size:18px;flex-shrink:0;margin-top:1px">💡</span>
+  <div style="flex:1">
+    <div class="insights-label">Smart Insights &amp; Recommended Actions</div>
+    <div class="insights-cards" id="insightsContainer"></div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">View By:</span>
+    <div class="time-toggle">
+      <button class="time-btn" id="btnDay">Day</button>
+      <button class="time-btn active" id="btnWeek">Week</button>
+      <button class="time-btn" id="btnMonth">Month</button>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Department:</span>
+    <div class="dd-wrap">
+      <div class="dd-btn dd-active-all" id="deptBtn"><span id="deptBtnLabel">🏢 All Departments</span><span class="dd-arrow">▼</span></div>
+      <div class="dd-menu" id="deptMenu">
+        <div class="dd-item selected" data-val="all"><span class="dd-dot" style="background:#0891B2"></span>All Departments</div>
+        <div class="dd-sep"></div>
+        <div class="dd-item" data-val="OPD"><span class="dd-dot" style="background:#2563EB"></span>OPD — Outpatient</div>
+        <div class="dd-item" data-val="LAB"><span class="dd-dot" style="background:#7C3AED"></span>Lab — Diagnostics</div>
+        <div class="dd-item" data-val="IMG"><span class="dd-dot" style="background:#059669"></span>Imaging — Radiology</div>
+      </div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Doctor:</span>
+    <div class="dd-wrap">
+      <div class="dd-btn" id="docBtn"><span id="docBtnLabel">👨‍⚕️ All Doctors</span><span class="dd-arrow">▼</span></div>
+      <div class="dd-menu" id="docMenu">
+        <div class="dd-item selected" data-val="all">All Doctors</div>
+        <div class="dd-sep"></div>
+        <div class="dd-item" data-val="Dr. Ram">Dr. Ram — OPD</div>
+        <div class="dd-item" data-val="Dr. Sham">Dr. Sham — OPD</div>
+        <div class="dd-item" data-val="Dr. Lal">Dr. Lal — OPD</div>
+        <div class="dd-item" data-val="Dr. Hari">Dr. Hari — Lab</div>
+        <div class="dd-item" data-val="Dr. Gopi">Dr. Gopi — Imaging</div>
+        <div class="dd-item" data-val="Dr. Raju">Dr. Raju — Imaging</div>
+      </div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Report Status:</span>
+    <div class="dd-wrap">
+      <div class="dd-btn" id="statusBtn"><span id="statusBtnLabel">📋 All Reports</span><span class="dd-arrow">▼</span></div>
+      <div class="dd-menu" id="statusMenu">
+        <div class="dd-item selected" data-val="all">All Reports</div>
+        <div class="dd-sep"></div>
+        <div class="dd-item" data-val="ok">✅ Ready</div>
+        <div class="dd-item" data-val="pend">⏳ Pending</div>
+        <div class="dd-item" data-val="late">🔴 Overdue</div>
+      </div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <span id="periodLabel" style="font-size:11.5px;font-weight:700;color:var(--teal)">Week 1–4, April 2025</span>
+  <button onclick="clearAllFilters()" style="margin-left:auto;padding:4px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface2);font-size:10.5px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;color:var(--text-muted);transition:all .15s;" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">↺ Reset All</button>
+</div>
+
+<!-- CROSS FILTER BAR -->
+<div class="cf-bar" id="cfBar">
+  <span>🔗 Cross-filter active:</span>
+  <div id="cfTags" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  <span class="cf-clear-all" onclick="clearAllFilters()">Clear all ✕</span>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- PRIORITY ALERTS -->
+  <div class="section-hdr"><span class="section-title">🔴 Action Required</span><div class="section-line"></div></div>
+  <div class="alerts-grid" id="alertStrips"></div>
+
+  <!-- REVENUE -->
+  <div class="section-hdr"><span class="section-title">📈 Revenue Analysis</span><div class="section-line"></div></div>
+  <div class="charts-row">
+    <div class="card" id="cardRev">
+      <div class="card-header">
+        <div><div class="card-title">Revenue vs Target</div><div class="card-sub" id="revSub">Weekly revenue across all departments</div></div>
+        <div class="card-badge badge-teal" id="revBadge">4 Weeks</div>
+      </div>
+      <div class="card-body"><svg id="revChart" width="100%" height="220" viewBox="0 0 680 220" preserveAspectRatio="xMidYMid meet"></svg></div>
+    </div>
+    <div class="card" id="cardDept">
+      <div class="card-header">
+        <div><div class="card-title">Revenue by Department</div><div class="card-sub">Click a bar to cross-filter</div></div>
+        <div class="card-badge badge-teal">Breakdown</div>
+      </div>
+      <div class="card-body"><div id="deptBars"></div></div>
+    </div>
+  </div>
+
+  <!-- OPERATIONS -->
+  <div class="section-hdr"><span class="section-title">⚙️ Operational Performance</span><div class="section-line"></div></div>
+  <div class="charts-row-3">
+    <div class="card" id="cardPat">
+      <div class="card-header">
+        <div><div class="card-title">Patient Count Trend</div><div class="card-sub" id="patSub">Total patients per period</div></div>
+        <div class="card-badge badge-blue" id="patBadge">Trend</div>
+      </div>
+      <div class="card-body"><svg id="patChart" width="100%" height="150" viewBox="0 0 300 150" preserveAspectRatio="xMidYMid meet"></svg></div>
+    </div>
+    <div class="card" id="cardTest">
+      <div class="card-header">
+        <div><div class="card-title">Test Performance (TAT)</div><div class="card-sub">Click bar to cross-filter patients</div></div>
+        <div class="card-badge badge-purple" id="testBadge">On-Time</div>
+      </div>
+      <div class="card-body"><div id="testBars"></div></div>
+    </div>
+    <div class="card" id="cardWait">
+      <div class="card-header">
+        <div><div class="card-title">Avg Wait Time</div><div class="card-sub">Click dept to cross-filter</div></div>
+        <div class="card-badge badge-amber">Target: &lt;20 min</div>
+      </div>
+      <div class="card-body"><div id="waitBars"></div></div>
+    </div>
+  </div>
+
+  <!-- PEOPLE -->
+  <div class="section-hdr"><span class="section-title">👨‍⚕️ Doctor &amp; Patient Records</span><div class="section-line"></div></div>
+  <div class="charts-row-2">
+    <div class="card" id="cardDoc">
+      <div class="card-header">
+        <div><div class="card-title">Doctor-Wise Performance</div><div class="card-sub">Click row to filter patient log</div></div>
+        <div class="card-badge badge-teal" id="docBadge">6 Doctors</div>
+      </div>
+      <div class="card-body"><table class="doc-table" id="docTable"></table></div>
+    </div>
+    <div class="card" id="cardLog">
+      <div class="card-header">
+        <div><div class="card-title">Recent Patient Log</div><div class="card-sub">Filtered by active cross-filters</div></div>
+        <div class="card-badge badge-blue" id="logBadge">Records</div>
+      </div>
+      <div class="card-body"><table class="patient-table" id="patientTable"></table></div>
+    </div>
+  </div>
+
+  <!-- CONCLUSION -->
+  <div class="section-hdr"><span class="section-title">📋 Summary &amp; Conclusion</span><div class="section-line"></div></div>
+  <div class="conclusion-card">
+    <div style="font-size:13px;font-weight:800;margin-bottom:5px;">Period Performance Summary</div>
+    <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.65;max-width:760px;" id="conclusionText"></div>
+    <div class="conclusion-grid" id="conclusionGrid"></div>
+  </div>
+</div>
+
+<div id="TT"></div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><strong>Om Bagal Analytics</strong> &nbsp;·&nbsp; Clinic Intelligence Dashboard</div>
+    <div class="footer-meta">
+      <span class="footer-meta-item">📅 Data through April 2025</span>
+      <span class="footer-sep"></span>
+      <span class="footer-meta-item">💊 Clinic Operations &amp; Revenue</span>
+      <span class="footer-sep"></span>
+      <span class="footer-meta-item">🏙️ Pune, Maharashtra</span>
+      <span class="footer-sep"></span>
+      <span class="footer-meta-item">All values in INR (₹)</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════
+var DATA = {
+  week:{
+    labels:['Week 1','Week 2','Week 3','Week 4'],
+    revenue:[186000,214000,197000,231000], target:[200000,200000,200000,200000],
+    patients:[312,368,341,402], opd_rev:42, lab_rev:35, img_rev:23,
+    kpi:{revenue:828000,patients:1423,tests:986,satisfied:88.4,pending:23},
+    kpi_delta:{revenue:'+8.2%',patients:'+11%',tests:'+6%',satisfied:'+1.2%',pending:'-4'},
+    kpi_dir:{revenue:'up',patients:'up',tests:'up',satisfied:'up',pending:'up'},
+    period:'Week 1–4, April 2025', revSub:'Weekly revenue across all departments', patSub:'Weekly patient visits', badge:'4 Weeks'
+  },
+  day:{
+    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    revenue:[42000,51000,47000,55000,38000,62000,18000], target:[48000,48000,48000,48000,48000,55000,15000],
+    patients:[68,82,74,91,63,98,28], opd_rev:44, lab_rev:33, img_rev:23,
+    kpi:{revenue:313000,patients:504,tests:348,satisfied:87.6,pending:9},
+    kpi_delta:{revenue:'+5.1%',patients:'+9%',tests:'+4%',satisfied:'+0.8%',pending:'-2'},
+    kpi_dir:{revenue:'up',patients:'up',tests:'up',satisfied:'up',pending:'up'},
+    period:'This Week (Mon–Sun), Apr 2025', revSub:'Daily revenue collected', patSub:'Daily patient visits', badge:'7 Days'
+  },
+  month:{
+    labels:['Jan','Feb','Mar','Apr','May','Jun'],
+    revenue:[720000,810000,775000,828000,920000,882000], target:[800000,800000,800000,800000,800000,800000],
+    patients:[1210,1380,1295,1423,1580,1490], opd_rev:41, lab_rev:36, img_rev:23,
+    kpi:{revenue:4935000,patients:8378,tests:5820,satisfied:89.1,pending:61},
+    kpi_delta:{revenue:'+12.4%',patients:'+14%',tests:'+9%',satisfied:'+2.1%',pending:'-8'},
+    kpi_dir:{revenue:'up',patients:'up',tests:'up',satisfied:'up',pending:'up'},
+    period:'Jan–Jun 2025', revSub:'Monthly revenue collected', patSub:'Monthly patient visits', badge:'6 Months'
+  }
+};
+
+// KPIs per doctor (index matches DOCTORS array)
+var DOC_KPI = [
+  {revenue:148000,patients:182,tests:210,satisfied:92,pending:2},
+  {revenue:131000,patients:164,tests:195,satisfied:89,pending:3},
+  {revenue:112000,patients:141,tests:160,satisfied:91,pending:1},
+  {revenue:88000, patients:210,tests:320,satisfied:87,pending:8},
+  {revenue:92000, patients:98, tests:142,satisfied:84,pending:5},
+  {revenue:68000, patients:76, tests:98, satisfied:79,pending:4}
+];
+
+// KPIs per department
+var DEPT_KPI = {
+  OPD:{revenue:348000,patients:487,tests:565,satisfied:90.8,pending:6},
+  LAB:{revenue:289800,patients:498,tests:421,satisfied:86.2,pending:11},
+  IMG:{revenue:190440,patients:174,tests:240,satisfied:83.1,pending:6}
+};
+
+var PRIORITY_ACTIONS = {
+  week:[
+    {icon:'🔴',text:'Lab TAT BREACH: 23 reports overdue beyond 48-hour commitment. Patient complaints imminent.',action:'Assign Lab Tech NOW'},
+    {icon:'🟠',text:'Imaging wait time 38 min — nearly DOUBLE the 20-min target. Capacity crisis.',action:'Reschedule Appointments'},
+    {icon:'🟡',text:'Dr. Raju satisfaction 79% — below 85% threshold. Patient experience at risk.',action:'Schedule Review'}
+  ],
+  day:[
+    {icon:'🟠',text:'Sunday OPD footfall 28 patients — 60% below weekday average. Revenue opportunity missed.',action:'Plan Sunday Promo'},
+    {icon:'🟡',text:'Lab reports pending from Friday accumulating — may breach Monday TAT commitment.',action:'Assign Weekend Lab'}
+  ],
+  month:[
+    {icon:'🔴',text:'61 reports pending this period. Lab TAT compliance dropped to 78% — below 90% standard.',action:'Audit Lab Workflow'},
+    {icon:'🔴',text:'Imaging dept average wait rising to 38 min trend. Second technician urgently needed.',action:'Hire Imaging Tech'},
+    {icon:'🟡',text:'May revenue spike (+15%) driven by promotions — replicate strategy for June.',action:'Plan June Campaign'}
+  ]
+};
+
+var INSIGHTS = {
+  week:[
+    {color:'#DC2626',text:'23 reports pending beyond TAT — Lab backlog critical this week.',action:'Assign extra lab technician'},
+    {color:'#D97706',text:'Saturday highest revenue day (₹62k) — plan more Saturday slots.',action:'Open extra OPD on Saturdays'},
+    {color:'#059669',text:'Week 4 patient count 402 — highest weekly footfall ever recorded.',action:'Expand reception capacity'}
+  ],
+  day:[
+    {color:'#DC2626',text:'Sunday OPD footfall very low (28 patients) — underutilised capacity.',action:'Promote Sunday health packages'},
+    {color:'#059669',text:'Saturday revenue ₹62k exceeded target by 12.7%.',action:'Retain Saturday extended hours'},
+    {color:'#0891B2',text:'Thursday patient count peak at 91 — staff adequately rostered.',action:'Maintain Thursday staffing level'}
+  ],
+  month:[
+    {color:'#059669',text:'May 2025 best month: ₹9.2L revenue — 15% above target.',action:'Replicate May promotion strategy'},
+    {color:'#DC2626',text:'61 reports pending this period — TAT compliance at risk.',action:'Automate report dispatch system'},
+    {color:'#D97706',text:'Avg wait time rising in Imaging dept (38 min) — above 20 min target.',action:'Add second imaging technician'}
+  ]
+};
+
+var ALERTS = {
+  week:[
+    {type:'alert-red',   text:'Lab TAT breach: 23 reports overdue. Patients waiting beyond 48-hour commitment. Risk of complaints.',action:'View Pending',modal:'pending'},
+    {type:'alert-amber', text:'Imaging dept average wait time 38 minutes — nearly double the 20-minute target. Assign second technician.',action:'Reschedule',modal:'reschedule'},
+    {type:'alert-green', text:'OPD revenue up 8.2% vs last week. Dr. Ram and Dr. Sham contributing highest footfall.',action:'View Report',modal:'report_week'}
+  ],
+  day:[
+    {type:'alert-amber', text:'Sunday patient count (28) is 60% below weekday average. Clinic capacity underutilised.',action:'Plan Campaign',modal:'campaign_day'},
+    {type:'alert-teal',  text:'Saturday revenue ₹62,000 exceeded weekly daily target by 12.7% — highest single-day revenue this month.',action:'View Report',modal:'report_day'}
+  ],
+  month:[
+    {type:'alert-green', text:'May 2025 revenue ₹9.2 Lakhs is best monthly performance — 15% above target. Sustained 3-month upward trend.',action:'View Report',modal:'report_month'},
+    {type:'alert-red',   text:'61 reports pending across the period. Lab TAT compliance dropped to 78% — below 90% standard.',action:'Audit Lab',modal:'pending'}
+  ]
+};
+
+var CONCLUSIONS = {
+  week:{
+    summary:'This week delivered ₹8.28L in revenue across 1,423 patient visits — a strong 8.2% uplift over the prior period. OPD throughput and patient satisfaction are operational strengths. However, the Lab TAT breach (23 overdue reports) and Imaging wait times (38 min) demand immediate corrective action to protect patient trust.',
+    items:[
+      {cls:'ci-green',title:'💪 Strength',text:'OPD revenue up 8.2%. Dr. Ram & Dr. Sham driving highest footfall, satisfaction above 89%.'},
+      {cls:'ci-red',title:'🚨 Critical Risk',text:'23 Lab reports overdue. TAT compliance is the #1 patient satisfaction driver — resolve within 24 hours.'},
+      {cls:'ci-amber',title:'⚠ Watch Item',text:'Imaging wait at 38 min (target 20). A second technician or restructured appointments is needed urgently.'},
+      {cls:'ci-teal',title:'📊 Insight',text:'Saturday consistently overperforms all KPIs. More Saturday slots could add ₹15K–20K/week.'},
+      {cls:'ci-purple',title:'👨‍⚕️ People',text:'Dr. Raju satisfaction 79% — below 85% threshold. A 1:1 quality review is recommended this week.'},
+      {cls:'ci-blue',title:'🎯 Next Step',text:'Resolve Lab TAT, book a second Imaging technician, and plan an expanded Saturday OPD slot.'}
+    ]
+  },
+  day:{
+    summary:"Today's data reveals strong mid-week and Saturday performance alongside Sunday underperformance. Revenue targets are being met or exceeded on 5 out of 7 days, with Saturday as the standout performer at ₹62K. Sunday utilisation at 28 patients signals an opportunity to drive incremental revenue through targeted health package promotions.",
+    items:[
+      {cls:'ci-green',title:'💪 Best Day',text:'Saturday ₹62K — 12.7% above target. Extended hours and walk-in availability are clearly driving footfall.'},
+      {cls:'ci-amber',title:'⚠ Gap Day',text:'Sunday at ₹18K and only 28 patients. Significant revenue opportunity if Sunday slots are promoted.'},
+      {cls:'ci-red',title:'🚨 Lab Backlog',text:'9 pending reports from this week. Weekend accumulation risk — assign Saturday/Sunday lab coverage.'},
+      {cls:'ci-teal',title:'📈 Peak Traffic',text:'Thursday peaks at 91 patients — staff are rostered correctly. Maintain this staffing model.'},
+      {cls:'ci-blue',title:'🎯 Next Step',text:'Run a Sunday health screening package promotion. Potential to convert ≥60 additional patients.'},
+      {cls:'ci-purple',title:'💡 Opportunity',text:'Saturday model: extended hours + walk-in. Replicate on select Wednesdays to spread load.'}
+    ]
+  },
+  month:{
+    summary:'The 6-month period (Jan–Jun 2025) shows a strong upward revenue trajectory, culminating in May as the best-ever month at ₹9.2L — 15% above target. Patient volumes grew 14% YoY. The key risk remains operational: 61 pending reports and rising Imaging wait times threaten to erode patient satisfaction gains.',
+    items:[
+      {cls:'ci-green',title:'💪 Revenue Peak',text:'May ₹9.2L — best month ever. Promotional strategy and expanded OPD hours drove the result.'},
+      {cls:'ci-red',title:'🚨 TAT Crisis',text:'61 reports pending. Lab compliance at 78% — urgent process and staffing review required.'},
+      {cls:'ci-amber',title:'⚠ Imaging Trend',text:'Imaging wait time trend is worsening. A second full-time technician pays back within 3 months.'},
+      {cls:'ci-teal',title:'📊 Growth',text:'Patient volumes up 14% — the highest growth rate in 3 years. Capacity planning must keep pace.'},
+      {cls:'ci-blue',title:'🎯 Next Step',text:'Replicate May\'s promotion model in July & Aug. Hire one Lab + one Imaging staff by June end.'},
+      {cls:'ci-purple',title:'💡 Opportunity',text:'Doctor-led health camps and corporate tie-ups could add ₹1.5L–2L per month in new revenue.'}
+    ]
+  }
+};
+
+var DOCTORS = [
+  {name:'Dr. Ram',  dept:'OPD',     patients:182, revenue:148000, sat:92, status:'ok'},
+  {name:'Dr. Sham', dept:'OPD',     patients:164, revenue:131000, sat:89, status:'ok'},
+  {name:'Dr. Lal',  dept:'OPD',     patients:141, revenue:112000, sat:91, status:'ok'},
+  {name:'Dr. Hari', dept:'Lab',     patients:210, revenue:88000,  sat:87, status:'ok'},
+  {name:'Dr. Gopi', dept:'Imaging', patients:98,  revenue:92000,  sat:84, status:'warn'},
+  {name:'Dr. Raju', dept:'Imaging', patients:76,  revenue:68000,  sat:79, status:'warn'}
+];
+
+var PATIENTS = [
+  {id:'P-1042',name:'R. Kumar',   dept:'OPD',     doc:'Dr. Ram',  test:'Consultation',  date:'28 Apr',fee:800,  report:'ok',  payment:'ok'},
+  {id:'P-1041',name:'S. Nair',    dept:'Lab',     doc:'Dr. Hari', test:'CBC + LFT',     date:'28 Apr',fee:1800, report:'ok',  payment:'ok'},
+  {id:'P-1040',name:'M. Verma',   dept:'Imaging', doc:'Dr. Gopi', test:'X-Ray Chest',   date:'27 Apr',fee:1200, report:'pend',payment:'ok'},
+  {id:'P-1039',name:'A. Rao',     dept:'OPD',     doc:'Dr. Sham', test:'Consultation',  date:'27 Apr',fee:800,  report:'ok',  payment:'pend'},
+  {id:'P-1038',name:'P. Das',     dept:'Lab',     doc:'Dr. Hari', test:'Thyroid Panel', date:'26 Apr',fee:2400, report:'late',payment:'ok'},
+  {id:'P-1037',name:'V. Pillai',  dept:'Imaging', doc:'Dr. Raju', test:'Ultrasound',    date:'26 Apr',fee:2200, report:'ok',  payment:'ok'},
+  {id:'P-1036',name:'N. Singh',   dept:'OPD',     doc:'Dr. Lal',  test:'Follow-up',     date:'25 Apr',fee:500,  report:'ok',  payment:'ok'},
+  {id:'P-1035',name:'K. Bhat',    dept:'Lab',     doc:'Dr. Hari', test:'Lipid Profile', date:'25 Apr',fee:1400, report:'pend',payment:'pend'},
+  {id:'P-1034',name:'R. Tiwari',  dept:'OPD',     doc:'Dr. Ram',  test:'Consultation',  date:'24 Apr',fee:800,  report:'ok',  payment:'ok'},
+  {id:'P-1033',name:'T. Menon',   dept:'Imaging', doc:'Dr. Raju', test:'MRI Brain',     date:'24 Apr',fee:7500, report:'late',payment:'ok'}
+];
+
+var TESTS = [
+  {name:'CBC',        ontime:96, dept:'LAB'},
+  {name:'LFT/KFT',   ontime:91, dept:'LAB'},
+  {name:'Thyroid',   ontime:83, dept:'LAB'},
+  {name:'X-Ray',     ontime:94, dept:'IMG'},
+  {name:'Ultrasound',ontime:88, dept:'IMG'},
+  {name:'MRI/CT',    ontime:72, dept:'IMG'}
+];
+
+var WAIT_TIMES = [
+  {dept:'OPD',     deptKey:'OPD', min:18},
+  {dept:'Lab',     deptKey:'LAB', min:12},
+  {dept:'Imaging', deptKey:'IMG', min:38},
+  {dept:'Pharmacy',deptKey:null,  min:8}
+];
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+var isDark = false;
+var currentTime = 'week';
+// Unified single filter state — one source of truth
+var F = { dept:'all', doc:'all', status:'all', testName:null, waitDept:null };
+
+// ════════════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════════════
+document.getElementById('themeToggle').addEventListener('click', function(){
+  isDark = !isDark;
+  document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeKnob').textContent = isDark ? '🌙' : '☀';
+  renderAll();
+});
+
+// ════════════════════════════════════════════════════════════
+// SMOOTH KPI COUNTER
+// ════════════════════════════════════════════════════════════
+var kpiAnimations = {};
+function animateKPI(el, from, to, isFloat, prefix, suffix, duration){
+  var id = el.dataset.animId || (el.dataset.animId = Math.random().toString(36).slice(2));
+  if(kpiAnimations[id]) cancelAnimationFrame(kpiAnimations[id]);
+  var start = null, fromVal = parseFloat(from), toVal = parseFloat(to);
+  function step(ts){
+    if(!start) start = ts;
+    var prog = Math.min((ts - start) / duration, 1);
+    // ease-out cubic
+    prog = 1 - Math.pow(1 - prog, 3);
+    var cur = fromVal + (toVal - fromVal) * prog;
+    var disp = isFloat ? cur.toFixed(1) : Math.round(cur);
+    el.textContent = prefix + disp + suffix;
+    if(prog < 1) kpiAnimations[id] = requestAnimationFrame(step);
+    else { el.textContent = prefix + to + suffix; delete kpiAnimations[id]; }
+  }
+  kpiAnimations[id] = requestAnimationFrame(step);
+}
+
+// ════════════════════════════════════════════════════════════
+// DROPDOWN HELPER
+// ════════════════════════════════════════════════════════════
+function initDD(btnId, menuId, onChange){
+  var btn = document.getElementById(btnId);
+  var menu = document.getElementById(menuId);
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var isOpen = menu.classList.contains('show');
+    document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('show'); });
+    document.querySelectorAll('.dd-btn').forEach(function(b){ b.classList.remove('open'); });
+    if(!isOpen){ menu.classList.add('show'); btn.classList.add('open'); }
+  });
+  menu.querySelectorAll('.dd-item').forEach(function(item){
+    item.addEventListener('click', function(e){
+      e.stopPropagation();
+      menu.querySelectorAll('.dd-item').forEach(function(i){ i.classList.remove('selected'); });
+      item.classList.add('selected');
+      menu.classList.remove('show');
+      btn.classList.remove('open');
+      onChange(item.getAttribute('data-val'));
+    });
+  });
+}
+document.addEventListener('click', function(){
+  document.querySelectorAll('.dd-menu').forEach(function(m){ m.classList.remove('show'); });
+  document.querySelectorAll('.dd-btn').forEach(function(b){ b.classList.remove('open'); });
+});
+
+initDD('deptBtn','deptMenu', function(v){
+  F.dept = v;
+  F.doc = 'all'; syncDocDD();
+  F.testName = null; F.waitDept = null;
+  var labels={all:'🏢 All Departments',OPD:'🔵 OPD',LAB:'🟣 Lab',IMG:'🟢 Imaging'};
+  var cls={all:'dd-active-all',OPD:'dd-active-OPD',LAB:'dd-active-LAB',IMG:'dd-active-IMG'};
+  document.getElementById('deptBtnLabel').textContent = labels[v];
+  document.getElementById('deptBtn').className = 'dd-btn '+(cls[v]||'');
+  updateCFBar(); renderAll();
+});
+initDD('docBtn','docMenu', function(v){
+  F.doc = v;
+  F.dept = 'all'; syncDeptDD();
+  F.testName = null; F.waitDept = null;
+  document.getElementById('docBtnLabel').textContent = v==='all' ? '👨‍⚕️ All Doctors' : '👨‍⚕️ '+v;
+  var btn = document.getElementById('docBtn');
+  btn.className = v==='all' ? 'dd-btn' : 'dd-btn dd-active-doc';
+  updateCFBar(); renderAll();
+});
+initDD('statusBtn','statusMenu', function(v){
+  F.status = v;
+  var labels={all:'📋 All Reports',ok:'✅ Ready',pend:'⏳ Pending',late:'🔴 Overdue'};
+  document.getElementById('statusBtnLabel').textContent = labels[v];
+  updateCFBar(); renderAll();
+});
+
+function syncDocDD(){
+  document.getElementById('docBtnLabel').textContent = '👨‍⚕️ All Doctors';
+  document.getElementById('docBtn').className = 'dd-btn';
+  document.querySelectorAll('#docMenu .dd-item').forEach(function(i){ i.classList.toggle('selected', i.getAttribute('data-val')==='all'); });
+}
+function syncDeptDD(){
+  document.getElementById('deptBtnLabel').textContent = '🏢 All Departments';
+  document.getElementById('deptBtn').className = 'dd-btn dd-active-all';
+  document.querySelectorAll('#deptMenu .dd-item').forEach(function(i){ i.classList.toggle('selected', i.getAttribute('data-val')==='all'); });
+}
+
+// ════════════════════════════════════════════════════════════
+// TIME TOGGLE
+// ════════════════════════════════════════════════════════════
+document.getElementById('btnDay').addEventListener('click', function(){ setTime('day',this); });
+document.getElementById('btnWeek').addEventListener('click', function(){ setTime('week',this); });
+document.getElementById('btnMonth').addEventListener('click', function(){ setTime('month',this); });
+function setTime(t, btn){
+  currentTime = t;
+  ['btnDay','btnWeek','btnMonth'].forEach(function(id){ document.getElementById(id).classList.remove('active'); });
+  btn.classList.add('active');
+  renderAll();
+}
+
+// ════════════════════════════════════════════════════════════
+// CROSS FILTER (unified — all reads from F)
+// ════════════════════════════════════════════════════════════
+function setTestFilter(name){
+  F.testName = (F.testName === name) ? null : name;
+  updateCFBar(); renderAll();
+}
+function setWaitFilter(deptKey){
+  F.waitDept = (F.waitDept === deptKey) ? null : deptKey;
+  updateCFBar(); renderAll();
+}
+function clearAllFilters(){
+  F = { dept:'all', doc:'all', status:'all', testName:null, waitDept:null };
+  syncDeptDD(); syncDocDD();
+  document.getElementById('statusBtnLabel').textContent = '📋 All Reports';
+  document.getElementById('statusBtn').className = 'dd-btn';
+  document.querySelectorAll('#statusMenu .dd-item').forEach(function(i){ i.classList.toggle('selected', i.getAttribute('data-val')==='all'); });
+  updateCFBar(); renderAll();
+}
+function updateCFBar(){
+  var bar = document.getElementById('cfBar');
+  var tags = document.getElementById('cfTags');
+  var items = [];
+  if(F.dept!=='all')     items.push({lbl:'Dept: '+F.dept,    clear:function(){ F.dept='all'; syncDeptDD(); updateCFBar(); renderAll(); }});
+  if(F.doc!=='all')      items.push({lbl:'Doctor: '+F.doc,   clear:function(){ F.doc='all';  syncDocDD();  updateCFBar(); renderAll(); }});
+  if(F.status!=='all')   items.push({lbl:'Status: '+F.status, clear:function(){ F.status='all'; document.getElementById('statusBtnLabel').textContent='📋 All Reports'; document.querySelectorAll('#statusMenu .dd-item').forEach(function(i){i.classList.toggle('selected',i.getAttribute('data-val')==='all');}); updateCFBar(); renderAll(); }});
+  if(F.testName)         items.push({lbl:'Test: '+F.testName, clear:function(){ F.testName=null; updateCFBar(); renderAll(); }});
+  if(F.waitDept)         items.push({lbl:'Wait: '+F.waitDept, clear:function(){ F.waitDept=null; updateCFBar(); renderAll(); }});
+  bar.classList.toggle('active', items.length > 0);
+  tags.innerHTML = items.map(function(it,idx){
+    return '<span class="cf-tag">'+it.lbl+'<span class="cf-x" data-idx="'+idx+'">✕</span></span>';
+  }).join('');
+  tags.querySelectorAll('.cf-x').forEach(function(x){
+    x.addEventListener('click', function(){ items[parseInt(x.dataset.idx)].clear(); });
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// PRIORITY BAR TOGGLE
+// ════════════════════════════════════════════════════════════
+var priorityOpen = true;
+document.getElementById('priorityHdr').addEventListener('click', function(){
+  priorityOpen = !priorityOpen;
+  document.getElementById('priorityItems').classList.toggle('open', priorityOpen);
+  document.getElementById('priorityChevron').classList.toggle('open', priorityOpen);
+});
+
+// ════════════════════════════════════════════════════════════
+// TOOLTIP
+// ════════════════════════════════════════════════════════════
+var TT = document.getElementById('TT');
+function showTT(e, title, rows, note){
+  var h = title ? '<div class="tt-title">'+title+'</div>' : '';
+  rows.forEach(function(r){
+    var dot = r.dot ? '<span class="tt-dot" style="background:'+r.dot+'"></span>' : '';
+    h += '<div class="tt-row"><span class="tt-lbl">'+dot+r.lbl+'</span><span class="tt-val" style="color:'+(r.col||'#fff')+'">'+r.val+'</span></div>';
+  });
+  if(note) h += '<div class="tt-note">'+note+'</div>';
+  TT.innerHTML = h; TT.style.display = 'block'; posTT(e);
+}
+function posTT(e){ var l=e.clientX+14,t=e.clientY+14,w=TT.offsetWidth,h=TT.offsetHeight; if(l+w>window.innerWidth-10)l=e.clientX-w-14; if(t+h>window.innerHeight-10)t=e.clientY-h-14; TT.style.left=l+'px'; TT.style.top=t+'px'; }
+function hideTT(){ TT.style.display='none'; }
+document.addEventListener('mousemove', function(e){ if(TT.style.display==='block') posTT(e); });
+
+// ════════════════════════════════════════════════════════════
+// MODAL SYSTEM
+// ════════════════════════════════════════════════════════════
+var MODAL_CONTENT = {
+  pending:{
+    title:'🔴 Pending Reports — Lab Backlog',
+    sub:'Immediate action required · TAT breached',
+    primaryBtn:'Download Lab Report',
+    body: function(){
+      return '<div class="modal-kpi-row">'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--red)">23</div><div class="modal-kpi-lbl">Reports Overdue</div></div>'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--amber)">78%</div><div class="modal-kpi-lbl">TAT Compliance</div></div>'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--teal)">48h</div><div class="modal-kpi-lbl">Commitment</div></div>'
+        +'</div>'
+        +'<div class="modal-section"><div class="modal-section-title">⚡ Immediate Actions</div>'
+        +'<div class="modal-action-grid">'
+        +'<div class="modal-action-card"><div class="mac-icon">👩‍🔬</div><div class="mac-title">Add Lab Technician</div><div class="mac-desc">Bring in one additional tech for the next 3 days to clear the backlog.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">📞</div><div class="mac-title">Patient Notification</div><div class="mac-desc">Call all patients with overdue reports and update ETA immediately.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">⏱️</div><div class="mac-title">Prioritise Urgent</div><div class="mac-desc">Sort overdue list by clinical urgency. Handle MRI/CT and thyroid first.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">📋</div><div class="mac-title">Audit Workflow</div><div class="mac-desc">Identify the bottleneck: pre-analysis, machine queue, or reporting.</div></div>'
+        +'</div></div>'
+        +'<div class="modal-section"><div class="modal-section-title">📅 Resolution Timeline</div>'
+        +'<div class="modal-timeline">'
+        +'<div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-title">Day 1 — Today</div><div class="tl-text">Contact all overdue patients, assign extra technician, sort by urgency.</div></div>'
+        +'<div class="tl-item"><div class="tl-dot" style="background:var(--amber)"></div><div class="tl-title">Day 2 — Tomorrow</div><div class="tl-text">Clear top 15 overdue reports. Machine utilisation at 110% capacity.</div></div>'
+        +'<div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-title">Day 3 — Resolution</div><div class="tl-text">All reports dispatched. TAT compliance restored to 90%+ standard.</div></div>'
+        +'</div></div>';
+    }
+  },
+  reschedule:{
+    title:'🟠 Imaging Wait Time — Capacity Issue',
+    sub:'Avg 38 min · Target: 20 min · Action needed',
+    primaryBtn:'Download Schedule',
+    body: function(){
+      return '<div class="modal-kpi-row">'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--red)">38</div><div class="modal-kpi-lbl">Avg Wait (min)</div></div>'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--amber)">20</div><div class="modal-kpi-lbl">Target (min)</div></div>'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--red)">+18</div><div class="modal-kpi-lbl">Overshoot</div></div>'
+        +'</div>'
+        +'<div class="modal-section"><div class="modal-section-title">⚡ Rescheduling Strategy</div>'
+        +'<div class="modal-action-grid">'
+        +'<div class="modal-action-card"><div class="mac-icon">🔄</div><div class="mac-title">Stagger Appointments</div><div class="mac-desc">Space MRI/CT slots by 45 min instead of 30 min to reduce queue buildup.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">🌅</div><div class="mac-title">Add Early Morning Slots</div><div class="mac-desc">Open 7–8 AM slots for 2 additional patients per day without extra staffing.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">👤</div><div class="mac-title">Hire Second Technician</div><div class="mac-desc">Part-time weekend tech reduces Saturday wait time by ~50% immediately.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">📲</div><div class="mac-title">SMS Queue System</div><div class="mac-desc">Notify patients when 10 min away so they don\'t crowd the waiting area.</div></div>'
+        +'</div></div>';
+    }
+  },
+  campaign_day:{
+    title:'📣 Sunday Health Campaign Plan',
+    sub:'Low Sunday footfall · 28 patients vs 91 weekday avg',
+    primaryBtn:'Export Campaign Brief',
+    body: function(){
+      return '<div class="modal-kpi-row">'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--red)">28</div><div class="modal-kpi-lbl">Sunday Patients</div></div>'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--teal)">91</div><div class="modal-kpi-lbl">Weekday Average</div></div>'
+        +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--amber)">₹42K</div><div class="modal-kpi-lbl">Revenue Opportunity</div></div>'
+        +'</div>'
+        +'<div class="modal-section"><div class="modal-section-title">💡 Campaign Ideas</div>'
+        +'<div class="modal-action-grid">'
+        +'<div class="modal-action-card"><div class="mac-icon">🩺</div><div class="mac-title">Sunday Wellness Package</div><div class="mac-desc">Bundle CBC + consultation at ₹999 — 20% off weekday rate. Promote on WhatsApp.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">👨‍👩‍👧</div><div class="mac-title">Family Health Camp</div><div class="mac-desc">Free BP & sugar check for 2 family members with every OPD booking on Sunday.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">📱</div><div class="mac-title">Targeted SMS Blast</div><div class="mac-desc">Send to past OPD patients who haven\'t visited in 30+ days. Estimated ₹800 avg ticket.</div></div>'
+        +'<div class="modal-action-card"><div class="mac-icon">🏢</div><div class="mac-title">Corporate Tie-up</div><div class="mac-desc">Offer Sunday-exclusive corporate health check packages to 5 nearby offices.</div></div>'
+        +'</div></div>'
+        +'<div class="modal-section"><div class="modal-section-title">📅 3-Week Rollout Plan</div>'
+        +'<div class="modal-timeline">'
+        +'<div class="tl-item"><div class="tl-dot" style="background:var(--teal)"></div><div class="tl-title">Week 1 — Prepare</div><div class="tl-text">Design offer, build patient SMS list, brief front desk and doctors.</div></div>'
+        +'<div class="tl-item"><div class="tl-dot" style="background:var(--amber)"></div><div class="tl-title">Week 2 — Launch</div><div class="tl-text">Send SMS campaign, post on clinic boards, WhatsApp status to regulars.</div></div>'
+        +'<div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-title">Week 3 — Measure</div><div class="tl-text">Track Sunday footfall vs baseline. Target: 60+ patients, ₹55K+ revenue.</div></div>'
+        +'</div></div>';
+    }
+  },
+  report_week:{
+    title:'📊 Weekly Performance Report',
+    sub:'Week 1–4, April 2025 · All Departments',
+    primaryBtn:'Export PDF Report',
+    body: function(){ return buildReportBody('week'); }
+  },
+  report_day:{
+    title:'📊 Daily Performance Report',
+    sub:'This Week (Mon–Sun), April 2025',
+    primaryBtn:'Export PDF Report',
+    body: function(){ return buildReportBody('day'); }
+  },
+  report_month:{
+    title:'📊 Monthly Performance Report',
+    sub:'Jan–Jun 2025 · Best Period Ever',
+    primaryBtn:'Export PDF Report',
+    body: function(){ return buildReportBody('month'); }
+  }
+};
+
+function buildReportBody(t){
+  var d = DATA[t], k = d.kpi;
+  function fmtR(n){ return '₹'+(n>=100000?(n/100000).toFixed(1)+'L':n>=1000?(n/1000).toFixed(0)+'K':n); }
+  return '<div class="modal-kpi-row" style="grid-template-columns:repeat(3,1fr)">'
+    +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--teal)">'+fmtR(k.revenue)+'</div><div class="modal-kpi-lbl">Total Revenue</div></div>'
+    +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--green)">'+k.patients.toLocaleString('en-IN')+'</div><div class="modal-kpi-lbl">Total Patients</div></div>'
+    +'<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--purple)">'+k.satisfied+'%</div><div class="modal-kpi-lbl">Satisfaction</div></div>'
+    +'</div>'
+    +'<div class="modal-section"><div class="modal-section-title">📋 Revenue by Department</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;">'
+    +[{lbl:'OPD',pct:d.opd_rev,col:'#0891B2'},{lbl:'Lab',pct:d.lab_rev,col:'#7C3AED'},{lbl:'Imaging',pct:d.img_rev,col:'#059669'}].map(function(dept){
+      var val = Math.round(k.revenue*dept.pct/100);
+      return '<div style="display:flex;align-items:center;gap:10px;">'
+        +'<div style="width:70px;font-size:12px;font-weight:600;color:var(--text-secondary)">'+dept.lbl+'</div>'
+        +'<div style="flex:1;background:var(--surface2);border-radius:6px;height:18px;overflow:hidden;">'
+        +'<div style="width:'+dept.pct+'%;height:100%;background:'+dept.col+';border-radius:6px;"></div></div>'
+        +'<div style="width:80px;text-align:right;font-size:11px;font-weight:700;font-family:JetBrains Mono,monospace;">'+fmtR(val)+'</div></div>';
+    }).join('')
+    +'</div></div>'
+    +'<div class="modal-section"><div class="modal-section-title">🏆 Top Doctor This Period</div>'
+    +'<div style="background:var(--surface2);border-radius:10px;padding:14px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;">'
+    +'<div style="font-size:32px">👨‍⚕️</div>'
+    +'<div><div style="font-size:14px;font-weight:800;">Dr. Ram</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">182 patients · ₹1.48L revenue · 92% satisfaction</div></div>'
+    +'<div style="margin-left:auto;background:var(--green-light);color:var(--green);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;">⭐ TOP PERFORMER</div>'
+    +'</div></div>';
+}
+
+function openModal(key){
+  var c = MODAL_CONTENT[key];
+  if(!c) return;
+  document.getElementById('modalTitle').textContent = c.title;
+  document.getElementById('modalSub').textContent = c.sub;
+  document.getElementById('modalBody').innerHTML = c.body();
+  document.getElementById('modalPrimaryBtn').textContent = c.primaryBtn;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+
+// ════════════════════════════════════════════════════════════
+// RENDER ALL
+// ════════════════════════════════════════════════════════════
+var prevKPI = null;
+function renderAll(){
+  var d = DATA[currentTime];
+  document.getElementById('periodLabel').textContent = d.period;
+  document.getElementById('revSub').textContent = d.revSub;
+  document.getElementById('patSub').textContent = d.patSub;
+  document.getElementById('revBadge').textContent = d.badge;
+  document.getElementById('patBadge').textContent = d.badge;
+  renderPriority(); renderInsights(); renderAlerts();
+  renderKPIs(d);
+  renderRevChart(d); renderDeptBars(d);
+  renderPatChart(d); renderTestBars(); renderWaitBars();
+  renderDoctors(); renderPatientLog(); renderConclusion();
+}
+
+// ════════════════════════════════════════════════════════════
+// KPIs — with smooth animated counters + doctor/dept filter
+// ════════════════════════════════════════════════════════════
+function getKPI(){
+  var base = DATA[currentTime].kpi;
+  // If a specific doctor is selected, use their stats
+  if(F.doc !== 'all'){
+    var di = DOCTORS.findIndex(function(d){ return d.name===F.doc; });
+    if(di>=0){
+      var dk = DOC_KPI[di];
+      return {revenue:dk.revenue, patients:dk.patients, tests:dk.tests, satisfied:dk.satisfied, pending:dk.pending,
+        delta:{revenue:'Dr.',patients:'seen',tests:'tests',satisfied:'% sat.',pending:'pending'},
+        dir:{revenue:'up',patients:'up',tests:'up',satisfied:'up',pending:dk.pending>3?'down':'up'},
+        context:'Showing stats for '+F.doc+' only'};
+    }
+  }
+  // If a specific department is selected
+  if(F.dept !== 'all'){
+    var dk = DEPT_KPI[F.dept];
+    if(dk) return {revenue:dk.revenue, patients:dk.patients, tests:dk.tests, satisfied:dk.satisfied, pending:dk.pending,
+      delta:DATA[currentTime].kpi_delta, dir:DATA[currentTime].kpi_dir,
+      context:'Showing '+F.dept+' department only'};
+  }
+  return Object.assign({}, base, {delta: DATA[currentTime].kpi_delta, dir: DATA[currentTime].kpi_dir, context:null});
+}
+
+function renderKPIs(d){
+  var k = getKPI();
+  function fmtR(n){ return n>=100000?(n/100000).toFixed(1)+'L':n>=1000?(n/1000).toFixed(0)+'K':''+n; }
+  var cards = [
+    {lbl:'Total Revenue',    rawVal:k.revenue,     dispFn:function(v){return'₹'+fmtR(v);},  cls:'kpi-teal',  delta:k.delta&&k.delta.revenue||'',  dir:k.dir&&k.dir.revenue||'up',  per:'vs previous period', isFloat:false},
+    {lbl:'Total Patients',   rawVal:k.patients,    dispFn:function(v){return''+Math.round(v);}, cls:'kpi-green',delta:k.delta&&k.delta.patients||'', dir:k.dir&&k.dir.patients||'up', per:'clinic visits',      isFloat:false},
+    {lbl:'Tests Conducted',  rawVal:k.tests,       dispFn:function(v){return''+Math.round(v);}, cls:'kpi-amber', delta:k.delta&&k.delta.tests||'',    dir:k.dir&&k.dir.tests||'up',    per:'all departments',    isFloat:false},
+    {lbl:'Satisfaction',     rawVal:k.satisfied,   dispFn:function(v){return v.toFixed(1)+'%';},cls:'kpi-purple',delta:k.delta&&k.delta.satisfied||'',dir:k.dir&&k.dir.satisfied||'up',per:'survey score',       isFloat:true},
+    {lbl:'Reports Pending',  rawVal:k.pending,     dispFn:function(v){return Math.round(v)+' rpts';},cls:'kpi-red',delta:k.delta&&k.delta.pending||'', dir:'up',per:'beyond TAT',isFloat:false}
+  ];
+
+  var existing = document.getElementById('kpiGrid').querySelectorAll('.kpi-card');
+  if(existing.length !== cards.length){
+    // First render
+    document.getElementById('kpiGrid').innerHTML = cards.map(function(c,i){
+      return '<div class="kpi-card '+c.cls+'">'
+        +'<div class="kpi-label">'+c.lbl+'</div>'
+        +'<div class="kpi-value" id="kpiVal'+i+'">'+c.dispFn(c.rawVal)+'</div>'
+        +'<div class="kpi-footer"><span class="kpi-change '+(i===4?(c.rawVal>5?'down':'up'):c.dir)+'">'+c.delta+'</span>'
+        +'<span class="kpi-period">'+c.per+'</span></div>'
+        +(k.context?'<div class="kpi-context">'+k.context+'</div>':'')
+        +'</div>';
+    }).join('');
+    prevKPI = cards.map(function(c){ return c.rawVal; });
+    return;
+  }
+
+  // Animate from previous to new values
+  cards.forEach(function(c,i){
+    var el = document.getElementById('kpiVal'+i);
+    if(!el) return;
+    var from = prevKPI ? prevKPI[i] : c.rawVal;
+    var to = c.rawVal;
+    // Animate numeric part
+    var startNum = parseFloat(from);
+    var endNum = parseFloat(to);
+    var startTime = null;
+    var duration = 700;
+    var isFloat = c.isFloat;
+    (function(el,startNum,endNum,dispFn,isFloat){
+      function step(ts){
+        if(!startTime) startTime = ts;
+        var p = Math.min((ts-startTime)/duration,1);
+        p = 1-Math.pow(1-p,3);
+        var cur = startNum + (endNum-startNum)*p;
+        el.textContent = isFloat ? (cur.toFixed(1)+'%') : dispFn(cur);
+        if(p<1) requestAnimationFrame(step);
+        else el.textContent = dispFn(endNum);
+      }
+      requestAnimationFrame(step);
+    })(el, startNum, endNum, c.dispFn, isFloat);
+
+    // Update badge + context
+    var card = el.parentElement;
+    var footer = card.querySelector('.kpi-footer');
+    var dirClass = i===4?(c.rawVal>5?'down':'up'):c.dir;
+    footer.innerHTML = '<span class="kpi-change '+dirClass+'">'+c.delta+'</span><span class="kpi-period">'+c.per+'</span>';
+    var ctx = card.querySelector('.kpi-context');
+    if(k.context && !ctx){
+      var d2 = document.createElement('div'); d2.className='kpi-context'; d2.textContent=k.context; card.appendChild(d2);
+    } else if(!k.context && ctx){ ctx.remove(); }
+    else if(k.context && ctx){ ctx.textContent=k.context; }
+  });
+  prevKPI = cards.map(function(c){ return c.rawVal; });
+}
+
+// ════════════════════════════════════════════════════════════
+// PRIORITY
+// ════════════════════════════════════════════════════════════
+function renderPriority(){
+  var p = PRIORITY_ACTIONS[currentTime];
+  document.getElementById('priorityCount').textContent = p.length+' CRITICAL';
+  document.getElementById('priorityItems').innerHTML = p.map(function(a){
+    return '<div class="priority-item"><div class="priority-icon">'+a.icon+'</div>'
+      +'<div><div class="priority-text">'+a.text+'</div>'
+      +'<div class="priority-btn">→ '+a.action+'</div></div></div>';
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// INSIGHTS
+// ════════════════════════════════════════════════════════════
+function renderInsights(){
+  document.getElementById('insightsContainer').innerHTML = INSIGHTS[currentTime].map(function(i){
+    return '<div class="insight-item"><div class="insight-dot" style="background:'+i.color+'"></div>'
+      +'<div><div class="insight-text">'+i.text+'</div><div class="insight-action">→ '+i.action+'</div></div></div>';
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// ALERTS — buttons open modals
+// ════════════════════════════════════════════════════════════
+function renderAlerts(){
+  var iconMap = {'alert-red':'!!','alert-amber':'!','alert-green':'OK','alert-teal':'i'};
+  document.getElementById('alertStrips').innerHTML = ALERTS[currentTime].map(function(a){
+    var ic = iconMap[a.type]||'!';
+    var mk = a.modal||'';
+    return '<div class="alert-strip '+a.type+'">'
+      +'<div class="alert-icon"><span class="alert-icon-inner">'+ic+'</span></div>'
+      +'<div class="alert-body">'+a.text+'</div>'
+      +'<button class="alert-action-btn" onclick="openModal(\''+mk+'\')">'+a.action+' →</button>'
+      +'</div>';
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// REVENUE CHART
+// ════════════════════════════════════════════════════════════
+function renderRevChart(d){
+  var svg=document.getElementById('revChart');
+  var W=680,H=220,pad={t:16,r:64,b:36,l:62};
+  var cW=W-pad.l-pad.r,cH=H-pad.t-pad.b,n=d.labels.length;
+  var maxVal=Math.max.apply(null,d.revenue.concat(d.target))*1.12;
+  var barW=Math.min(38,(cW/n)*0.38),gap=cW/n;
+  function X(i){return pad.l+gap*i+gap/2;}
+  function Y(v){return pad.t+cH-(v/maxVal)*cH;}
+  function fmtK(v){return v>=100000?(v/100000).toFixed(1)+'L':v>=1000?(v/1000).toFixed(0)+'K':v;}
+  var tc=isDark?'#8EA8C3':'#8A98A8', lc=isDark?'#253346':'#DDE3EC';
+  var h='';
+  for(var g=0;g<=4;g++){var yy=pad.t+(cH/4)*g,val=Math.round(maxVal-(maxVal/4)*g);h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+lc+'" stroke-width="1" stroke-dasharray="4,3"/><text x="'+(pad.l-6)+'" y="'+(yy+4)+'" text-anchor="end" fill="'+tc+'" font-size="10">'+fmtK(val)+'</text>';}
+  var ty=Y(d.target[0]);
+  h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+ty+'" y2="'+ty+'" stroke="#D97706" stroke-width="1.5" stroke-dasharray="6,4"/><text x="'+(W-pad.r+4)+'" y="'+(ty+4)+'" fill="#D97706" font-size="9" font-weight="700">TARGET</text>';
+  for(var i=0;i<d.revenue.length;i++){
+    var v=d.revenue[i],t=d.target[i],bx=X(i)-barW/2,by=Y(v),bh=H-pad.b-by,col=v>=t?'#0891B2':'#67E8F9';
+    h+='<rect class="rbhit" data-i="'+i+'" x="'+(bx-6)+'" y="'+pad.t+'" width="'+(barW+12)+'" height="'+cH+'" fill="transparent" style="cursor:crosshair"/>';
+    h+='<rect x="'+bx+'" y="'+by+'" width="'+barW+'" height="'+bh+'" rx="4" fill="'+col+'" opacity="0.9" style="pointer-events:none"/>';
+    h+='<text x="'+(bx+barW/2)+'" y="'+(by-5)+'" text-anchor="middle" fill="'+tc+'" font-size="10" font-weight="600" style="pointer-events:none">'+fmtK(v)+'</text>';
+    h+='<text x="'+X(i)+'" y="'+(H-pad.b+14)+'" text-anchor="middle" fill="'+tc+'" font-size="10" style="pointer-events:none">'+d.labels[i]+'</text>';
+  }
+  h+='<rect x="'+pad.l+'" y="'+(H-10)+'" width="9" height="9" rx="2" fill="#0891B2"/><text x="'+(pad.l+13)+'" y="'+(H-2)+'" font-size="9" fill="'+tc+'">Above Target</text>';
+  h+='<rect x="'+(pad.l+90)+'" y="'+(H-10)+'" width="9" height="9" rx="2" fill="#67E8F9"/><text x="'+(pad.l+103)+'" y="'+(H-2)+'" font-size="9" fill="'+tc+'">Below Target</text>';
+  svg.innerHTML=h;
+  svg.querySelectorAll('.rbhit').forEach(function(el){
+    el.addEventListener('mouseenter',function(e){
+      var idx=parseInt(this.getAttribute('data-i')),rv=d.revenue[idx],tgt=d.target[idx];
+      var diff=rv-tgt,dStr=(diff>=0?'+':'')+'₹'+Math.abs(diff).toLocaleString('en-IN');
+      showTT(e,d.labels[idx]+' Revenue',[{lbl:'Collected',val:'₹'+rv.toLocaleString('en-IN'),col:'#67E8F9',dot:'#0891B2'},{lbl:'Target',val:'₹'+tgt.toLocaleString('en-IN'),col:'#FDE68A',dot:'#D97706'},{lbl:'vs Target',val:dStr,col:rv>=tgt?'#67E8F9':'#FCA5A5'}],rv>=tgt?'Above Target ✅':'Below Target 🔴');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// DEPT BARS — cross-filter source
+// ════════════════════════════════════════════════════════════
+function renderDeptBars(d){
+  var depts=[{lbl:'OPD',pct:d.opd_rev,color:'#0891B2',dv:'OPD'},{lbl:'Lab',pct:d.lab_rev,color:'#7C3AED',dv:'LAB'},{lbl:'Imaging',pct:d.img_rev,color:'#059669',dv:'IMG'},{lbl:'Others',pct:100-d.opd_rev-d.lab_rev-d.img_rev,color:'#D97706',dv:null}];
+  var c=document.getElementById('deptBars');
+  c.innerHTML=depts.map(function(dept,i){
+    var sel = F.dept===dept.dv;
+    var dim = F.dept!=='all' && !sel && dept.dv!==null;
+    return '<div class="hbar-row'+(sel?' cf-sel':'')+(dim?' cf-dim':'')+'" data-di="'+i+'">'
+      +'<div class="hbar-label">'+dept.lbl+'</div>'
+      +'<div class="hbar-wrap"><div class="hbar-fill" style="width:'+dept.pct+'%;background:'+dept.color+';">'+(dept.pct>=15?dept.pct+'%':'')+'</div></div>'
+      +'<div class="hbar-val" style="color:'+dept.color+'">'+dept.pct+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.hbar-row').forEach(function(el){
+    var di=parseInt(el.getAttribute('data-di')),dept=depts[di];
+    el.addEventListener('click',function(){
+      if(!dept.dv) return;
+      F.dept = (F.dept===dept.dv)?'all':dept.dv;
+      var labels={all:'🏢 All Departments',OPD:'🔵 OPD',LAB:'🟣 Lab',IMG:'🟢 Imaging'};
+      var cls={all:'dd-active-all',OPD:'dd-active-OPD',LAB:'dd-active-LAB',IMG:'dd-active-IMG'};
+      document.getElementById('deptBtnLabel').textContent=labels[F.dept];
+      document.getElementById('deptBtn').className='dd-btn '+(cls[F.dept]||'');
+      document.querySelectorAll('#deptMenu .dd-item').forEach(function(i){i.classList.toggle('selected',i.getAttribute('data-val')===F.dept);});
+      updateCFBar(); renderAll();
+    });
+    el.addEventListener('mouseenter',function(e){
+      var totalRev=DATA[currentTime].kpi.revenue,deptRev=Math.round(totalRev*dept.pct/100);
+      showTT(e,dept.lbl+' Department',[{lbl:'Revenue Share',val:dept.pct+'%',col:dept.color},{lbl:'Est. Revenue',val:'₹'+deptRev.toLocaleString('en-IN'),col:'#fff'}],dept.dv?'Click to cross-filter':'of total revenue');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// PATIENT TREND
+// ════════════════════════════════════════════════════════════
+function renderPatChart(d){
+  var svg=document.getElementById('patChart');
+  var W=300,H=150,pad={t:16,r:14,b:28,l:38},cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
+  var vals=d.patients,n=vals.length,maxV=Math.max.apply(null,vals)*1.18;
+  function PX(i){return pad.l+(i/(n-1))*cW;}
+  function PY(v){return pad.t+cH-(v/maxV)*cH;}
+  var tc=isDark?'#8EA8C3':'#8A98A8',lc=isDark?'#253346':'#DDE3EC';
+  var pts=vals.map(function(v,i){return PX(i)+','+PY(v);}).join(' ');
+  var area=PX(0)+','+(pad.t+cH)+' '+pts+' '+PX(n-1)+','+(pad.t+cH);
+  var h='<defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0891B2" stop-opacity="0.28"/><stop offset="100%" stop-color="#0891B2" stop-opacity="0.02"/></linearGradient></defs>';
+  [Math.round(maxV*.5),Math.round(maxV*.25)].forEach(function(v){var yy=PY(v);h+='<line x1="'+pad.l+'" x2="'+(W-pad.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+lc+'" stroke-width="1" stroke-dasharray="3,3"/><text x="'+(pad.l-4)+'" y="'+(yy+3)+'" text-anchor="end" font-size="8" fill="'+tc+'">'+v+'</text>';});
+  h+='<polygon points="'+area+'" fill="url(#pg)" style="pointer-events:none"/>';
+  h+='<polyline points="'+pts+'" fill="none" stroke="#0891B2" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" style="pointer-events:none"/>';
+  vals.forEach(function(v,i){h+='<text x="'+PX(i)+'" y="'+(H-3)+'" text-anchor="middle" font-size="8" fill="'+tc+'">'+d.labels[i]+'</text>';});
+  svg.innerHTML=h;
+  var avg=(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(0);
+  vals.forEach(function(v,i){
+    var color=v>avg?'#0891B2':'#D97706';
+    var hz=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    hz.setAttribute('cx',PX(i));hz.setAttribute('cy',PY(v));hz.setAttribute('r','13');hz.setAttribute('fill','transparent');hz.style.cursor='crosshair';
+    (function(v,i){hz.addEventListener('mouseenter',function(e){showTT(e,d.labels[i]+' Patients',[{lbl:'Patients',val:v.toLocaleString('en-IN'),col:'#67E8F9',dot:'#0891B2'},{lbl:'Period Avg',val:avg,col:'#D1FAE5'}],v>avg?'Above average ✅':'Below average ⚠');});
+    })(v,i);
+    hz.addEventListener('mouseleave',hideTT);
+    var dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',PX(i));dot.setAttribute('cy',PY(v));dot.setAttribute('r','4');dot.setAttribute('fill',color);dot.setAttribute('stroke','white');dot.setAttribute('stroke-width','1.5');dot.style.pointerEvents='none';
+    var lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PX(i));lbl.setAttribute('y',PY(v)-9);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','9');lbl.setAttribute('fill',tc);lbl.setAttribute('font-weight','600');lbl.style.pointerEvents='none';lbl.textContent=v;
+    svg.appendChild(hz);svg.appendChild(dot);svg.appendChild(lbl);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// TEST BARS — cross-filter source + respects F.dept
+// ════════════════════════════════════════════════════════════
+function renderTestBars(){
+  var activeDept = F.dept!=='all' ? F.dept : null;
+  var tests = activeDept ? TESTS.filter(function(t){ return t.dept===activeDept; }) : TESTS;
+  var avgOT = (tests.reduce(function(a,t){return a+t.ontime;},0)/tests.length).toFixed(0);
+  document.getElementById('testBadge').textContent = avgOT+'% On-Time';
+  document.getElementById('testBadge').className = 'card-badge '+(avgOT>=90?'badge-green':avgOT>=80?'badge-amber':'badge-red');
+  var c = document.getElementById('testBars');
+  c.innerHTML = tests.map(function(t,i){
+    var col = t.ontime>=90?'#059669':t.ontime>=80?'#D97706':'#DC2626';
+    var sel = F.testName===t.name;
+    var dim = F.testName && !sel;
+    return '<div class="hbar-row'+(sel?' cf-sel':'')+(dim?' cf-dim':'')+'" data-ti="'+i+'">'
+      +'<div class="hbar-label" style="width:76px">'+t.name+'</div>'
+      +'<div class="hbar-wrap"><div class="hbar-fill" style="width:'+t.ontime+'%;background:'+col+';">'+(t.ontime>=80?t.ontime+'%':'')+'</div></div>'
+      +'<div class="hbar-val" style="color:'+col+'">'+t.ontime+'%</div></div>';
+  }).join('');
+  c.querySelectorAll('.hbar-row').forEach(function(el){
+    el.addEventListener('click',function(){
+      var t = tests[parseInt(this.getAttribute('data-ti'))];
+      setTestFilter(t.name);
+    });
+    el.addEventListener('mouseenter',function(e){
+      var t = tests[parseInt(this.getAttribute('data-ti'))];
+      var col = t.ontime>=90?'#6EE7B7':t.ontime>=80?'#FDE68A':'#FCA5A5';
+      showTT(e,t.name+' TAT',[{lbl:'On-Time Rate',val:t.ontime+'%',col:col},{lbl:'Department',val:t.dept,col:'#fff'},{lbl:'Delayed',val:(100-t.ontime)+'%',col:'#FCA5A5'}],(t.ontime>=90?'Excellent ✅':t.ontime>=80?'Acceptable ⚠':'Below standard 🔴')+' · Click to filter');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// WAIT BARS — cross-filter source
+// ════════════════════════════════════════════════════════════
+function renderWaitBars(){
+  var c = document.getElementById('waitBars');
+  var maxMin = Math.max.apply(null,WAIT_TIMES.map(function(w){return w.min;}))*1.2;
+  c.innerHTML = WAIT_TIMES.map(function(w,i){
+    var col = w.min>25?'#DC2626':w.min>20?'#D97706':'#059669';
+    var pct = (w.min/maxMin)*100;
+    var sel = F.waitDept===w.deptKey;
+    var dim = F.waitDept && !sel && w.deptKey!==null;
+    return '<div class="wait-row'+(sel?' cf-sel':'')+(dim?' cf-dim':'')+'" data-wi="'+i+'">'
+      +'<div class="wait-label">'+w.dept+'</div>'
+      +'<div class="wait-track"><div class="wait-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
+      +'<div class="wait-val" style="color:'+col+'">'+w.min+'m</div></div>';
+  }).join('');
+  c.querySelectorAll('.wait-row').forEach(function(el){
+    el.addEventListener('click',function(){
+      var w = WAIT_TIMES[parseInt(this.getAttribute('data-wi'))];
+      if(w.deptKey) setWaitFilter(w.deptKey);
+    });
+    el.addEventListener('mouseenter',function(e){
+      var w = WAIT_TIMES[parseInt(this.getAttribute('data-wi'))];
+      var col = w.min>25?'#FCA5A5':w.min>20?'#FDE68A':'#6EE7B7';
+      showTT(e,w.dept+' Wait Time',[{lbl:'Avg Wait',val:w.min+' min',col:col},{lbl:'Target',val:'20 min',col:'#FDE68A'},{lbl:'Delta',val:(w.min-20>0?'+'+(w.min-20)+' min':'On target'),col:w.min>20?'#FCA5A5':'#6EE7B7'}],(w.min>25?'Critical 🔴':w.min>20?'Above target ⚠':'Within target ✅')+' · Click to filter');
+    });
+    el.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// DOCTOR TABLE — cross-filter source + respects F.dept, F.waitDept
+// ════════════════════════════════════════════════════════════
+function renderDoctors(){
+  // Determine which dept filter applies
+  var deptFilter = F.dept!=='all' ? F.dept : (F.waitDept || null);
+  var docs = DOCTORS.filter(function(doc){
+    if(deptFilter==='OPD') return doc.dept==='OPD';
+    if(deptFilter==='LAB') return doc.dept==='Lab';
+    if(deptFilter==='IMG') return doc.dept==='Imaging';
+    return true;
+  });
+  if(F.doc!=='all') docs = DOCTORS.filter(function(d){return d.name===F.doc;});
+  document.getElementById('docBadge').textContent = docs.length+' Doctor'+(docs.length!==1?'s':'');
+  var satColor = function(s){return s>=90?'var(--green)':s>=85?'var(--amber)':'var(--red)';};
+  document.getElementById('docTable').innerHTML =
+    '<thead><tr><th>Doctor</th><th>Dept</th><th>Patients</th><th>Revenue</th><th>Satisfaction</th><th>Status</th></tr></thead><tbody>'
+    +docs.map(function(doc){
+      var sc=satColor(doc.sat), sel=F.doc===doc.name;
+      return '<tr class="doc-row'+(sel?' cf-sel':'')+'" data-dn="'+doc.name+'">'
+        +'<td style="font-weight:700">'+doc.name+'</td>'
+        +'<td><span class="pill pill-teal">'+doc.dept+'</span></td>'
+        +'<td style="font-family:JetBrains Mono,monospace;font-weight:700">'+doc.patients+'</td>'
+        +'<td style="font-family:JetBrains Mono,monospace">₹'+doc.revenue.toLocaleString('en-IN')+'</td>'
+        +'<td style="font-weight:700;color:'+sc+'">'+doc.sat+'%<span class="sat-bar" style="background:'+sc+';width:'+(doc.sat*0.4)+'px"></span></td>'
+        +'<td><span class="pill '+(doc.status==='ok'?'pill-ok':'pill-warn')+'">'+(doc.status==='ok'?'GOOD':'REVIEW')+'</span></td>'
+        +'</tr>';
+    }).join('')+'</tbody>';
+
+  document.querySelectorAll('#docTable tbody tr.doc-row').forEach(function(tr){
+    tr.addEventListener('click',function(){
+      var name = this.getAttribute('data-dn');
+      F.doc = (F.doc===name)?'all':name;
+      var btn = document.getElementById('docBtn');
+      document.getElementById('docBtnLabel').textContent = F.doc==='all'?'👨‍⚕️ All Doctors':'👨‍⚕️ '+F.doc;
+      btn.className = F.doc==='all'?'dd-btn':'dd-btn dd-active-doc';
+      document.querySelectorAll('#docMenu .dd-item').forEach(function(i){i.classList.toggle('selected',i.getAttribute('data-val')===F.doc);});
+      updateCFBar(); renderAll();
+    });
+    tr.addEventListener('mouseenter',function(e){
+      var name=this.getAttribute('data-dn'), doc=DOCTORS.find(function(d){return d.name===name;});
+      if(doc) showTT(e,doc.name,[{lbl:'Patients',val:doc.patients,col:'#67E8F9'},{lbl:'Revenue',val:'₹'+doc.revenue.toLocaleString('en-IN'),col:'#FDE68A'},{lbl:'Satisfaction',val:doc.sat+'%',col:doc.sat>=90?'#6EE7B7':doc.sat>=85?'#FDE68A':'#FCA5A5'}],'Click to filter patient log by this doctor');
+    });
+    tr.addEventListener('mouseleave',hideTT);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// PATIENT LOG — respects ALL filters from F
+// ════════════════════════════════════════════════════════════
+function renderPatientLog(){
+  // Build effective dept filter (dropdown or wait-dept cross-filter)
+  var deptEff = F.dept!=='all' ? F.dept : F.waitDept;
+  var rows = PATIENTS.filter(function(p){
+    // Dept filter
+    if(deptEff){
+      var dmap={OPD:'OPD',LAB:'Lab',IMG:'Imaging'};
+      if(dmap[deptEff] && p.dept!==dmap[deptEff]) return false;
+    }
+    // Doctor filter
+    if(F.doc!=='all' && p.doc!==F.doc) return false;
+    // Test cross-filter
+    if(F.testName){
+      var tm={'CBC':'CBC + LFT','LFT/KFT':'CBC + LFT','Thyroid':'Thyroid Panel','X-Ray':'X-Ray Chest','Ultrasound':'Ultrasound','MRI/CT':'MRI Brain'};
+      if(p.test !== tm[F.testName]) return false;
+    }
+    // Status filter
+    if(F.status!=='all' && p.report!==F.status) return false;
+    return true;
+  });
+
+  document.getElementById('logBadge').textContent = rows.length+' Record'+(rows.length!==1?'s':'');
+  var repM={ok:'pill-ok',pend:'pill-warn',late:'pill-fail'};
+  var repL={ok:'READY',pend:'PENDING',late:'OVERDUE'};
+  if(!rows.length){
+    document.getElementById('patientTable').innerHTML='<tbody><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;">No records match the current filters</td></tr></tbody>';
+    return;
+  }
+  document.getElementById('patientTable').innerHTML =
+    '<thead><tr><th>ID</th><th>Patient</th><th>Dept</th><th>Doctor</th><th>Test</th><th>Fee</th><th>Report</th><th>Pay</th></tr></thead><tbody>'
+    +rows.map(function(p){
+      return '<tr class="pat-row">'
+        +'<td><strong>'+p.id+'</strong></td>'
+        +'<td style="font-weight:600">'+p.name+'</td>'
+        +'<td><span class="pill pill-teal">'+p.dept+'</span></td>'
+        +'<td style="font-size:10px;color:var(--text-secondary)">'+p.doc+'</td>'
+        +'<td style="font-size:10.5px">'+p.test+'</td>'
+        +'<td style="font-family:JetBrains Mono,monospace;font-weight:600">₹'+p.fee.toLocaleString('en-IN')+'</td>'
+        +'<td><span class="pill '+repM[p.report]+'">'+repL[p.report]+'</span></td>'
+        +'<td><span class="pill '+(p.payment==='ok'?'pill-ok':'pill-warn')+'">'+(p.payment==='ok'?'PAID':'DUE')+'</span></td>'
+        +'</tr>';
+    }).join('')+'</tbody>';
+}
+
+// ════════════════════════════════════════════════════════════
+// CONCLUSION
+// ════════════════════════════════════════════════════════════
+function renderConclusion(){
+  var c = CONCLUSIONS[currentTime];
+  document.getElementById('conclusionText').textContent = c.summary;
+  document.getElementById('conclusionGrid').innerHTML = c.items.map(function(item){
+    return '<div class="ci '+item.cls+'"><div class="ci-title">'+item.title+'</div><div class="ci-text">'+item.text+'</div></div>';
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+document.getElementById('priorityItems').classList.add('open');
+renderAll();
+</script>
+</body>
+</html>
