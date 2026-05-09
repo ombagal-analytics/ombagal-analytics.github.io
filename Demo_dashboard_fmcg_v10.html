@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vinayak Food Products — Business Intelligence Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f4f5f7;--surface:#fff;--surface2:#f9fafb;--surface3:#f0f2f5;
+  --border:#e2e5ea;--border2:#d1d5db;--text:#0f1117;--text2:#374151;
+  --muted:#6b7280;--muted2:#9ca3af;--accent:#1a56db;--accent2:#0ea5e9;
+  --positive:#059669;--negative:#dc2626;--warning:#d97706;
+  --warning-bg:#fffbeb;--negative-bg:#fef2f2;--positive-bg:#f0fdf4;--accent-bg:#eff6ff;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --radius:10px;--radius-lg:14px;
+}
+[data-theme="dark"]{
+  --bg:#0d0f12;--surface:#161a20;--surface2:#1e2329;--surface3:#252b34;
+  --border:#2a3040;--border2:#374151;--text:#f0f4f8;--text2:#cbd5e1;
+  --muted:#7c8fa6;--muted2:#4a5568;--accent:#4d8ef0;--accent2:#38bdf8;
+  --positive:#10b981;--negative:#f87171;--warning:#fbbf24;
+  --warning-bg:rgba(217,119,6,.1);--negative-bg:rgba(220,38,38,.1);
+  --positive-bg:rgba(5,150,105,.1);--accent-bg:rgba(29,78,216,.12);
+  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.wrap{max-width:1440px;margin:0 auto;padding:0 28px}
+
+/* ── HEADER ── */
+.header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--shadow)}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,var(--accent) 35%,var(--accent2) 65%,transparent 100%);opacity:.5}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:62px;gap:16px}
+.logo-row{display:flex;align-items:center;gap:12px}
+.logo-mark{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0}
+.logo-name{font-weight:700;font-size:15px;color:var(--text);letter-spacing:-.3px}
+.logo-tag{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+
+/* ── VIEW TOGGLE (the main switch) ── */
+.view-toggle{display:flex;background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:3px;gap:2px;flex-shrink:0}
+.view-tab{display:flex;align-items:center;gap:7px;padding:7px 18px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .2s;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap}
+.view-tab:hover{color:var(--text)}
+.view-tab.active{background:var(--surface);color:var(--accent);box-shadow:var(--shadow-md);border:1px solid var(--border)}
+.view-tab .tab-icon{font-size:15px}
+.view-tab.active.prod-tab{color:var(--positive)}
+
+.header-right{display:flex;align-items:center;gap:10px}
+.export-btn{padding:5px 13px;border-radius:7px;font-size:11px;font-weight:600;border:1.5px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .18s;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap}
+.export-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.data-source-tag{font-size:10px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;white-space:nowrap}
+.date-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+.live-status{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--positive);background:var(--positive-bg);border:1px solid rgba(5,150,105,.2);border-radius:20px;padding:4px 12px}
+.live-dot{width:7px;height:7px;background:var(--positive);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.theme-toggle{width:44px;height:24px;background:var(--surface3);border:1px solid var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background .3s;flex-shrink:0}
+.theme-toggle-thumb{width:18px;height:18px;background:var(--accent);border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .3s;display:flex;align-items:center;justify-content:center;font-size:10px}
+[data-theme="dark"] .theme-toggle-thumb{transform:translateX(20px)}
+
+/* ── CHANNEL FILTER BAR ── */
+.channel-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 0;position:sticky;top:62px;z-index:199;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+body[data-view="products"] .channel-bar{top:62px}
+.channel-bar-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-right:4px;white-space:nowrap}
+.channel-btn{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:8px;cursor:pointer;border:1.5px solid var(--border2);background:var(--surface2);font-size:11px;font-weight:600;color:var(--muted);transition:all .18s;user-select:none;white-space:nowrap;font-family:'IBM Plex Sans',sans-serif}
+.channel-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.channel-btn .ch-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.channel-btn.active{color:#fff;border-color:transparent;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.channel-btn.active.ch-dmart{background:#1a56db}
+.channel-btn.active.ch-reliance{background:#0369a1}
+.channel-btn.active.ch-bigbasket{background:#059669}
+.channel-btn.active.ch-flipkart{background:#6366f1}
+.channel-btn.active.ch-zepto{background:#7c3aed}
+.channel-btn.active.ch-swiggy{background:#ea580c}
+.channel-btn.active.ch-zomato{background:#dc2626}
+.btn-all{padding:6px 15px;border-radius:8px;cursor:pointer;border:1.5px solid var(--accent);background:var(--accent-bg);font-size:11px;font-weight:700;color:var(--accent);transition:all .18s;font-family:'IBM Plex Sans',sans-serif}
+.btn-all:hover{background:var(--accent);color:#fff}
+.btn-all.active-all{background:var(--accent);color:#fff}
+.filter-mode-badge{margin-left:auto;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;background:var(--accent-bg);color:var(--accent);border:1px solid rgba(29,78,216,.2);white-space:nowrap;transition:all .2s}
+/* view-specific channel bar labels */
+.dist-filter-label{display:block}
+.prod-filter-label{display:none}
+body[data-view="products"] .dist-filter-label{display:none}
+body[data-view="products"] .prod-filter-label{display:block}
+
+/* ── VIEW PANELS ── */
+.view-panel{display:none}
+.view-panel.active{display:block}
+
+/* ── LEAKAGE BANNER ── */
+.leakage-banner{background:linear-gradient(135deg,#fef2f2 0%,#fff5f5 100%);border:1px solid #fca5a5;border-left:5px solid var(--negative);border-radius:var(--radius-lg);padding:14px 20px;margin:18px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:var(--shadow-md);transition:all .35s}
+[data-theme="dark"] .leakage-banner{background:linear-gradient(135deg,rgba(220,38,38,.08) 0%,rgba(220,38,38,.04) 100%);border-color:rgba(248,113,113,.3)}
+.leakage-left{display:flex;align-items:center;gap:14px}
+.leakage-icon{font-size:22px}
+.leakage-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--negative);margin-bottom:3px}
+.leakage-amount{font-family:'Playfair Display',serif;font-size:32px;color:var(--negative);line-height:1;font-weight:700;transition:all .3s}
+.leakage-desc{font-size:11px;color:var(--muted);margin-top:3px;max-width:340px}
+.leakage-split{display:flex;gap:22px;flex-wrap:wrap}
+.leakage-item{text-align:center}
+.leakage-item-val{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--warning);transition:all .3s}
+.leakage-item-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.leakage-divider{width:1px;background:rgba(220,38,38,.2);align-self:stretch}
+
+/* ── SECTION ── */
+.section{padding:26px 0 0}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:4px;height:15px;background:linear-gradient(180deg,var(--accent),var(--accent2));border-radius:2px}
+
+/* product view section accent green */
+body[data-view="products"] .section-title::before{background:linear-gradient(180deg,var(--positive),#34d399)}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;cursor:default}
+.kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+.kpi-card.blue::after{background:linear-gradient(90deg,#1847c2,#4d8ef0);box-shadow:0 2px 8px rgba(24,71,194,.3)}
+.kpi-card.red::after{background:linear-gradient(90deg,#c81e1e,#f87171);box-shadow:0 2px 8px rgba(200,30,30,.25)}
+.kpi-card.green::after{background:linear-gradient(90deg,#047857,#10b981);box-shadow:0 2px 8px rgba(4,120,87,.25)}
+.kpi-card.amber::after{background:linear-gradient(90deg,#b45309,#f59e0b);box-shadow:0 2px 8px rgba(180,83,9,.25)}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.kpi-icon-wrap{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.kpi-card.blue .kpi-icon-wrap{background:var(--accent-bg)}
+.kpi-card.red .kpi-icon-wrap{background:var(--negative-bg)}
+.kpi-card.green .kpi-icon-wrap{background:var(--positive-bg)}
+.kpi-card.amber .kpi-icon-wrap{background:var(--warning-bg)}
+.kpi-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.kpi-badge.up{background:var(--positive-bg);color:var(--positive)}
+.kpi-badge.down{background:var(--negative-bg);color:var(--negative)}
+.kpi-badge.warn{background:var(--warning-bg);color:var(--warning)}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1;margin-bottom:4px;transition:all .3s}
+.kpi-card.blue .kpi-value{color:var(--accent)}
+.kpi-card.red .kpi-value{color:var(--negative)}
+.kpi-card.green .kpi-value{color:var(--positive)}
+.kpi-card.amber .kpi-value{color:var(--warning)}
+.kpi-sub{font-size:11px;color:var(--muted)}
+
+/* PRODUCT KPI GRID — 4 column */
+.prod-kpi-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
+.card-header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.card-body{padding:14px 20px 18px}
+
+.tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;font-family:'IBM Plex Mono',monospace}
+.tag.red{background:var(--negative-bg);color:var(--negative);border:1px solid rgba(220,38,38,.2)}
+.tag.green{background:var(--positive-bg);color:var(--positive);border:1px solid rgba(5,150,105,.2)}
+.tag.blue{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(29,78,216,.2)}
+.tag.amber{background:var(--warning-bg);color:var(--warning);border:1px solid rgba(217,119,6,.2)}
+
+/* ── GRIDS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-60-40{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.grid-55-45{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+.chart-wrap{position:relative}
+.chart-wrap canvas{width:100%!important}
+
+/* ── DONUT LEGEND ── */
+.donut-legend{display:flex;flex-direction:column;gap:6px}
+.donut-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:11px}
+.donut-leg-left{display:flex;align-items:center;gap:6px;color:var(--text2);font-weight:500}
+.donut-leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.donut-leg-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--text)}
+.donut-leg-pct{font-size:10px;color:var(--muted);margin-left:5px}
+
+/* ── TREND LEGEND ── */
+.trend-legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.trend-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.trend-leg-line{width:16px;height:3px;border-radius:2px}
+
+/* ── CHANNEL LEGEND ── */
+.channel-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.channel-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.channel-legend-dot{width:10px;height:10px;border-radius:2px}
+
+/* ── STORAGE ROWS ── */
+.storage-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px}
+.storage-row:last-child{border-bottom:none}
+.storage-age-bar{flex:1;height:7px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.storage-age-fill{height:100%;border-radius:4px}
+.age-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.age-critical{background:var(--negative-bg);color:var(--negative)}
+.age-warn{background:var(--warning-bg);color:var(--warning)}
+.age-safe{background:var(--positive-bg);color:var(--positive)}
+
+/* ── OUTSTANDING TABLE ── */
+.out-table{width:100%;border-collapse:collapse}
+.out-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:2px solid var(--border);background:var(--surface2)}
+.out-table td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
+.out-table tr:last-child td{border-bottom:none}
+.out-table tr:hover td{background:var(--surface2)}
+.out-bar{height:4px;border-radius:2px;margin-top:3px;background:var(--surface3)}
+.out-fill{height:100%;border-radius:2px}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
+
+/* ── INSIGHTS GRID ── */
+.insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;gap:12px;transition:box-shadow .2s,transform .2s;box-shadow:var(--shadow)}
+.insight-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.insight-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--border2);line-height:1;flex-shrink:0;padding-top:2px}
+.insight-body .title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.35}
+.insight-body .desc{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:7px}
+.insight-body .action{font-size:11px;font-weight:600;color:var(--accent);padding:5px 9px;background:var(--accent-bg);border-radius:6px;border-left:3px solid var(--accent)}
+
+/* ── PRODUCTS PANEL (View 2) ── */
+.prod-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.prod-btn-group{display:flex;gap:5px}
+.prod-btn{padding:6px 13px;border-radius:7px;font-size:11px;font-weight:600;border:1.5px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s;font-family:'IBM Plex Sans',sans-serif}
+.prod-btn:hover{border-color:var(--positive);color:var(--positive);background:var(--positive-bg)}
+.prod-btn.active{background:var(--positive);color:#fff;border-color:var(--positive);box-shadow:0 2px 8px rgba(5,150,105,.3)}
+.prod-btn.active.loss-mode{background:var(--negative);border-color:var(--negative);box-shadow:0 2px 8px rgba(200,30,30,.3)}
+.prod-separator{width:1px;height:22px;background:var(--border2);align-self:center}
+.prod-ch-select{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:500;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;outline:none;font-family:'IBM Plex Sans',sans-serif;transition:border-color .15s}
+.prod-ch-select:focus{border-color:var(--positive)}
+.prod-sort-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+.prod-list{display:flex;flex-direction:column}
+.prod-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--border);transition:background .12s;cursor:default}
+.prod-row:last-child{border-bottom:none}
+.prod-row:hover{background:var(--surface2);border-radius:8px}
+.prod-rank{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;width:22px;text-align:center;flex-shrink:0;color:var(--muted2)}
+.prod-rank.r1{color:#92400e}.prod-rank.r2{color:#6b7280}.prod-rank.r3{color:#7c4a11}
+[data-theme="dark"] .prod-rank.r1{color:#fbbf24}
+[data-theme="dark"] .prod-rank.r2{color:#9ca3af}
+[data-theme="dark"] .prod-rank.r3{color:#fb923c}
+.prod-info{flex:1;min-width:0}
+.prod-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-brand{font-size:10px;color:var(--muted);margin-top:1px}
+.prod-bar-wrap{flex:1;max-width:110px}
+.prod-bar-bg{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.prod-bar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prod-rev{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;width:58px;text-align:right;flex-shrink:0;color:var(--text)}
+.prod-margin{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.prod-margin.pos{background:var(--positive-bg);color:var(--positive)}
+.prod-margin.neg{background:var(--negative-bg);color:var(--negative)}
+.prod-margin.warn{background:var(--warning-bg);color:var(--warning)}
+.ch-pill{font-size:9px;font-weight:600;padding:2px 5px;border-radius:20px;color:#fff;margin-right:3px;display:inline-block}
+
+/* ── BRAND KPI GRID (compact) ── */
+.brand-kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:4px}
+.brand-kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px}
+.brand-kpi-card:hover{box-shadow:var(--shadow-md)}
+.brand-kpi-icon{font-size:18px;flex-shrink:0}
+.brand-kpi-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.brand-kpi-rev{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;color:var(--text)}
+.brand-kpi-top{font-size:10px;color:var(--muted)}
+.brand-kpi-margin{display:inline-flex;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.brand-kpi-margin.pos{background:var(--positive-bg);color:var(--positive)}
+.brand-kpi-margin.warn{background:var(--warning-bg);color:var(--warning)}
+.brand-kpi-margin.neg{background:var(--negative-bg);color:var(--negative)}
+
+/* ── XCH STRIP ── */
+.xch-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:4px}
+.xch-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s}
+.xch-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.xch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+.xch-card.winner::before{background:linear-gradient(90deg,#047857,#10b981)}
+.xch-card.loser::before{background:linear-gradient(90deg,#c81e1e,#f87171)}
+.xch-card.ubiq::before{background:linear-gradient(90deg,#1847c2,#4d8ef0)}
+.xch-card.risk::before{background:linear-gradient(90deg,#b45309,#f59e0b)}
+.xch-icon{font-size:22px;margin-bottom:8px;display:block}
+.xch-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:5px}
+.xch-product{font-size:14px;font-weight:700;color:var(--text);line-height:1.25;margin-bottom:5px}
+.xch-stat{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;margin-bottom:7px}
+.xch-stat.pos{color:var(--positive)}.xch-stat.neg{color:var(--negative)}.xch-stat.blue{color:var(--accent)}.xch-stat.amber{color:var(--warning)}
+.xch-footer{font-size:10px;color:var(--muted2);margin-top:4px}
+
+/* ── PRIORITY ACTIONS STRIP ── */
+.priority-actions-strip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 18px;margin:14px 0 0;box-shadow:var(--shadow)}
+.priority-strip-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:9px}
+.priority-actions-list{display:flex;flex-direction:column;gap:6px}
+.priority-action{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2);line-height:1.45;padding:5px 0}
+.priority-action.red .pa-dot{color:var(--negative)}
+.priority-action.amber .pa-dot{color:var(--warning)}
+.priority-action.blue .pa-dot{color:var(--accent)}
+.pa-dot{font-size:8px;flex-shrink:0;margin-top:4px}
+.priority-action strong{font-weight:700;color:var(--text)}
+
+/* ── ANIMATED NUM ── */
+.num-flash{animation:nf .4s ease}
+@keyframes nf{0%{opacity:.4;transform:scale(.97)}100%{opacity:1;transform:scale(1)}}
+
+/* ── FOOTER (minimal, Dubai-style) ── */
+.footer{background:var(--surface2);border-top:1px solid var(--border);margin-top:48px;padding:28px 0 18px;position:relative;overflow:hidden}
+.footer-powered{text-align:center;margin-bottom:14px}
+.footer-diamond{display:inline-block;color:var(--accent);font-size:13px;margin-right:6px;vertical-align:middle}
+.footer-powered-text{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--accent);letter-spacing:.3px}
+.footer-divider{width:48px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:10px auto}
+.footer-meta-row{text-align:center;font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:4px}
+.footer-meta-row a{color:var(--muted);text-decoration:none;transition:color .15s}
+.footer-meta-row a:hover{color:var(--accent)}
+.footer-copy{text-align:center;font-size:10px;color:var(--muted2);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+
+/* ── PRODUCT SELECTOR BAR ── */
+.prod-selector-bar{background:var(--surface);border-bottom:2px solid var(--border);padding:11px 0;position:sticky;top:62px;z-index:198;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+body[data-view="distribution"] .prod-selector-bar{display:none}
+.prod-selector-inner{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+
+/* dropdown wrapper */
+.prod-sel-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.prod-sel-dropdown-wrap{position:relative;flex-shrink:0}
+.prod-sel-dropdown-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);pointer-events:none}
+.prod-sel-dropdown{appearance:none;-webkit-appearance:none;padding:6px 28px 6px 12px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:500;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;outline:none;transition:border-color .18s,box-shadow .18s;min-width:210px}
+.prod-sel-dropdown:hover,.prod-sel-dropdown:focus{border-color:var(--positive);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
+.prod-sel-dropdown.has-selection{border-color:var(--positive);color:var(--positive);font-weight:600;background:var(--positive-bg)}
+.prod-sel-dropdown.neg-selection{border-color:var(--negative);color:var(--negative);background:var(--negative-bg)}
+.prod-sel-dropdown.warn-selection{border-color:var(--warning);color:var(--warning);background:var(--warning-bg)}
+
+/* divider */
+.prod-sel-divider{width:1px;height:22px;background:var(--border2);flex-shrink:0}
+
+/* category quick-filter chips */
+.prod-sel-chips{display:flex;gap:6px;align-items:center;flex-wrap:nowrap}
+.prod-chip-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted2);white-space:nowrap;flex-shrink:0}
+.prod-chip{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border2);background:var(--surface2);font-size:11px;font-weight:600;color:var(--muted);transition:all .18s;user-select:none;white-space:nowrap;font-family:'IBM Plex Sans',sans-serif;flex-shrink:0}
+.prod-chip:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.prod-chip.chip-all{border-color:var(--border2);color:var(--muted)}
+.prod-chip.chip-all:hover,.prod-chip.chip-all.chip-active{background:var(--surface3);border-color:var(--border2);color:var(--text);box-shadow:var(--shadow)}
+.prod-chip.chip-top:hover,.prod-chip.chip-top.chip-active{background:var(--positive);border-color:var(--positive);color:#fff;box-shadow:0 2px 8px rgba(5,150,105,.3)}
+.prod-chip.chip-risk:hover,.prod-chip.chip-risk.chip-active{background:var(--warning);border-color:var(--warning);color:#fff;box-shadow:0 2px 8px rgba(217,119,6,.3)}
+.prod-chip.chip-loss:hover,.prod-chip.chip-loss.chip-active{background:var(--negative);border-color:var(--negative);color:#fff;box-shadow:0 2px 8px rgba(220,38,38,.3)}
+
+/* right badge */
+.prod-sel-badge{margin-left:auto;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;background:var(--positive-bg);color:var(--positive);border:1px solid rgba(5,150,105,.2);white-space:nowrap;transition:all .2s;flex-shrink:0}
+.prod-sel-badge.neg-badge{background:var(--negative-bg);color:var(--negative);border-color:rgba(220,38,38,.2)}
+.prod-sel-badge.warn-badge{background:var(--warning-bg);color:var(--warning);border-color:rgba(217,119,6,.2)}
+.prod-sel-badge.neutral-badge{background:var(--surface3);color:var(--muted);border-color:var(--border2)}
+
+/* ── PRODUCT SPOTLIGHT CARD ── */
+.prod-spotlight{background:linear-gradient(135deg,var(--positive-bg) 0%,var(--surface) 100%);border:1.5px solid rgba(5,150,105,.25);border-left:5px solid var(--positive);border-radius:var(--radius-lg);padding:14px 20px;margin:18px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:var(--shadow-md);transition:all .4s;display:none}
+.prod-spotlight.visible{display:flex}
+.prod-spotlight.neg-spot{background:linear-gradient(135deg,var(--negative-bg) 0%,var(--surface) 100%);border-color:rgba(220,38,38,.25);border-left-color:var(--negative)}
+.prod-spotlight.warn-spot{background:linear-gradient(135deg,var(--warning-bg) 0%,var(--surface) 100%);border-color:rgba(217,119,6,.25);border-left-color:var(--warning)}
+[data-theme="dark"] .prod-spotlight{background:linear-gradient(135deg,rgba(5,150,105,.08) 0%,rgba(5,150,105,.04) 100%)}
+[data-theme="dark"] .prod-spotlight.neg-spot{background:linear-gradient(135deg,rgba(220,38,38,.08) 0%,rgba(220,38,38,.04) 100%)}
+[data-theme="dark"] .prod-spotlight.warn-spot{background:linear-gradient(135deg,rgba(217,119,6,.08) 0%,rgba(217,119,6,.04) 100%)}
+.spot-left{display:flex;align-items:center;gap:14px}
+.spot-emoji{font-size:28px}
+.spot-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--positive);margin-bottom:2px}
+.prod-spotlight.neg-spot .spot-label{color:var(--negative)}
+.prod-spotlight.warn-spot .spot-label{color:var(--warning)}
+.spot-name{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);line-height:1.1;font-weight:700}
+.spot-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.spot-stats{display:flex;gap:22px;flex-wrap:wrap}
+.spot-stat{text-align:center}
+.spot-stat-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;color:var(--positive)}
+.prod-spotlight.neg-spot .spot-stat-val{color:var(--negative)}
+.prod-spotlight.warn-spot .spot-stat-val{color:var(--warning)}
+.spot-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.spot-divider{width:1px;background:rgba(5,150,105,.2);align-self:stretch}
+.prod-spotlight.neg-spot .spot-divider{background:rgba(220,38,38,.2)}
+
+/* ── PRODUCT CHANNEL CHART ── */
+.prod-channel-chart-wrap{height:220px;position:relative}
+
+@media(max-width:1100px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr)}
+  .brand-kpi-grid{grid-template-columns:repeat(3,1fr)}
+  .xch-strip{grid-template-columns:repeat(2,1fr)}
+  .prod-kpi-grid-4{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .prod-kpi-grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-60-40,.grid-55-45{grid-template-columns:1fr}
+  .insights-grid{grid-template-columns:1fr}
+  .xch-strip{grid-template-columns:1fr 1fr}
+  .brand-kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .prod-sel-chips .prod-chip-label{display:none}
+}
+@media(max-width:700px){
+  .header-inner{flex-wrap:wrap;height:auto;padding:10px 0;gap:8px}
+  .logo-row{flex:1 1 auto}
+  .view-toggle{order:3;width:100%}
+  .view-tab{flex:1;justify-content:center;padding:8px 10px}
+  .header-right{flex-wrap:wrap;gap:6px}
+  .data-source-tag{display:none}
+  .live-status{font-size:10px;padding:3px 8px}
+  .date-tag{font-size:10px;padding:3px 8px}
+  .channel-bar{top:0;position:relative}
+  .prod-selector-bar{top:0;position:relative}
+  .channel-bar-inner{flex-wrap:wrap;gap:6px}
+  .prod-selector-inner{flex-wrap:wrap;gap:8px}
+  .prod-sel-dropdown{min-width:160px;font-size:11px}
+  .prod-sel-divider{display:none}
+  .prod-sel-chips{flex-wrap:wrap;gap:5px}
+  .filter-mode-badge,.prod-sel-badge{display:none}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .prod-kpi-grid-4{grid-template-columns:1fr 1fr}
+  .kpi-value{font-size:24px}
+  .leakage-banner{flex-direction:column;padding:12px 14px}
+  .leakage-amount{font-size:26px}
+  .leakage-split{justify-content:center}
+  .xch-strip{grid-template-columns:1fr}
+  .brand-kpi-grid{grid-template-columns:1fr 1fr}
+  .prod-toolbar{flex-wrap:wrap;gap:6px}
+  .prod-btn-group{flex-wrap:wrap}
+  .insights-grid{grid-template-columns:1fr}
+  .spot-stats{gap:12px}
+  .spot-name{font-size:17px}
+  .spot-left{flex-wrap:wrap}
+  .footer-meta-row{font-size:10px}
+}
+@media(max-width:480px){
+  .wrap{padding:0 12px}
+  .kpi-grid{grid-template-columns:1fr}
+  .prod-kpi-grid-4{grid-template-columns:1fr}
+  .kpi-value{font-size:28px}
+  .brand-kpi-grid{grid-template-columns:1fr}
+  .prod-sel-dropdown{min-width:140px}
+  .prod-chip{font-size:10px;padding:4px 9px}
+  .channel-btn{font-size:10px;padding:5px 10px}
+  .btn-all{font-size:10px;padding:5px 10px}
+  .section{padding:18px 0 0}
+  .card-body{padding:10px 14px 14px}
+  .card-header{padding:12px 14px 0}
+  .prod-channel-chart-wrap{height:160px}
+}
+</style>
+</head>
+<body data-view="distribution">
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="wrap">
+    <div class="header-inner">
+      <div class="logo-row">
+        <div class="logo-mark">🌾</div>
+        <div>
+          <div class="logo-name">Om Bagal Analytics</div>
+          <div class="logo-tag">Business Intelligence</div>
+        </div>
+      </div>
+
+      <!-- VIEW TOGGLE — THE MAIN SWITCH -->
+      <div class="view-toggle">
+        <button class="view-tab active" id="tabDist" onclick="switchView('distribution')">
+          <span class="tab-icon">📊</span> Distribution
+        </button>
+        <button class="view-tab prod-tab" id="tabProd" onclick="switchView('products')">
+          <span class="tab-icon">📦</span> Products
+        </button>
+      </div>
+
+      <div class="header-right">
+        <div class="data-source-tag">Sample FMCG Distribution Data · Updated 10 May 2026</div>
+        <div class="live-status"><div class="live-dot"></div><span>Live</span></div>
+        <div class="date-tag" id="liveClock">—</div>
+        <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+          <div class="theme-toggle-thumb" id="themeThumb">☀️</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ CHANNEL FILTER BAR (shared, context-aware label) ═══ -->
+<div class="channel-bar">
+  <div class="wrap">
+    <div class="channel-bar-inner">
+      <div class="filter-label dist-filter-label">Filter Channel →</div>
+      <div class="filter-label prod-filter-label">Filter Products by Channel →</div>
+      <button class="btn-all active-all" id="btnAll" onclick="filterChannel('all')">☰ All</button>
+      <button class="channel-btn ch-dmart"    id="btn-dmart"    onclick="filterChannel('dmart')">    <div class="ch-dot" style="background:#1a56db"></div>DMart</button>
+      <button class="channel-btn ch-reliance" id="btn-reliance" onclick="filterChannel('reliance')"> <div class="ch-dot" style="background:#0369a1"></div>Reliance</button>
+      <button class="channel-btn ch-bigbasket"id="btn-bigbasket"onclick="filterChannel('bigbasket')"><div class="ch-dot" style="background:#059669"></div>BigBasket</button>
+      <button class="channel-btn ch-flipkart" id="btn-flipkart" onclick="filterChannel('flipkart')"> <div class="ch-dot" style="background:#6366f1"></div>Flipkart</button>
+      <button class="channel-btn ch-zepto"    id="btn-zepto"    onclick="filterChannel('zepto')">    <div class="ch-dot" style="background:#7c3aed"></div>Zepto</button>
+      <button class="channel-btn ch-swiggy"   id="btn-swiggy"   onclick="filterChannel('swiggy')">   <div class="ch-dot" style="background:#ea580c"></div>Swiggy</button>
+      <button class="channel-btn ch-zomato"   id="btn-zomato"   onclick="filterChannel('zomato')">   <div class="ch-dot" style="background:#dc2626"></div>Zomato</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRODUCT SELECTOR BAR (Products view only) ═══ -->
+<div class="prod-selector-bar" id="prodSelectorBar">
+  <div class="wrap">
+    <div class="prod-selector-inner">
+      <div class="prod-sel-label">Focus SKU →</div>
+
+      <!-- Styled dropdown -->
+      <div class="prod-sel-dropdown-wrap">
+        <select class="prod-sel-dropdown" id="prodSelDropdown" onchange="handleProdDropdown(this)">
+          <option value="all">📦 All Products</option>
+          <optgroup label="⭐ Top Performers">
+            <option value="havmor_icecream">🍦 Havmor Ice Cream 1L</option>
+            <option value="milkymist_paneer">🧀 Milky Mist Paneer 200g</option>
+            <option value="weikfield_custard">🍮 Weikfield Custard Powder</option>
+            <option value="heritage_milk">🥛 Heritage Full Cream Milk</option>
+            <option value="milkymist_cheddar">🧀 Milky Mist Cheddar Slices</option>
+          </optgroup>
+          <optgroup label="⚠ Watch / At Risk">
+            <option value="heritage_yogurt">🥛 Heritage Flavoured Yogurt</option>
+            <option value="havmor_falooda">🥤 Havmor Falooda Mix</option>
+          </optgroup>
+          <optgroup label="🔻 Loss SKUs">
+            <option value="borges_olive">🫒 Borges Olive Oil 500ml</option>
+            <option value="milkymist_mozz">🧊 Milky Mist Mozzarella 5kg</option>
+            <option value="borges_pasta">🍝 Borges Pasta 500g</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="prod-sel-divider"></div>
+
+      <!-- Quick category chips -->
+      <div class="prod-sel-chips">
+        <span class="prod-chip-label">Quick Filter:</span>
+        <button class="prod-chip chip-all chip-active" id="chip-all"  onclick="applyChip('all',this)">☰ All</button>
+        <button class="prod-chip chip-top"             id="chip-top"  onclick="applyChip('top',this)">⭐ Top Performers</button>
+        <button class="prod-chip chip-risk"            id="chip-risk" onclick="applyChip('risk',this)">⚠ At Risk</button>
+        <button class="prod-chip chip-loss"            id="chip-loss" onclick="applyChip('loss',this)">📉 Loss SKUs</button>
+      </div>
+
+      <div class="prod-sel-badge neutral-badge" id="prodSelBadge">All Products View</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VIEW 1 — DISTRIBUTION INTELLIGENCE
+═══════════════════════════════════════ -->
+<div class="view-panel active" id="viewDist">
+<div class="wrap">
+
+  <!-- LEAKAGE BANNER -->
+  <div class="leakage-banner">
+    <div class="leakage-left">
+      <div class="leakage-icon">⚠️</div>
+      <div>
+        <div class="leakage-label">Revenue Leakage — Needs Attention</div>
+        <div class="leakage-amount" id="leakageAmount">₹12,27,000</div>
+        <div class="leakage-desc">Returns, delayed collections, cold storage risk &amp; platform overruns · Apr 2026</div>
+      </div>
+    </div>
+    <div class="leakage-split">
+      <div class="leakage-item"><div class="leakage-item-val" id="returnLoss">₹3,84,000</div><div class="leakage-item-label">Return Losses</div></div>
+      <div class="leakage-divider"></div>
+      <div class="leakage-item"><div class="leakage-item-val" id="collectionLoss">₹5,61,000</div><div class="leakage-item-label">Collection Delays</div></div>
+      <div class="leakage-divider"></div>
+      <div class="leakage-item"><div class="leakage-item-val" id="storageLoss">₹2,82,000</div><div class="leakage-item-label">Storage Write-off Risk</div></div>
+    </div>
+  </div>
+
+  <!-- TODAY'S PRIORITY ACTIONS -->
+  <div class="priority-actions-strip">
+    <div class="priority-strip-label">📋 Today's Priority Actions</div>
+    <div class="priority-actions-list">
+      <div class="priority-action red"><span class="pa-dot">●</span><span>Call pizza restaurant buyers — Mozzarella 5kg expires in <strong>8 days</strong>, ₹1.24L at risk</span></div>
+      <div class="priority-action red"><span class="pa-dot">●</span><span>Visit or escalate Sharma Kirana (₹68K, 52 days overdue)</span></div>
+      <div class="priority-action amber"><span class="pa-dot">●</span><span>Pause Swiggy &amp; Zomato orders until commission &lt;14% — both channels currently net-negative</span></div>
+      <div class="priority-action blue"><span class="pa-dot">●</span><span>Push DMart reorder for Havmor Ice Cream 1L — maintain 2-week buffer stock</span></div>
+    </div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Key Performance Indicators — <span id="kpiFilterLabel">All Channels</span></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-top"><div class="kpi-icon-wrap">📦</div><span class="kpi-badge up" id="kpiBadge1">↑ 3.6%</span></div>
+        <div class="kpi-label">Total Revenue Billed</div>
+        <div class="kpi-value" id="kpiRev">₹34.8L</div>
+        <div class="kpi-sub" id="kpiRevSub">Apr 2026 · 7 active channels</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🔻</div><span class="kpi-badge down">↑ 314%</span></div>
+        <div class="kpi-label">Collection Gap</div>
+        <div class="kpi-value" id="kpiGap">₹7.45L</div>
+        <div class="kpi-sub" id="kpiGapSub">₹27.35L collected vs ₹34.8L billed</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-top"><div class="kpi-icon-wrap">📈</div><span class="kpi-badge up">Best Channel</span></div>
+        <div class="kpi-label">Best Net Margin</div>
+        <div class="kpi-value" id="kpiMargin">18.2%</div>
+        <div class="kpi-sub" id="kpiMarginSub">DMart · Fastest collection avg 12d</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🧊</div><span class="kpi-badge warn">Expiry Risk</span></div>
+        <div class="kpi-label">Cold Storage At Risk</div>
+        <div class="kpi-value" id="kpiStorage">₹5.82L</div>
+        <div class="kpi-sub" id="kpiStorageSub">3 products need action (&gt;35 days)</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🏆</div><span class="kpi-badge up">Top SKU</span></div>
+        <div class="kpi-label">Top Performing Product</div>
+        <div class="kpi-value" style="font-size:17px;padding-top:4px" id="kpiTopProduct">Havmor Ice Cream 1L</div>
+        <div class="kpi-sub" id="kpiTopProductSub">₹4.82L · +22.4% margin · DMart</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNEL CHART -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Channel-Wise Performance — <span id="channelFilterLabel">All 7 Channels</span></div>
+      <div class="tag red" id="channelAlertTag">⚠ 2 Channels Net-Negative</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Revenue vs Cost vs Net Margin — Per Channel</div>
+          <div class="card-sub">Hover bars for detail</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="channel-legend">
+          <div class="channel-legend-item"><div class="channel-legend-dot" style="background:#1a56db"></div>Revenue Billed</div>
+          <div class="channel-legend-item"><div class="channel-legend-dot" style="background:#f87171"></div>Delivery + Returns</div>
+          <div class="channel-legend-item"><div class="channel-legend-dot" style="background:#10b981"></div>Net Margin</div>
+        </div>
+        <div class="chart-wrap" style="height:290px"><canvas id="channelChart"></canvas></div>
+        <div id="channelAlert" style="margin-top:14px;padding:11px 14px;background:var(--negative-bg);border:1px solid rgba(220,38,38,.2);border-radius:8px;font-size:12px;color:var(--negative)">
+          ⚠ <strong>Swiggy (−3.1%) and Zomato (−5.7%)</strong> — net margin negative after platform fees, return rates, and delivery costs. Review allocation before next dispatch.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TREND + DONUT -->
+  <div class="section">
+    <div class="section-header"><div class="section-title">Revenue Trend &amp; Channel Mix</div></div>
+    <div class="grid-60-40">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Revenue vs Collections — 6 Month Trend</div>
+            <div class="card-sub">Gap = uncollected working capital</div>
+          </div>
+          <div class="tag red" id="trendTag">Gap ₹7.45L &amp; Growing</div>
+        </div>
+        <div class="card-body">
+          <div class="trend-legend">
+            <div class="trend-leg-item"><div class="trend-leg-line" style="background:#1a56db"></div>Revenue Billed</div>
+            <div class="trend-leg-item"><div class="trend-leg-line" style="background:#10b981"></div>Collections Received</div>
+          </div>
+          <div class="chart-wrap" style="height:230px"><canvas id="trendChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Channel Revenue Mix</div><div class="card-sub">Share of total revenue by channel</div></div></div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:150px"><canvas id="donutChart"></canvas></div>
+          <div class="donut-legend" id="donutLegend" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND CHART -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Brand Performance Overview</div>
+      <div class="tag amber">Borges Underperforming</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Brand Revenue &amp; Net Margin % — Apr 2026</div><div class="card-sub">Hover for detail</div></div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:250px"><canvas id="brandChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLD STORAGE + OUTSTANDING -->
+  <div class="section">
+    <div class="section-header"><div class="section-title">Cold Storage Aging &amp; Retailer Outstanding</div></div>
+    <div class="grid-55-45">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">🧊 Cold Storage — Age &amp; Expiry Risk</div><div class="card-sub">Act on critical items before write-off</div></div>
+          <div class="tag red">₹5.82L At Risk</div>
+        </div>
+        <div class="card-body">
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:500;color:var(--text)">Milky Mist Mozzarella 5kg</div><div style="font-size:10px;color:var(--muted)">No open orders</div></div><div class="storage-age-bar" style="flex:1"><div class="storage-age-fill" style="width:94%;background:#dc2626"></div></div><div class="age-label age-critical">47 days</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--negative);font-weight:600;min-width:64px;text-align:right">₹1,24,000</div></div>
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:500;color:var(--text)">Borges Olive Oil 500ml</div><div style="font-size:10px;color:var(--muted)">48 units pending</div></div><div class="storage-age-bar" style="flex:1"><div class="storage-age-fill" style="width:82%;background:#dc2626"></div></div><div class="age-label age-critical">41 days</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--negative);font-weight:600;min-width:64px;text-align:right">₹86,400</div></div>
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:500;color:var(--text)">Heritage Liquid Cheese 1kg</div><div style="font-size:10px;color:var(--muted)">Partial order pending</div></div><div class="storage-age-bar" style="flex:1"><div class="storage-age-fill" style="width:76%;background:#dc2626"></div></div><div class="age-label age-critical">38 days</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--negative);font-weight:600;min-width:64px;text-align:right">₹72,800</div></div>
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:500;color:var(--text)">Havmor Pizza Sauce 800g</div><div style="font-size:10px;color:var(--muted)">60 units in storage</div></div><div class="storage-age-bar" style="flex:1"><div class="storage-age-fill" style="width:58%;background:#d97706"></div></div><div class="age-label age-warn">29 days</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--warning);font-weight:600;min-width:64px;text-align:right">₹54,000</div></div>
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:500;color:var(--text)">Milky Mist Cream Cheese 200g</div><div style="font-size:10px;color:var(--muted)">Zepto order delayed</div></div><div class="storage-age-bar" style="flex:1"><div class="storage-age-fill" style="width:52%;background:#d97706"></div></div><div class="age-label age-warn">26 days</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--warning);font-weight:600;min-width:64px;text-align:right">₹38,400</div></div>
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:500;color:var(--text)">Weikfield Jelly Crystals</div><div style="font-size:10px;color:var(--muted)">Reliance order pending</div></div><div class="storage-age-bar" style="flex:1"><div class="storage-age-fill" style="width:38%;background:#d97706"></div></div><div class="age-label age-warn">19 days</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--warning);font-weight:600;min-width:64px;text-align:right">₹32,600</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">💸 Retailer Outstanding Payments</div><div class="card-sub">Sorted by overdue risk</div></div>
+          <div class="tag red">₹5.59L Total</div>
+        </div>
+        <div class="card-body" style="padding-top:10px">
+          <table class="out-table">
+            <thead><tr><th>Retailer</th><th>Amount</th><th>Age</th><th>Risk</th></tr></thead>
+            <tbody>
+              <tr><td><div style="font-weight:500;font-size:12px;color:var(--text)">Sharma Kirana &amp; Co.</div><div class="out-bar"><div class="out-fill" style="width:100%;background:var(--negative)"></div></div></td><td><span class="mono" style="color:var(--negative)">₹68,000</span></td><td><span class="age-label age-critical" style="font-size:10px;padding:2px 6px">52 days</span></td><td><span class="tag red">Critical</span></td></tr>
+              <tr><td><div style="font-weight:500;font-size:12px;color:var(--text)">Patel Supermarket</div><div class="out-bar"><div class="out-fill" style="width:85%;background:var(--negative)"></div></div></td><td><span class="mono" style="color:var(--negative)">₹54,200</span></td><td><span class="age-label age-critical" style="font-size:10px;padding:2px 6px">44 days</span></td><td><span class="tag red">Critical</span></td></tr>
+              <tr><td><div style="font-weight:500;font-size:12px;color:var(--text)">Mehta General Store</div><div class="out-bar"><div class="out-fill" style="width:62%;background:var(--warning)"></div></div></td><td><span class="mono" style="color:var(--warning)">₹41,200</span></td><td><span class="age-label age-warn" style="font-size:10px;padding:2px 6px">33 days</span></td><td><span class="tag amber">High</span></td></tr>
+              <tr><td><div style="font-weight:500;font-size:12px;color:var(--text)">Gupta Provisions</div><div class="out-bar"><div class="out-fill" style="width:50%;background:var(--warning)"></div></div></td><td><span class="mono" style="color:var(--warning)">₹38,800</span></td><td><span class="age-label age-warn" style="font-size:10px;padding:2px 6px">28 days</span></td><td><span class="tag amber">Watch</span></td></tr>
+              <tr><td><div style="font-weight:500;font-size:12px;color:var(--text)">Desai Retail Chain</div><div class="out-bar"><div class="out-fill" style="width:36%;background:#6366f1"></div></div></td><td><span class="mono" style="color:var(--accent)">₹29,000</span></td><td><span class="age-label age-warn" style="font-size:10px;padding:2px 6px">21 days</span></td><td><span class="tag blue">Follow Up</span></td></tr>
+              <tr><td><div style="font-weight:500;font-size:12px;color:var(--muted)">+ 33 other retailers</div></td><td><span class="mono" style="color:var(--muted)">₹3.13L</span></td><td><span class="age-label age-safe" style="font-size:10px;padding:2px 6px">0–15 days</span></td><td><span class="tag green">Normal</span></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Avg Collection Delay Trend</div>
+            <div style="height:46px"><canvas id="collectionSparkline"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGIC INSIGHTS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Actions &amp; Recommendations</div>
+    </div>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </div>
+
+  <div style="height:36px"></div>
+</div><!-- /wrap -->
+</div><!-- /viewDist -->
+
+
+<!-- ═══════════════════════════════════════
+     VIEW 2 — PRODUCT INTELLIGENCE
+═══════════════════════════════════════ -->
+<div class="view-panel" id="viewProd">
+<div class="wrap">
+
+  <!-- PRODUCT SPOTLIGHT BANNER (shown when a product is selected) -->
+  <div class="prod-spotlight" id="prodSpotlight">
+    <div class="spot-left">
+      <div class="spot-emoji" id="spotEmoji">🍦</div>
+      <div>
+        <div class="spot-label" id="spotLabel">Product Focus</div>
+        <div class="spot-name" id="spotName">Havmor Ice Cream 1L</div>
+        <div class="spot-sub" id="spotSub">Revenue leader · Present in 6/7 channels</div>
+      </div>
+    </div>
+    <div class="spot-stats">
+      <div class="spot-stat"><div class="spot-stat-val" id="spotRev">₹4.82L</div><div class="spot-stat-label">Total Revenue</div></div>
+      <div class="spot-divider"></div>
+      <div class="spot-stat"><div class="spot-stat-val" id="spotMargin">+22.4%</div><div class="spot-stat-label">Best Margin</div></div>
+      <div class="spot-divider"></div>
+      <div class="spot-stat"><div class="spot-stat-val" id="spotUnits">1,240</div><div class="spot-stat-label">Units Sold</div></div>
+      <div class="spot-divider"></div>
+      <div class="spot-stat"><div class="spot-stat-val" id="spotChannels">6</div><div class="spot-stat-label">Channels</div></div>
+    </div>
+  </div>
+
+  <!-- PRODUCT KPIs -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Product KPIs — <span id="prodKpiLabel">All Channels</span></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🏆</div><span class="kpi-badge up">Best SKU</span></div>
+        <div class="kpi-label">Top Revenue Product</div>
+        <div class="kpi-value" style="font-size:16px;padding-top:5px" id="pkpiTop">Havmor Ice Cream 1L</div>
+        <div class="kpi-sub" id="pkpiTopSub">₹4.82L · +22.4% margin · 6 channels</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-top"><div class="kpi-icon-wrap">📉</div><span class="kpi-badge down">Loss SKU</span></div>
+        <div class="kpi-label">Worst Margin Product</div>
+        <div class="kpi-value" style="font-size:16px;padding-top:5px" id="pkpiWorst">Borges Olive Oil 500ml</div>
+        <div class="kpi-sub" id="pkpiWorstSub">−9.2% margin on Zomato · Storage risk</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🌐</div><span class="kpi-badge up">Most Reach</span></div>
+        <div class="kpi-label">Most Ubiquitous Product</div>
+        <div class="kpi-value" style="font-size:16px;padding-top:5px" id="pkpiUbiq">Milky Mist Paneer 200g</div>
+        <div class="kpi-sub" id="pkpiUbiqSub">Present in all 7 channels · ₹3.94L</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-top"><div class="kpi-icon-wrap">⚡</div><span class="kpi-badge warn">Fastest Move</span></div>
+        <div class="kpi-label">Fastest Moving SKU</div>
+        <div class="kpi-value" style="font-size:16px;padding-top:5px" id="pkpiFast">Weikfield Custard Powder</div>
+        <div class="kpi-sub" id="pkpiFastSub">1,560 units · Consistent across channels</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🧊</div><span class="kpi-badge warn">Expiry Risk</span></div>
+        <div class="kpi-label">Cold Storage — Needs Action</div>
+        <div class="kpi-value" style="font-size:16px;padding-top:5px" id="pkpiStorage">Mozzarella 5kg</div>
+        <div class="kpi-sub" id="pkpiStorageSub">47 days in cold storage · ₹1,24,000 at risk</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CROSS-CHANNEL INTELLIGENCE STRIP -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Cross-Channel Product Intelligence</div>
+      <div class="tag blue">All 7 Channels</div>
+    </div>
+    <div class="xch-strip">
+      <div class="xch-card winner">
+        <span class="xch-icon">🏆</span>
+        <div class="xch-label">Star Product</div>
+        <div class="xch-product">Havmor Ice Cream 1L</div>
+        <div class="xch-stat pos">₹4.82L · Avg +17.6% margin</div>
+        <div class="xch-footer">Present in 6/7 channels · Top-3 rank everywhere</div>
+      </div>
+      <div class="xch-card loser">
+        <span class="xch-icon">🔻</span>
+        <div class="xch-label">Drag Product</div>
+        <div class="xch-product">Borges Olive Oil 500ml</div>
+        <div class="xch-stat neg">−8.4% on Swiggy · −9.2% on Zomato</div>
+        <div class="xch-footer">Losing money on 3/7 channels · Exit Q-com</div>
+      </div>
+      <div class="xch-card ubiq">
+        <span class="xch-icon">🌐</span>
+        <div class="xch-label">Most Reach</div>
+        <div class="xch-product">Milky Mist Paneer 200g</div>
+        <div class="xch-stat blue">7/7 channels · ₹3.94L combined</div>
+        <div class="xch-footer">Consistent demand · prioritize stock availability</div>
+      </div>
+      <div class="xch-card risk">
+        <span class="xch-icon">⚠️</span>
+        <div class="xch-label">Biggest Risk</div>
+        <div class="xch-product">Milky Mist Mozzarella 5kg</div>
+        <div class="xch-stat amber">47 days cold storage · Expiry in 8 days</div>
+        <div class="xch-footer">No active orders · ₹1,24,000 write-off risk</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT CHANNEL BREAKDOWN (shown when a product is selected) -->
+  <div class="section" id="prodChannelSection" style="display:none">
+    <div class="section-header">
+      <div class="section-title">Channel-wise Performance — <span id="prodChannelLabel">Selected Product</span></div>
+      <div class="tag green" id="prodChannelTag">Live Data</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title" id="prodChannelChartTitle">Revenue by Channel</div><div class="card-sub">Where this product sells best</div></div>
+        </div>
+        <div class="card-body"><div class="prod-channel-chart-wrap"><canvas id="prodChannelBarChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Margin % by Channel</div><div class="card-sub">Profitability varies by channel</div></div>
+        </div>
+        <div class="card-body"><div class="prod-channel-chart-wrap"><canvas id="prodChannelMarginChart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE PRODUCT LIST -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Product Performance — <span id="prodListLabel">All Channels</span></div>
+      <div class="tag green" id="prodListTag">Top Performers Shown</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title" id="prodListTitle">🏆 Top 5 Performing Products</div>
+          <div class="card-sub" id="prodListSub">Ranked by revenue contribution across selected channel</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- TOOLBAR -->
+        <div class="prod-toolbar">
+          <div class="prod-btn-group">
+            <button class="prod-btn active" id="btnTop"    onclick="switchProdView('top',this)">🏆 Top 5</button>
+            <button class="prod-btn"        id="btnBottom" onclick="switchProdView('bottom',this)">⬇ Bottom 5</button>
+            <button class="prod-btn"        id="btnAll10"  onclick="switchProdView('all',this)">All 10</button>
+          </div>
+          <div class="prod-separator"></div>
+          <span class="prod-sort-label">Sort:</span>
+          <div class="prod-btn-group">
+            <button class="prod-btn active" id="btnSortRev"    onclick="sortProd('rev',this)">Revenue</button>
+            <button class="prod-btn"        id="btnSortMargin" onclick="sortProd('margin',this)">Margin</button>
+          </div>
+        </div>
+        <div class="prod-list" id="prodList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND KPI CARDS (compact) -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Brand Summary</div>
+    </div>
+    <div class="brand-kpi-grid" id="brandKpiGrid"></div>
+  </div>
+
+  <!-- PRODUCT CHARTS ROW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Product Mix — Revenue &amp; Margin</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Revenue by Product</div><div class="card-sub">Top 10 SKUs</div></div></div>
+        <div class="card-body"><div class="chart-wrap" style="height:240px"><canvas id="prodBarChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Margin Distribution</div><div class="card-sub">% of products by margin band</div></div></div>
+        <div class="card-body" style="display:flex;align-items:center;gap:18px">
+          <div class="chart-wrap" style="height:200px;flex:1"><canvas id="prodMarginDonut"></canvas></div>
+          <div id="prodMarginLegend" style="flex-shrink:0;min-width:110px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT INSIGHTS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Product Intelligence — Insights &amp; Actions</div>
+      <div class="tag green" id="prodInsightsTag">3 Product Insights</div>
+    </div>
+    <div class="insights-grid" id="prodInsightsGrid"></div>
+  </div>
+
+  <div style="height:36px"></div>
+</div><!-- /wrap -->
+</div><!-- /viewProd -->
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-powered">
+      <span class="footer-diamond">✦</span>
+      <span class="footer-powered-text">Powered by Om Bagal Analytics</span>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-meta-row">
+      FMCG Distribution Intelligence Dashboard &nbsp;·&nbsp; Sample Data: Apr 2026 &nbsp;·&nbsp;
+      Built by <a href="mailto:ombagal.official@gmail.com">ombagal.official@gmail.com</a> &nbsp;·&nbsp;
+      <a href="https://linkedin.com/in/ombagal" target="_blank">LinkedIn</a> &nbsp;·&nbsp;
+      <a href="tel:+919987258696">+91 99872 58696</a>
+    </div>
+    <div class="footer-meta-row">
+      © 2026 Om Bagal Analytics &nbsp;·&nbsp; India &nbsp;·&nbsp; Serving FMCG &amp; Distribution Clients &nbsp;·&nbsp; Demo data only — not affiliated with any brand or retailer
+    </div>
+    <div class="footer-copy">Built on real FMCG distribution patterns · Connect your Tally data to get your own live version</div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CORE DATA
+// ═══════════════════════════════════════════════════════════════
+const CHANNELS = ['DMart','Reliance','BigBasket','Flipkart','Zepto','Swiggy','Zomato'];
+const CH_IDS   = ['dmart','reliance','bigbasket','flipkart','zepto','swiggy','zomato'];
+const CH_COLORS = { dmart:'#1a56db', reliance:'#0369a1', bigbasket:'#059669', flipkart:'#6366f1', zepto:'#7c3aed', swiggy:'#ea580c', zomato:'#dc2626' };
+
+const DATA = {
+  dmart:    { rev:8.43,  cost:1.64, margin:1.53,   marginPct:18.2,  collection:7.82,  trendRev:[4.8,5.2,5.8,6.1,7.2,8.43], trendCol:[4.5,4.9,5.4,5.7,6.7,7.82], kpiMargin:'18.2%', kpiMarginSub:'DMart · Avg 12d collection' },
+  reliance: { rev:7.07,  cost:1.48, margin:1.12,   marginPct:15.8,  collection:6.38,  trendRev:[3.9,4.4,4.8,5.2,6.0,7.07], trendCol:[3.6,4.1,4.4,4.8,5.5,6.38], kpiMargin:'15.8%', kpiMarginSub:'Reliance · Avg 14d collection' },
+  bigbasket:{ rev:6.31,  cost:1.44, margin:0.72,   marginPct:11.4,  collection:5.61,  trendRev:[3.4,3.7,4.2,4.6,5.4,6.31], trendCol:[3.0,3.3,3.8,4.2,5.0,5.61], kpiMargin:'11.4%', kpiMarginSub:'BigBasket · Avg 18d collection' },
+  flipkart: { rev:5.18,  cost:1.37, margin:0.46,   marginPct:8.9,   collection:4.37,  trendRev:[2.8,3.1,3.5,3.8,4.4,5.18], trendCol:[2.4,2.7,3.0,3.4,3.9,4.37], kpiMargin:'8.9%',  kpiMarginSub:'Flipkart · Avg 22d collection' },
+  zepto:    { rev:4.42,  cost:1.22, margin:0.18,   marginPct:4.2,   collection:3.58,  trendRev:[2.2,2.5,2.8,3.2,3.8,4.42], trendCol:[1.8,2.0,2.3,2.7,3.2,3.58], kpiMargin:'4.2%',  kpiMarginSub:'Zepto · Avg 26d collection' },
+  swiggy:   { rev:1.87,  cost:0.78, margin:-0.059, marginPct:-3.1,  collection:1.48,  trendRev:[1.6,1.7,1.8,1.8,1.9,1.87], trendCol:[1.3,1.3,1.4,1.4,1.4,1.48], kpiMargin:'-3.1%', kpiMarginSub:'Swiggy · Negative net margin' },
+  zomato:   { rev:1.53,  cost:0.65, margin:-0.087, marginPct:-5.7,  collection:1.16,  trendRev:[1.3,1.4,1.4,1.5,1.5,1.53], trendCol:[1.0,1.0,1.1,1.1,1.1,1.16], kpiMargin:'-5.7%', kpiMarginSub:'Zomato · Negative net margin' },
+};
+function agg(k)    { return CH_IDS.reduce((s,c)=>s+DATA[c][k],0); }
+function aggArr(k) { return DATA['dmart'][k].map((_,i)=>CH_IDS.reduce((s,c)=>s+DATA[c][k][i],0)); }
+
+const LEAKAGE = {
+  all:      {total:1231700,ret:387200,col:558400,stor:286100},
+  dmart:    {total:63400, ret:21300, col:17800, stor:24300},
+  reliance: {total:71600, ret:24700, col:22400, stor:24500},
+  bigbasket:{total:68900, ret:21400, col:19700, stor:27800},
+  flipkart: {total:78300, ret:27600, col:27100, stor:23600},
+  zepto:    {total:82100, ret:31200, col:33100, stor:17800},
+  swiggy:   {total:107400,ret:43700, col:39200, stor:24500},
+  zomato:   {total:121800,ret:51400, col:43700, stor:26700},
+};
+
+const BRAND_DATA = {
+  all:      {labels:['Havmor','Heritage','Milky Mist','Weikfield','Borges'],rev:[9.2,7.8,6.4,5.9,3.1],margin:[19.4,16.2,14.8,17.1,6.2]},
+  dmart:    {labels:['Havmor','Milky Mist','Weikfield','Heritage','Borges'],rev:[3.4,2.8,1.8,1.2,0.8],margin:[22.4,19.8,17.2,15.6,4.8]},
+  reliance: {labels:['Weikfield','Havmor','Milky Mist','Borges','Heritage'],rev:[2.2,1.9,1.6,1.2,0.9],margin:[19.2,18.8,16.4,7.6,13.6]},
+  bigbasket:{labels:['Milky Mist','Heritage','Havmor','Weikfield','Borges'],rev:[2.4,1.8,1.4,1.0,0.8],margin:[18.8,16.4,14.2,11.8,5.2]},
+  flipkart: {labels:['Weikfield','Milky Mist','Havmor','Heritage','Borges'],rev:[1.7,1.4,1.1,0.9,0.6],margin:[15.4,13.8,12.2,10.6,3.4]},
+  zepto:    {labels:['Milky Mist','Heritage','Havmor','Weikfield','Borges'],rev:[1.5,1.0,0.8,0.7,0.4],margin:[9.8,8.2,7.4,6.8,2.1]},
+  swiggy:   {labels:['Milky Mist','Heritage','Weikfield','Havmor','Borges'],rev:[0.7,0.5,0.3,0.3,0.4],margin:[2.6,1.8,0.8,0.4,-7.8]},
+  zomato:   {labels:['Milky Mist','Heritage','Weikfield','Havmor','Borges'],rev:[0.6,0.4,0.2,0.2,0.3],margin:[1.2,0.8,0.2,-0.4,-9.2]},
+};
+
+const BRAND_KPIS = {
+  all:[
+    {name:'Havmor',    icon:'🍦',rev:'₹9.2L',units:'2,480',topSku:'Ice Cream 1L',     margin:'+19.4%',mClass:'pos'},
+    {name:'Heritage',  icon:'🥛',rev:'₹7.8L',units:'2,140',topSku:'Full Cream Milk',  margin:'+16.2%',mClass:'pos'},
+    {name:'Milky Mist',icon:'🧀',rev:'₹6.4L',units:'1,820',topSku:'Paneer 200g',      margin:'+14.8%',mClass:'pos'},
+    {name:'Weikfield', icon:'🍮',rev:'₹5.9L',units:'1,560',topSku:'Custard Powder',   margin:'+17.1%',mClass:'pos'},
+    {name:'Borges',    icon:'🫒',rev:'₹3.1L',units:'780',  topSku:'Olive Oil 500ml',  margin:'+6.2%', mClass:'warn'},
+  ],
+  dmart:[
+    {name:'Havmor',    icon:'🍦',rev:'₹3.4L',units:'880',topSku:'Ice Cream 1L',       margin:'+22.4%',mClass:'pos'},
+    {name:'Milky Mist',icon:'🧀',rev:'₹2.8L',units:'702',topSku:'Paneer 200g',        margin:'+19.8%',mClass:'pos'},
+    {name:'Weikfield', icon:'🍮',rev:'₹1.8L',units:'480',topSku:'Custard Powder',     margin:'+17.2%',mClass:'pos'},
+    {name:'Heritage',  icon:'🥛',rev:'₹1.2L',units:'302',topSku:'Full Cream Milk',    margin:'+15.6%',mClass:'pos'},
+    {name:'Borges',    icon:'🫒',rev:'₹0.8L',units:'210',topSku:'Olive Oil 500ml',    margin:'+4.8%', mClass:'warn'},
+  ],
+  reliance:[
+    {name:'Weikfield', icon:'🍮',rev:'₹2.2L',units:'586',topSku:'Custard Powder',     margin:'+19.2%',mClass:'pos'},
+    {name:'Havmor',    icon:'🍦',rev:'₹1.9L',units:'490',topSku:'Ice Cream 1L',       margin:'+18.8%',mClass:'pos'},
+    {name:'Milky Mist',icon:'🧀',rev:'₹1.6L',units:'402',topSku:'Cheddar Slices',     margin:'+17.2%',mClass:'pos'},
+    {name:'Borges',    icon:'🫒',rev:'₹1.2L',units:'200',topSku:'Olive Oil 500ml',    margin:'+7.6%', mClass:'warn'},
+    {name:'Heritage',  icon:'🥛',rev:'₹0.9L',units:'226',topSku:'Full Cream Milk',    margin:'+13.6%',mClass:'pos'},
+  ],
+  bigbasket:[
+    {name:'Milky Mist',icon:'🧀',rev:'₹2.4L',units:'600',topSku:'Paneer 200g',        margin:'+18.8%',mClass:'pos'},
+    {name:'Heritage',  icon:'🥛',rev:'₹1.8L',units:'452',topSku:'Full Cream Milk',    margin:'+16.4%',mClass:'pos'},
+    {name:'Havmor',    icon:'🍦',rev:'₹1.4L',units:'360',topSku:'Ice Cream 1L',       margin:'+14.2%',mClass:'pos'},
+    {name:'Weikfield', icon:'🍮',rev:'₹1.0L',units:'266',topSku:'Custard Powder',     margin:'+11.8%',mClass:'pos'},
+    {name:'Borges',    icon:'🫒',rev:'₹0.8L',units:'134',topSku:'Olive Oil 500ml',    margin:'+5.2%', mClass:'warn'},
+  ],
+  flipkart:[
+    {name:'Weikfield', icon:'🍮',rev:'₹1.7L',units:'454',topSku:'Custard Powder',     margin:'+15.4%',mClass:'pos'},
+    {name:'Milky Mist',icon:'🧀',rev:'₹1.4L',units:'352',topSku:'Cheddar Slices',     margin:'+13.8%',mClass:'pos'},
+    {name:'Havmor',    icon:'🍦',rev:'₹1.1L',units:'284',topSku:'Ice Cream 1L',       margin:'+12.2%',mClass:'pos'},
+    {name:'Heritage',  icon:'🥛',rev:'₹0.9L',units:'226',topSku:'Yogurt 400g',        margin:'+10.6%',mClass:'pos'},
+    {name:'Borges',    icon:'🫒',rev:'₹0.6L',units:'200',topSku:'Pasta 500g',         margin:'-4.1%', mClass:'neg'},
+  ],
+  zepto:[
+    {name:'Milky Mist',icon:'🧀',rev:'₹1.5L',units:'376',topSku:'Cream Cheese 200g',  margin:'+9.8%', mClass:'pos'},
+    {name:'Heritage',  icon:'🥛',rev:'₹1.0L',units:'252',topSku:'Flavoured Yogurt',   margin:'+8.2%', mClass:'pos'},
+    {name:'Havmor',    icon:'🍦',rev:'₹0.8L',units:'206',topSku:'Falooda Mix',         margin:'+7.4%', mClass:'pos'},
+    {name:'Weikfield', icon:'🍮',rev:'₹0.7L',units:'188',topSku:'Custard Powder',     margin:'+6.8%', mClass:'pos'},
+    {name:'Borges',    icon:'🫒',rev:'₹0.4L',units:'68', topSku:'Olive Oil 500ml',    margin:'-4.6%', mClass:'neg'},
+  ],
+  swiggy:[
+    {name:'Milky Mist',icon:'🧀',rev:'₹0.7L',units:'176',topSku:'Paneer 200g',        margin:'+4.2%', mClass:'warn'},
+    {name:'Heritage',  icon:'🥛',rev:'₹0.5L',units:'126',topSku:'Flavoured Yogurt',   margin:'+1.8%', mClass:'warn'},
+    {name:'Weikfield', icon:'🍮',rev:'₹0.3L',units:'80', topSku:'Custard Powder',     margin:'+0.8%', mClass:'warn'},
+    {name:'Havmor',    icon:'🍦',rev:'₹0.3L',units:'78', topSku:'Ice Cream 1L',       margin:'+0.4%', mClass:'warn'},
+    {name:'Borges',    icon:'🫒',rev:'₹0.4L',units:'66', topSku:'Olive Oil 500ml',    margin:'-8.4%', mClass:'neg'},
+  ],
+  zomato:[
+    {name:'Milky Mist',icon:'🧀',rev:'₹0.6L',units:'152',topSku:'Paneer 200g',        margin:'+2.1%', mClass:'warn'},
+    {name:'Heritage',  icon:'🥛',rev:'₹0.4L',units:'102',topSku:'Cheese Spread',      margin:'+0.8%', mClass:'warn'},
+    {name:'Weikfield', icon:'🍮',rev:'₹0.2L',units:'54', topSku:'Custard Powder',     margin:'+0.2%', mClass:'warn'},
+    {name:'Havmor',    icon:'🍦',rev:'₹0.2L',units:'52', topSku:'Ice Cream 1L',       margin:'-0.4%', mClass:'neg'},
+    {name:'Borges',    icon:'🫒',rev:'₹0.3L',units:'50', topSku:'Olive Oil 500ml',    margin:'-9.2%', mClass:'neg'},
+  ],
+};
+
+// Product data per channel
+const PROD_DATA = {
+  all:{
+    top:[
+      {name:'Havmor Ice Cream 1L',      brand:'Havmor · DMart, Reliance',       rev:4.82,units:1240,marginNum:22.4,mClass:'pos',channels:['dmart','reliance','bigbasket','flipkart','zepto','swiggy']},
+      {name:'Milky Mist Paneer 200g',   brand:'Milky Mist · BigBasket, DMart',  rev:3.94,units:986, marginNum:19.1,mClass:'pos',channels:['dmart','reliance','bigbasket','flipkart','zepto','swiggy','zomato']},
+      {name:'Weikfield Custard Powder', brand:'Weikfield · Reliance, Flipkart', rev:3.21,units:854, marginNum:17.8,mClass:'pos',channels:['dmart','reliance','bigbasket','flipkart','zepto']},
+      {name:'Heritage Full Cream Milk', brand:'Heritage · BigBasket, Zepto',    rev:2.88,units:720, marginNum:15.3,mClass:'pos',channels:['dmart','reliance','bigbasket','flipkart','zepto']},
+      {name:'Milky Mist Cheddar Slices',brand:'Milky Mist · Reliance, DMart',  rev:2.44,units:611, marginNum:14.6,mClass:'pos',channels:['dmart','reliance','flipkart','zepto']},
+    ],
+    bottom:[
+      {name:'Borges Olive Oil 500ml',   brand:'Borges · Swiggy, Zomato',             rev:0.864,units:144,marginNum:-8.4,mClass:'neg',channels:['swiggy','zomato']},
+      {name:'Milky Mist Mozzarella 5kg',brand:'Milky Mist · Cold storage 47 days',  rev:0.720,units:58, marginNum:-6.2,mClass:'neg',channels:['bigbasket']},
+      {name:'Borges Pasta 500g (6-pack)',brand:'Borges · Flipkart, Zomato',          rev:0.542,units:180,marginNum:-4.1,mClass:'neg',channels:['flipkart','zomato']},
+      {name:'Heritage Flavoured Yogurt',brand:'Heritage · Swiggy (high returns)',    rev:0.388,units:310,marginNum:1.2, mClass:'warn',channels:['swiggy','zepto']},
+      {name:'Havmor Falooda Mix',       brand:'Havmor · Zepto (slow mover)',         rev:0.246,units:82, marginNum:2.1, mClass:'warn',channels:['zepto']},
+    ]
+  },
+  dmart:{
+    top:[
+      {name:'Havmor Ice Cream 1L',      brand:'Havmor · DMart #1',    rev:2.64,units:680,marginNum:22.4,mClass:'pos',channels:['dmart']},
+      {name:'Milky Mist Paneer 200g',   brand:'Milky Mist · DMart',   rev:1.98,units:496,marginNum:19.1,mClass:'pos',channels:['dmart']},
+      {name:'Milky Mist Cheddar Slices',brand:'Milky Mist · DMart',   rev:1.42,units:356,marginNum:18.2,mClass:'pos',channels:['dmart']},
+      {name:'Weikfield Custard Powder', brand:'Weikfield · DMart',    rev:1.18,units:314,marginNum:16.4,mClass:'pos',channels:['dmart']},
+      {name:'Heritage Full Cream Milk', brand:'Heritage · DMart',     rev:0.96,units:240,marginNum:15.2,mClass:'pos',channels:['dmart']},
+    ],
+    bottom:[
+      {name:'Borges Olive Oil 500ml',   brand:'Borges · Slow at DMart',   rev:0.282,units:47,marginNum:1.8,mClass:'warn',channels:['dmart']},
+      {name:'Weikfield Jelly Crystals', brand:'Weikfield · Seasonal slow', rev:0.184,units:92,marginNum:2.4,mClass:'warn',channels:['dmart']},
+      {name:'Havmor Falooda Mix',       brand:'Havmor · Niche at DMart',  rev:0.146,units:49,marginNum:3.1,mClass:'warn',channels:['dmart']},
+      {name:'Heritage Cheese Spread',   brand:'Heritage · Slow mover',    rev:0.102,units:34,marginNum:4.2,mClass:'warn',channels:['dmart']},
+      {name:'Borges Pasta 500g',        brand:'Borges · Minimal listing',  rev:0.084,units:28,marginNum:4.8,mClass:'warn',channels:['dmart']},
+    ]
+  },
+  reliance:{
+    top:[
+      {name:'Weikfield Custard Powder', brand:'Weikfield · Reliance #1',  rev:1.84,units:490,marginNum:19.2,mClass:'pos',channels:['reliance']},
+      {name:'Havmor Ice Cream 1L',      brand:'Havmor · Reliance',        rev:1.62,units:418,marginNum:18.8,mClass:'pos',channels:['reliance']},
+      {name:'Milky Mist Cheddar Slices',brand:'Milky Mist · Reliance',   rev:1.24,units:311,marginNum:17.2,mClass:'pos',channels:['reliance']},
+      {name:'Borges Olive Oil 500ml',   brand:'Borges · Reliance',        rev:0.82,units:137,marginNum:14.1,mClass:'pos',channels:['reliance']},
+      {name:'Heritage Full Cream Milk', brand:'Heritage · Reliance',      rev:0.74,units:185,marginNum:13.6,mClass:'pos',channels:['reliance']},
+    ],
+    bottom:[
+      {name:'Borges Pasta 500g',         brand:'Borges · High return 18%', rev:0.186,units:62, marginNum:-2.4,mClass:'neg',channels:['reliance']},
+      {name:'Heritage Flavoured Yogurt', brand:'Heritage · Short shelf',   rev:0.142,units:114,marginNum:1.6, mClass:'warn',channels:['reliance']},
+      {name:'Havmor Falooda Mix',        brand:'Havmor · Low velocity',    rev:0.082,units:27, marginNum:2.8, mClass:'warn',channels:['reliance']},
+      {name:'Weikfield Jelly Crystals',  brand:'Weikfield · Off-season',   rev:0.064,units:32, marginNum:3.4, mClass:'warn',channels:['reliance']},
+      {name:'Milky Mist Mozzarella 5kg', brand:'Milky Mist · Institutional',rev:0.048,units:4, marginNum:4.6, mClass:'warn',channels:['reliance']},
+    ]
+  },
+  bigbasket:{
+    top:[
+      {name:'Milky Mist Paneer 200g',  brand:'Milky Mist · BB #1',   rev:1.96,units:490,marginNum:19.4,mClass:'pos',channels:['bigbasket']},
+      {name:'Heritage Full Cream Milk',brand:'Heritage · BigBasket',  rev:1.48,units:370,marginNum:16.8,mClass:'pos',channels:['bigbasket']},
+      {name:'Havmor Ice Cream 1L',     brand:'Havmor · BigBasket',   rev:1.22,units:315,marginNum:15.4,mClass:'pos',channels:['bigbasket']},
+      {name:'Weikfield Custard Powder',brand:'Weikfield · BigBasket', rev:0.84,units:224,marginNum:12.8,mClass:'pos',channels:['bigbasket']},
+      {name:'Borges Olive Oil 500ml',  brand:'Borges · BigBasket',   rev:0.64,units:107,marginNum:11.2,mClass:'pos',channels:['bigbasket']},
+    ],
+    bottom:[
+      {name:'Milky Mist Mozzarella 5kg', brand:'Milky Mist · Cold storage', rev:0.320,units:26, marginNum:-5.8,mClass:'neg',channels:['bigbasket']},
+      {name:'Borges Pasta 500g',         brand:'Borges · Returns 14%',      rev:0.184,units:61, marginNum:-3.2,mClass:'neg',channels:['bigbasket']},
+      {name:'Heritage Flavoured Yogurt', brand:'Heritage · Near expiry',    rev:0.122,units:98, marginNum:1.4, mClass:'warn',channels:['bigbasket']},
+      {name:'Havmor Falooda Mix',        brand:'Havmor · Niche product',    rev:0.068,units:23, marginNum:2.6, mClass:'warn',channels:['bigbasket']},
+      {name:'Weikfield Jelly Crystals',  brand:'Weikfield · Seasonal',      rev:0.042,units:21, marginNum:3.8, mClass:'warn',channels:['bigbasket']},
+    ]
+  },
+  flipkart:{
+    top:[
+      {name:'Weikfield Custard Powder',  brand:'Weikfield · Flipkart #1', rev:1.44,units:384,marginNum:16.2,mClass:'pos',channels:['flipkart']},
+      {name:'Milky Mist Cheddar Slices', brand:'Milky Mist · Flipkart',  rev:1.18,units:280,marginNum:13.8,mClass:'pos',channels:['flipkart']},
+      {name:'Havmor Ice Cream 1L',       brand:'Havmor · Flipkart',      rev:0.94,units:242,marginNum:12.2,mClass:'pos',channels:['flipkart']},
+      {name:'Heritage Full Cream Milk',  brand:'Heritage · Flipkart',    rev:0.74,units:185,marginNum:10.6,mClass:'pos',channels:['flipkart']},
+      {name:'Borges Olive Oil 500ml',    brand:'Borges · Flipkart',      rev:0.54,units:90, marginNum:9.8, mClass:'pos',channels:['flipkart']},
+    ],
+    bottom:[
+      {name:'Borges Pasta 500g',         brand:'Borges · Returns 18%',   rev:0.148,units:49,marginNum:-4.1,mClass:'neg',channels:['flipkart']},
+      {name:'Milky Mist Mozzarella 5kg', brand:'Milky Mist · Cold chain', rev:0.180,units:15,marginNum:-3.4,mClass:'neg',channels:['flipkart']},
+      {name:'Heritage Flavoured Yogurt', brand:'Heritage · Returns 12%',  rev:0.104,units:83,marginNum:1.8, mClass:'warn',channels:['flipkart']},
+      {name:'Havmor Falooda Mix',        brand:'Havmor · Niche SKU',      rev:0.054,units:18,marginNum:2.4, mClass:'warn',channels:['flipkart']},
+      {name:'Weikfield Jelly Crystals',  brand:'Weikfield · Off-season',  rev:0.038,units:19,marginNum:3.6, mClass:'warn',channels:['flipkart']},
+    ]
+  },
+  zepto:{
+    top:[
+      {name:'Milky Mist Cream Cheese 200g',brand:'Milky Mist · Zepto',  rev:0.96,units:192,marginNum:9.8, mClass:'pos',channels:['zepto']},
+      {name:'Heritage Flavoured Yogurt',   brand:'Heritage · Zepto',    rev:0.82,units:195,marginNum:8.2, mClass:'pos',channels:['zepto']},
+      {name:'Havmor Ice Cream 1L',         brand:'Havmor · Zepto',      rev:0.74,units:165,marginNum:7.4, mClass:'pos',channels:['zepto']},
+      {name:'Weikfield Custard Powder',    brand:'Weikfield · Zepto',   rev:0.64,units:139,marginNum:6.8, mClass:'pos',channels:['zepto']},
+      {name:'Milky Mist Cheddar Slices',   brand:'Milky Mist · Zepto',  rev:0.44,units:110,marginNum:5.2, mClass:'pos',channels:['zepto']},
+    ],
+    bottom:[
+      {name:'Milky Mist Cream Cheese 200g',brand:'Milky Mist · Order delayed',rev:0.384,units:192,marginNum:-2.8,mClass:'neg',channels:['zepto']},
+      {name:'Borges Olive Oil 500ml',      brand:'Borges · Returns 22%',     rev:0.180,units:30, marginNum:-4.6,mClass:'neg',channels:['zepto']},
+      {name:'Havmor Falooda Mix',          brand:'Havmor · Slow mover',       rev:0.246,units:82, marginNum:2.1, mClass:'warn',channels:['zepto']},
+      {name:'Heritage Flavoured Yogurt',   brand:'Heritage · Short shelf',    rev:0.082,units:66, marginNum:1.4, mClass:'warn',channels:['zepto']},
+      {name:'Borges Pasta 500g',           brand:'Borges · Niche Q-com',      rev:0.048,units:16, marginNum:3.2, mClass:'warn',channels:['zepto']},
+    ]
+  },
+  swiggy:{
+    top:[
+      {name:'Milky Mist Paneer 200g', brand:'Milky Mist · Swiggy IM', rev:0.48,units:120,marginNum:4.2, mClass:'warn',channels:['swiggy']},
+      {name:'Heritage Full Cream Milk',brand:'Heritage · Swiggy',     rev:0.38,units:95, marginNum:3.8, mClass:'warn',channels:['swiggy']},
+      {name:'Weikfield Custard Powder',brand:'Weikfield · Swiggy',    rev:0.28,units:74, marginNum:2.4, mClass:'warn',channels:['swiggy']},
+      {name:'Havmor Ice Cream 1L',     brand:'Havmor · Swiggy IM',    rev:0.22,units:57, marginNum:1.6, mClass:'warn',channels:['swiggy']},
+      {name:'Milky Mist Cheddar Slices',brand:'Milky Mist · Swiggy',  rev:0.18,units:45, marginNum:1.2, mClass:'warn',channels:['swiggy']},
+    ],
+    bottom:[
+      {name:'Borges Olive Oil 500ml',    brand:'Borges · −8.4% NET LOSS',    rev:0.528,units:88, marginNum:-8.4,mClass:'neg',channels:['swiggy']},
+      {name:'Heritage Flavoured Yogurt', brand:'Heritage · Returns 18%',     rev:0.144,units:115,marginNum:-3.6,mClass:'neg',channels:['swiggy']},
+      {name:'Borges Pasta 500g',         brand:'Borges · NET LOSS channel',  rev:0.124,units:41, marginNum:-5.2,mClass:'neg',channels:['swiggy']},
+      {name:'Havmor Falooda Mix',        brand:'Havmor · Near breakeven',    rev:0.062,units:21, marginNum:-1.4,mClass:'neg',channels:['swiggy']},
+      {name:'Milky Mist Mozzarella 5kg', brand:'Milky Mist · Delivery cost', rev:0.040,units:3,  marginNum:-2.8,mClass:'neg',channels:['swiggy']},
+    ]
+  },
+  zomato:{
+    top:[
+      {name:'Milky Mist Paneer 200g',    brand:'Milky Mist · Zomato B',  rev:0.36,units:90,marginNum:2.8, mClass:'warn',channels:['zomato']},
+      {name:'Heritage Cheese Spread',    brand:'Heritage · Zomato',      rev:0.28,units:70,marginNum:2.2, mClass:'warn',channels:['zomato']},
+      {name:'Weikfield Custard Powder',  brand:'Weikfield · Zomato',     rev:0.22,units:59,marginNum:1.8, mClass:'warn',channels:['zomato']},
+      {name:'Havmor Ice Cream 1L',       brand:'Havmor · Zomato',        rev:0.16,units:41,marginNum:-0.4,mClass:'neg', channels:['zomato']},
+      {name:'Milky Mist Cheddar Slices', brand:'Milky Mist · Zomato',   rev:0.12,units:30,marginNum:0.8, mClass:'warn',channels:['zomato']},
+    ],
+    bottom:[
+      {name:'Borges Olive Oil 500ml',   brand:'Borges · −9.2% NET LOSS', rev:0.336,units:56,marginNum:-9.2,mClass:'neg',channels:['zomato']},
+      {name:'Borges Pasta 500g',        brand:'Borges · NET LOSS',       rev:0.186,units:62,marginNum:-6.4,mClass:'neg',channels:['zomato']},
+      {name:'Heritage Flavoured Yogurt',brand:'Heritage · Returns 22%',  rev:0.060,units:48,marginNum:-4.2,mClass:'neg',channels:['zomato']},
+      {name:'Milky Mist Mozzarella 5kg',brand:'Milky Mist · Delivery',   rev:0.180,units:15,marginNum:-3.6,mClass:'neg',channels:['zomato']},
+      {name:'Havmor Falooda Mix',       brand:'Havmor · Niche SKU',      rev:0.048,units:16,marginNum:-2.1,mClass:'neg',channels:['zomato']},
+    ]
+  }
+};
+
+const INSIGHTS = {
+  all:[
+    {num:'01',title:'Pause Swiggy & Zomato — both channels are net-negative',desc:'Platform commission (18-22%) + return rates (11%) + payment delays = negative margin. ₹3.4L revenue, net loss.',action:'→ Pause orders. Renegotiate commission to <14% before resuming. Redirect SKUs to DMart.'},
+    {num:'02',title:'Call pizza buyers today — Mozzarella expires in 8 days',desc:'Milky Mist Mozzarella 5kg, 47 days cold storage, no open orders. Expiry ~55 days.',action:'→ Call 3 pizza restaurant clients now. Price at ₹85/unit (70% of MRP). Recover ₹86K vs ₹0.'},
+    {num:'03',title:'Recover ₹1.22L from Sharma Kirana + Patel — overdue threshold crossed',desc:'Sharma Kirana: 52 days, ₹68K. Patel Supermarket: 44 days, ₹54.2K. Voluntary payment probability falling.',action:'→ Personal visit or legal notice this week. Stop fresh supply until payment received.'},
+    {num:'04',title:'Enforce 21-day payment terms — collection gap up 314% in 6 months',desc:'Nov 2025: gap ₹1.8L. Apr 2026: gap ₹7.45L. Revenue growing, collections not keeping pace.',action:'→ Offer 1.5% early-payment discount for settlement within 10 days. Push hardest on 30+ day accounts.'},
+    {num:'05',title:'Push more volume to DMart & Reliance — 3× the margin of Q-com',desc:'DMart: 18.2% net margin, 12-day collection. Reliance: 15.8%, 14-day. Both underweighted vs potential.',action:'→ Increase SKU depth at both. Prioritize Havmor and Weikfield allocation here next cycle.'},
+    {num:'06',title:'Reduce Borges reorder — slow velocity, growing storage cost',desc:'Borges moves 38% of ordered units/month. Holding cost + slow turns = ₹49,700/month margin drag.',action:'→ Cut Borges reorder by 40% next cycle. Renegotiate minimum order terms.'},
+  ],
+  dmart:[
+    {num:'01',title:'DMart is your highest-margin channel at 18.2%',desc:'Fast payment (avg 12 days), low return rate (2.4%), no surprise platform penalties. ₹8.4L revenue with the cleanest cash cycle.',action:'→ Expand SKU count from 12 to 18. Push Weikfield and Heritage deeper here.'},
+    {num:'02',title:'Havmor Ice Cream 1L is your DMart anchor SKU',desc:'₹2.64L revenue, 22.4% margin, 680 units. This product generates more margin than your entire Swiggy channel.',action:'→ Never let this go OOS at DMart. Maintain 2-week buffer stock.'},
+    {num:'03',title:'Borges Olive Oil dragging even DMart performance',desc:'Even at DMart, Borges shows slow movement. 47 units vs 120+ for competing products. Cold storage cost adding up.',action:'→ Reduce DMart Borges allocation 30%. Clear existing inventory via promotion.'},
+  ],
+  reliance:[
+    {num:'01',title:'Reliance Smart is your #2 channel — strong but under-resourced',desc:'₹7.1L revenue, 15.8% net margin. Only 14-day average collection. Less SKU depth here than DMart despite similar margin profile.',action:'→ Pitch 4 new SKUs to Reliance buyer next cycle.'},
+    {num:'02',title:'Weikfield is your Reliance star — prioritise it',desc:'Weikfield Custard Powder is #1 at Reliance — ₹1.84L revenue and 19.2% margin. Growth headroom available.',action:'→ Increase Weikfield allocation to Reliance by 25% next cycle.'},
+    {num:'03',title:'Borges Pasta showing negative margin even at Reliance',desc:'−2.4% net margin after high return rate (18%) and platform handling charges. Losing money quietly on this SKU.',action:'→ Pull Borges Pasta from Reliance. Replace with Milky Mist Cheddar.'},
+  ],
+  bigbasket:[
+    {num:'01',title:'Milky Mist Paneer is your BigBasket flagship',desc:'₹1.96L revenue at 19.4% margin, 490 units. Consistent sell-through, low returns (3%). BigBasket buyers request this every cycle.',action:'→ Never let Paneer go OOS at BB. Build 3-week forward stock.'},
+    {num:'02',title:'Mozzarella 5kg creating a cold storage emergency',desc:'Sitting in cold storage 47 days. No active BigBasket order. Expiry imminent — ₹32,000 at write-off risk.',action:'→ Offer distress pricing to 2-3 pizza chains this week. 70% recovery beats 0%.'},
+    {num:'03',title:'BigBasket collection running 18 days avg — monitor closely',desc:'Up from 13 days 3 months ago. If it crosses 25 days, working capital impact becomes significant.',action:'→ Set an internal alert at 20-day mark. Escalate proactively.'},
+  ],
+  flipkart:[
+    {num:'01',title:'Flipkart is your mid-tier channel — decent but declining margin',desc:'₹5.2L revenue but only 8.9% net margin. Returns at 14%, payment averaging 22 days.',action:'→ Audit Flipkart SKU mix. Remove low-margin SKUs, keep Weikfield and Milky Mist only.'},
+    {num:'02',title:'Borges Pasta on Flipkart is a confirmed money-loser',desc:'−4.1% net margin, 18% return rate. Your single worst performing SKU-channel combination.',action:'→ Delist Borges Pasta from Flipkart immediately. Do not restock.'},
+    {num:'03',title:'Payment delay on Flipkart worsening — action needed',desc:'Grown from 16 days to 22 days over 6 months. Every extra day at ₹5.2L exposure costs ~₹2,400 in opportunity cost.',action:'→ Request payment term renegotiation to 18 days max.'},
+  ],
+  zepto:[
+    {num:'01',title:'Zepto is marginal — 4.2% margin leaves no room for error',desc:'Quick-commerce cost structure makes Zepto barely profitable. Any spike in returns turns it negative.',action:'→ Raise your Zepto prices by 6-8%. Q-com customers are less price-sensitive.'},
+    {num:'02',title:'Milky Mist Cream Cheese stuck in fulfillment delay',desc:'Zepto order placed 26 days ago is still not fulfilled. Cold storage cost accumulating. ₹38,400 at risk.',action:'→ Escalate with Zepto account manager today. If unresolved in 48hrs, redirect stock to BB.'},
+    {num:'03',title:'Borges Olive Oil at Zepto: −4.6% loss per order',desc:'High return rate (22%) + Q-com platform fees + delivery cost = losing money on each order.',action:'→ Remove Borges Olive Oil from Zepto catalog. Replace with Milky Mist Paneer.'},
+  ],
+  swiggy:[
+    {num:'01',title:'Swiggy is a confirmed loss channel — every order costs you money',desc:'−3.1% net margin after commission (20%), return rate (11%), and payment delay.',action:'→ Pause all Swiggy orders. Renegotiate commission to <14% before resuming.'},
+    {num:'02',title:'Borges products are doubling Swiggy losses',desc:'Borges Olive Oil at −8.4% and Borges Pasta at −5.2% on Swiggy. Two products generating the bulk of losses.',action:'→ Delist all Borges SKUs from Swiggy immediately. Non-negotiable.'},
+    {num:'03',title:'Your best Swiggy products are still only marginally profitable',desc:'Even Milky Mist Paneer earns only +4.2% on this channel — vs 19.1% on BigBasket.',action:'→ Every Swiggy unit should be sold on BigBasket or DMart for 4× the margin.'},
+  ],
+  zomato:[
+    {num:'01',title:'Zomato is your worst channel — −5.7% net margin',desc:'Highest platform commission (22%), highest return rate (13%), slowest payment (avg 31 days).',action:'→ Exit Zomato completely or demand commission reduction to <12%.'},
+    {num:'02',title:'Borges on Zomato: worst SKU-channel combination in portfolio',desc:'Borges Olive Oil at −9.2% and Borges Pasta at −6.4% on Zomato.',action:'→ Delist Borges from Zomato today. Every order is destroying margin.'},
+    {num:'03',title:'Payment delay at 31 days avg — cash flow critical',desc:'At ₹1.5L exposure, this locks up ~₹46,500 in working capital per month that could be deployed better.',action:'→ Demand 21-day payment terms or reduce Zomato volumes to near-zero.'},
+  ],
+};
+
+const PROD_INSIGHTS = {
+  all:[
+    {num:'01',title:'Borges Olive Oil: losing money on 3 of 7 channels',desc:'−8.4% on Swiggy, −9.2% on Zomato, −4.6% on Zepto. Same product earns +11.2% on BigBasket. The problem is channel selection, not the product.',action:'→ Remove Borges Olive Oil from all Q-com channels. Route to BigBasket & Reliance only.'},
+    {num:'02',title:'Havmor Ice Cream 1L is your most valuable SKU across every metric',desc:'₹4.82L combined revenue, consistent +17-22% margin, present in 6 channels with no returns. No other SKU comes close.',action:'→ This is your negotiation anchor. Use Havmor performance data in all channel pitches.'},
+    {num:'03',title:'Milky Mist Mozzarella 5kg — 8 days to write-off',desc:'47 days in cold storage, no active orders. Expiry at ~55 days. Every hour without action is money burning.',action:'→ Emergency: call 3 pizza restaurant buyers today. Offer at ₹85/unit (30% below MRP). Recover ₹87K vs ₹0.'},
+  ],
+  dmart:[
+    {num:'01',title:'Havmor Ice Cream 1L cannot be out of stock at DMart — ever',desc:'Your #1 SKU by every metric. ₹2.64L revenue, 22.4% margin, 680 units. Any stockout loses ₹8,800/day in margin.',action:'→ Set reorder point at 2-week forward stock. Never go below 200 units in storage.'},
+    {num:'02',title:'Milky Mist Paneer and Cheddar are your margin engines at DMart',desc:'Together generating ₹3.4L revenue at 18-19% margin. DMart buyers actively request these. Strong brand pull.',action:'→ Negotiate priority shelf placement for both SKUs in next DMart review cycle.'},
+    {num:'03',title:'Borges dragging DMart performance — clear without restocking',desc:'Slow movement (47 units vs 120+ avg), growing cold storage cost. No justification for Borges at DMart at current velocity.',action:'→ Offer 25% discount to DMart to clear existing Borges stock. Do not reorder.'},
+  ],
+  swiggy:[
+    {num:'01',title:'Every product on Swiggy is underperforming vs other channels',desc:'Your best Swiggy SKU (Milky Mist Paneer, +4.2%) earns 5× less margin than the same SKU on DMart (19.1%). Platform cost structure is broken.',action:'→ The math does not work on Swiggy. Pause until commission drops below 14%.'},
+    {num:'02',title:'Borges Olive Oil is your biggest Swiggy loss-maker at −8.4%',desc:'₹52,800 in revenue generating an actual loss after returns (18%), commission (20%) and delivery. This is the single worst product-channel pairing.',action:'→ Delist Borges Olive Oil from Swiggy today. No exceptions.'},
+    {num:'03',title:'Milky Mist Paneer is keeping Swiggy barely alive',desc:'Without Paneer, Swiggy goes deep negative. It is the only product preventing total channel loss. But even it earns only 4.2%.',action:'→ If Swiggy commission drops below 14%, keep only Paneer and Custard Powder listed.'},
+  ],
+  zomato:[
+    {num:'01',title:'Zomato has no profitable products — every SKU is marginal or negative',desc:'Even your top Zomato SKU (Milky Mist Paneer) earns only +2.8% — one return order away from going negative.',action:'→ Exit Zomato entirely. Revenue is ₹1.5L but net P&L is negative.'},
+    {num:'02',title:'Borges Olive Oil at −9.2% is your single worst SKU-channel combination',desc:'Nothing in your entire portfolio performs worse. ₹33,600 revenue generating a confirmed loss.',action:'→ Delist immediately. Do not supply Borges to Zomato under any circumstances.'},
+    {num:'03',title:'Havmor Ice Cream is LOSING money at Zomato at −0.4%',desc:'Your most profitable product across all other channels is barely breaking even at Zomato. This demonstrates the platform is structurally broken for your margins.',action:'→ This data is your negotiating proof. Use it to demand commission renegotiation.'},
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let activeChannel = 'all';
+let prodState = { view:'top', sort:'rev', ch:'all' };
+
+// ═══════════════════════════════════════════════════════════
+// VIEW SWITCH
+// ═══════════════════════════════════════════════════════════
+function switchView(v) {
+  document.body.setAttribute('data-view', v);
+  document.getElementById('viewDist').classList.toggle('active', v==='distribution');
+  document.getElementById('viewProd').classList.toggle('active', v==='products');
+  document.getElementById('tabDist').classList.toggle('active', v==='distribution');
+  document.getElementById('tabProd').classList.toggle('active', v==='products');
+  if(v==='products') {
+    renderBrandKpis(activeChannel);
+    renderProdList();
+    renderProdInsights(activeChannel);
+  }
+  // Rebuild charts on first switch (canvas may have been hidden)
+  if(v==='distribution') { setTimeout(()=>{ [channelChart,trendChart,donutChart,brandChart].forEach(c=>{if(c)c.resize();}); },50); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHANNEL FILTER
+// ═══════════════════════════════════════════════════════════
+function filterChannel(ch) {
+  activeChannel = ch;
+  document.getElementById('btnAll').classList.toggle('active-all', ch==='all');
+  CH_IDS.forEach(id => { const b=document.getElementById('btn-'+id); if(b) b.classList.toggle('active',ch===id); });
+
+  // Update distribution view
+  updateKPIs(ch); updateChannelChart(ch); updateTrendChart(ch); updateDonutChart(ch);
+  updateBrandChart(ch); updateInsights(ch); updateLeakage(ch);
+  // Update products view
+  prodState.ch = ch;
+  renderBrandKpis(ch); renderProdList(); renderProdInsights(ch);
+  // Sync labels
+  const pl = document.getElementById('prodListLabel'); if(pl) pl.textContent=ch==='all'?'All Channels':CHANNELS[CH_IDS.indexOf(ch)];
+  const pk = document.getElementById('prodKpiLabel'); if(pk) pk.textContent=ch==='all'?'All Channels':CHANNELS[CH_IDS.indexOf(ch)];
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+function fmtINR(n) {
+  const s=String(Math.round(n)); if(s.length<=3) return '₹'+s;
+  const last3=s.slice(-3), rest=s.slice(0,-3);
+  return '₹'+rest.replace(/\B(?=(\d{2})+(?!\d))/g,',')+','+last3;
+}
+function flashNum(id,val) {
+  const el=document.getElementById(id);
+  if(!el) return;
+  // Try to animate if it's a numeric value like ₹34.8L or 18.2% or ₹12,31,700
+  const prev=el.textContent.trim();
+  if(prev===val){ el.classList.remove('num-flash'); void el.offsetWidth; el.classList.add('num-flash'); return; }
+  // Extract numeric part for counting animation
+  const parseVal = s => parseFloat(s.replace(/[₹,L%+]/g,''));
+  const startN = parseVal(prev), endN = parseVal(val);
+  if(!isNaN(startN) && !isNaN(endN) && startN!==endN) {
+    const dur=420, steps=28, stepT=dur/steps;
+    let step=0;
+    const prefix=val.replace(/[\d.,]+/,''), isINR=val.includes('₹')&&val.includes(',');
+    const timer=setInterval(()=>{
+      step++;
+      const t=step/steps, ease=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      const cur=startN+(endN-startN)*ease;
+      if(isINR){ el.textContent=fmtINR(Math.round(cur)); }
+      else { el.textContent=val.replace(/[\d.]+/, cur.toFixed(val.includes('.')&&val.match(/\.(\d+)/)?val.match(/\.(\d+)/)[1].length:0)); }
+      if(step>=steps){ clearInterval(timer); el.textContent=val; }
+    }, stepT);
+  } else {
+    el.classList.remove('num-flash'); void el.offsetWidth; el.textContent=val; el.classList.add('num-flash');
+  }
+}
+function isDark(){ return document.documentElement.getAttribute('data-theme')==='dark'; }
+function tc(){ return isDark()?'#7c8fa6':'#6b7280'; }
+function gc(){ return isDark()?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'; }
+function tbg(){ return isDark()?'#161a20':'#ffffff'; }
+function tbr(){ return isDark()?'#2a3040':'#e2e5ea'; }
+function ttc(){ return isDark()?'#f0f4f8':'#0f1117'; }
+function tbc(){ return isDark()?'#cbd5e1':'#374151'; }
+
+// ═══════════════════════════════════════════════════════════
+// KPI UPDATE
+// ═══════════════════════════════════════════════════════════
+function updateKPIs(ch) {
+  let rev,gap,margin,marginSub,revSub;
+  if(ch==='all'){
+    const tr=agg('rev'),tc2=agg('collection');
+    rev='₹'+tr.toFixed(1)+'L'; gap='₹'+(tr-tc2).toFixed(2)+'L'; margin='18.2%'; marginSub='DMart · Fastest collection avg 12d'; revSub='Apr 2026 · 7 active channels';
+  } else {
+    const d=DATA[ch]; rev='₹'+d.rev.toFixed(1)+'L'; const gv=d.rev-d.collection;
+    gap=gv>0?'₹'+gv.toFixed(2)+'L':'₹0.00L'; margin=d.kpiMargin; marginSub=d.kpiMarginSub; revSub='Apr 2026 · '+CHANNELS[CH_IDS.indexOf(ch)]+' only';
+  }
+  flashNum('kpiRev',rev); flashNum('kpiGap',gap); flashNum('kpiMargin',margin);
+  document.getElementById('kpiMarginSub').textContent=marginSub;
+  document.getElementById('kpiRevSub').textContent=revSub;
+  const label=ch==='all'?'All Channels':CHANNELS[CH_IDS.indexOf(ch)];
+  document.getElementById('kpiFilterLabel').textContent=label;
+}
+function updateLeakage(ch) {
+  const d=LEAKAGE[ch]||LEAKAGE.all;
+  flashNum('leakageAmount',fmtINR(d.total)); flashNum('returnLoss',fmtINR(d.ret));
+  flashNum('collectionLoss',fmtINR(d.col)); flashNum('storageLoss',fmtINR(d.stor));
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════════════════
+let channelChart, trendChart, donutChart, brandChart, sparklineChart;
+
+function buildChannelChart() {
+  const ctx=document.getElementById('channelChart').getContext('2d');
+  const rev=CH_IDS.map(c=>DATA[c].rev), cost=CH_IDS.map(c=>DATA[c].cost), margin=CH_IDS.map(c=>DATA[c].margin), mp=CH_IDS.map(c=>DATA[c].marginPct);
+  channelChart=new Chart(ctx,{type:'bar',data:{labels:CHANNELS,datasets:[
+    {label:'Revenue Billed (₹L)',data:rev,backgroundColor:'rgba(26,86,219,0.8)',borderColor:'rgba(26,86,219,1)',borderWidth:1,borderRadius:5,borderSkipped:false},
+    {label:'Delivery + Returns (₹L)',data:cost,backgroundColor:'rgba(248,113,113,0.8)',borderColor:'rgba(220,38,38,1)',borderWidth:1,borderRadius:5,borderSkipped:false},
+    {label:'Net Margin (₹L)',data:margin,backgroundColor:margin.map(v=>v>=0?'rgba(16,185,129,0.85)':'rgba(220,38,38,0.9)'),borderColor:margin.map(v=>v>=0?'rgba(5,150,105,1)':'rgba(185,28,28,1)'),borderWidth:1,borderRadius:5,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{color:tc(),font:{size:11,family:'IBM Plex Sans'},boxWidth:12,boxHeight:12}},
+      tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),padding:12,
+        callbacks:{label:c=>` ${c.dataset.label}: ₹${Math.abs(c.raw).toFixed(2)}L${c.raw<0?' (LOSS)':''}`,afterBody:items=>[`Net Margin %: ${mp[items[0].dataIndex]>=0?'+':''}${mp[items[0].dataIndex]}%`]}}},
+    scales:{x:{ticks:{color:tc(),font:{size:11}},grid:{color:gc()}},y:{ticks:{color:tc(),font:{size:11},callback:v=>'₹'+v+'L'},grid:{color:gc()}}}}});
+}
+function updateChannelChart(ch) {
+  if(!channelChart) return;
+  let labels,rev,cost,margin,mp;
+  if(ch==='all'){labels=CHANNELS;rev=CH_IDS.map(c=>DATA[c].rev);cost=CH_IDS.map(c=>DATA[c].cost);margin=CH_IDS.map(c=>DATA[c].margin);mp=CH_IDS.map(c=>DATA[c].marginPct);}
+  else{const d=DATA[ch];labels=[CHANNELS[CH_IDS.indexOf(ch)]];rev=[d.rev];cost=[d.cost];margin=[d.margin];mp=[d.marginPct];}
+  channelChart.data.labels=labels; channelChart.data.datasets[0].data=rev; channelChart.data.datasets[1].data=cost;
+  channelChart.data.datasets[2].data=margin;
+  channelChart.data.datasets[2].backgroundColor=margin.map(v=>v>=0?'rgba(16,185,129,0.85)':'rgba(220,38,38,0.9)');
+  channelChart.data.datasets[2].borderColor=margin.map(v=>v>=0?'rgba(5,150,105,1)':'rgba(185,28,28,1)');
+  channelChart.update();
+  const alert=document.getElementById('channelAlert');
+  if(ch==='swiggy'){alert.style.background='var(--negative-bg)';alert.style.color='var(--negative)';alert.style.borderColor='rgba(220,38,38,.2)';alert.innerHTML='⚠ <strong>Swiggy (−3.1%)</strong> — Net margin is negative. Review before next dispatch.';}
+  else if(ch==='zomato'){alert.style.background='var(--negative-bg)';alert.style.color='var(--negative)';alert.style.borderColor='rgba(220,38,38,.2)';alert.innerHTML='⚠ <strong>Zomato (−5.7%)</strong> — Lowest margin channel. Every order erodes working capital.';}
+  else if(ch==='all'){alert.style.background='var(--negative-bg)';alert.style.color='var(--negative)';alert.style.borderColor='rgba(220,38,38,.2)';alert.innerHTML='⚠ <strong>Swiggy (−3.1%) and Zomato (−5.7%)</strong> — net margin negative after platform fees, return rates, and delivery costs. Review allocation before next dispatch.';}
+  else{const d=DATA[ch];const clr=d.marginPct>=10?'var(--positive)':d.marginPct>=5?'var(--warning)':'var(--negative)';const sign=d.marginPct>=0?'+':'';alert.style.background=d.marginPct>=0?'var(--positive-bg)':'var(--negative-bg)';alert.style.borderColor=d.marginPct>=0?'rgba(5,150,105,.2)':'rgba(220,38,38,.2)';alert.style.color=clr;alert.innerHTML=`${d.marginPct>=0?'✔':'⚠'} <strong>${CHANNELS[CH_IDS.indexOf(ch)]}</strong> — Net Margin: <strong>${sign}${d.marginPct}%</strong>. ${d.marginPct>=15?'Top channel — prioritise allocation.':d.marginPct>=5?'Moderate margin. Monitor return rates.':d.marginPct>=0?'Thin margin — vulnerable to cost increases.':'Negative margin — action required immediately.'}`;}
+  document.getElementById('channelFilterLabel').textContent=ch==='all'?'All 7 Channels':CHANNELS[CH_IDS.indexOf(ch)];
+}
+
+function buildTrendChart() {
+  const ctx=document.getElementById('trendChart').getContext('2d');
+  trendChart=new Chart(ctx,{type:'line',data:{labels:['Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26'],datasets:[
+    {label:'Revenue Billed (₹L)',data:aggArr('trendRev'),borderColor:'#1a56db',backgroundColor:'rgba(26,86,219,0.07)',tension:0.4,fill:true,pointBackgroundColor:'#1a56db',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,borderWidth:2.5},
+    {label:'Collections Received (₹L)',data:aggArr('trendCol'),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.07)',tension:0.4,fill:true,pointBackgroundColor:'#10b981',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,borderWidth:2.5},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),padding:12,
+      callbacks:{label:c=>` ${c.dataset.label}: ₹${c.raw.toFixed(2)}L`,afterBody:items=>{if(items.length>=2){const g=(items[0].raw-items[1].raw).toFixed(2);return[`Uncollected Gap: ₹${g}L`];}return[];}}}},
+    scales:{x:{ticks:{color:tc(),font:{size:11}},grid:{color:gc()}},y:{ticks:{color:tc(),font:{size:11},callback:v=>'₹'+v+'L'},grid:{color:gc()}}}}});
+}
+function updateTrendChart(ch) {
+  if(!trendChart) return;
+  const d=ch==='all'?{trendRev:aggArr('trendRev'),trendCol:aggArr('trendCol')}:DATA[ch];
+  trendChart.data.datasets[0].data=d.trendRev; trendChart.data.datasets[1].data=d.trendCol; trendChart.update();
+  const lastGap=(d.trendRev[5]-d.trendCol[5]).toFixed(2);
+  const tag=document.getElementById('trendTag');
+  tag.className=parseFloat(lastGap)>0?'tag red':'tag green';
+  tag.textContent=parseFloat(lastGap)>0?`Gap ₹${lastGap}L & Growing`:'Fully Collected';
+}
+
+const DONUT_COLORS=CH_IDS.map(c=>CH_COLORS[c]);
+function buildDonutChart() {
+  const ctx=document.getElementById('donutChart').getContext('2d');
+  const total=agg('rev');
+  donutChart=new Chart(ctx,{type:'doughnut',data:{labels:CHANNELS,datasets:[{data:CH_IDS.map(c=>DATA[c].rev),backgroundColor:DONUT_COLORS,borderWidth:2,borderColor:'#ffffff',hoverBorderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{display:false},tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),padding:10,
+        callbacks:{label:c=>` ${c.label}: ₹${c.raw.toFixed(1)}L (${((c.raw/total)*100).toFixed(1)}%)`}}}}});
+  renderDonutLegend('all');
+}
+function updateDonutChart(ch) {
+  if(!donutChart) return;
+  donutChart.data.datasets[0].backgroundColor=ch==='all'?DONUT_COLORS:CH_IDS.map(c=>c===ch?CH_COLORS[c]:'rgba(160,160,160,0.18)');
+  donutChart.update(); renderDonutLegend(ch);
+}
+function renderDonutLegend(ch) {
+  const total=agg('rev');
+  document.getElementById('donutLegend').innerHTML=CH_IDS.map((c,i)=>{
+    const d=DATA[c], pct=((d.rev/total)*100).toFixed(1), isActive=ch==='all'||ch===c;
+    const mStr=d.marginPct<0?`<span class="donut-leg-pct" style="color:var(--negative)">${d.marginPct}% margin</span>`:`<span class="donut-leg-pct">${pct}%</span>`;
+    return `<div class="donut-leg-row" style="opacity:${isActive?1:.3}"><div class="donut-leg-left"><div class="donut-leg-dot" style="background:${CH_COLORS[c]}"></div>${CHANNELS[i]}</div><div><span class="donut-leg-val">₹${d.rev.toFixed(1)}L</span>${mStr}</div></div>`;
+  }).join('');
+}
+
+function buildBrandChart() {
+  const ctx=document.getElementById('brandChart').getContext('2d');
+  const bd=BRAND_DATA.all;
+  brandChart=new Chart(ctx,{type:'bar',data:{labels:bd.labels,datasets:[
+    {label:'Revenue (₹L)',data:bd.rev,backgroundColor:['rgba(26,86,219,.8)','rgba(14,165,233,.8)','rgba(16,185,129,.8)','rgba(99,102,241,.8)','rgba(220,38,38,.8)'],borderWidth:1,borderRadius:5,borderSkipped:false,yAxisID:'y'},
+    {label:'Net Margin %',data:bd.margin,type:'line',borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.1)',tension:0.4,yAxisID:'y1',pointBackgroundColor:'#f59e0b',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:6,borderWidth:2.5,fill:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{color:tc(),font:{size:11},boxWidth:12}},tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),padding:12,callbacks:{label:c=>c.datasetIndex===0?` Revenue: ₹${c.raw}L`:` Net Margin: ${c.raw}%`}}},
+    scales:{x:{ticks:{color:tc(),font:{size:12}},grid:{color:gc()}},y:{ticks:{color:tc(),font:{size:11},callback:v=>'₹'+v+'L'},grid:{color:gc()},position:'left'},y1:{ticks:{color:'#f59e0b',font:{size:11},callback:v=>v+'%'},grid:{display:false},position:'right'}}}});
+}
+function updateBrandChart(ch) {
+  if(!brandChart) return;
+  const bd=BRAND_DATA[ch]||BRAND_DATA.all;
+  brandChart.data.labels=bd.labels; brandChart.data.datasets[0].data=bd.rev; brandChart.data.datasets[1].data=bd.margin;
+  brandChart.data.datasets[1].pointBackgroundColor=bd.margin.map(m=>m<0?'#dc2626':'#f59e0b'); brandChart.update();
+}
+
+function buildSparkline() {
+  const ctx=document.getElementById('collectionSparkline').getContext('2d');
+  sparklineChart=new Chart(ctx,{type:'line',data:{labels:['Nov','Dec','Jan','Feb','Mar','Apr'],datasets:[{data:[11,13,15,18,21,24],borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.08)',tension:0.4,fill:true,pointRadius:0,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),callbacks:{label:c=>` Avg delay: ${c.raw} days`}}},
+      scales:{x:{ticks:{color:'#9ca3af',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#9ca3af',font:{size:9},callback:v=>v+'d'},grid:{display:false}}}}});
+}
+
+function updateInsights(ch) {
+  const key=INSIGHTS[ch]?ch:'all', ins=INSIGHTS[key];
+  document.getElementById('insightsGrid').innerHTML=ins.map(i=>`<div class="insight-card"><div class="insight-num">${i.num}</div><div class="insight-body"><div class="title">${i.title}</div><div class="desc">${i.desc}</div><div class="action">${i.action}</div></div></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRODUCTS VIEW RENDERS
+// ═══════════════════════════════════════════════════════════
+function renderBrandKpis(ch) {
+  const bks=BRAND_KPIS[ch]||BRAND_KPIS.all;
+  document.getElementById('brandKpiGrid').innerHTML=bks.map(b=>`
+    <div class="brand-kpi-card">
+      <span class="brand-kpi-icon">${b.icon}</span>
+      <div style="flex:1;min-width:0">
+        <div class="brand-kpi-name">${b.name}</div>
+        <div class="brand-kpi-rev">${b.rev}</div>
+        <span class="brand-kpi-margin ${b.mClass}">${b.margin}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderProdList() {
+  const {view,sort,ch}=prodState;
+  const src=PROD_DATA[ch]||PROD_DATA.all;
+  let items=[];
+  if(view==='top') items=[...src.top];
+  else if(view==='bottom') items=[...src.bottom];
+  else items=[...src.top,...src.bottom];
+
+  items.sort((a,b)=>{
+    if(sort==='rev') return b.rev-a.rev;
+    if(sort==='margin') return b.marginNum-a.marginNum;
+    if(sort==='units') return b.units-a.units;
+    return 0;
+  });
+
+  // Bar reflects the active sort metric
+  let metricVals, metricFmt;
+  if(sort==='margin'){
+    const absVals=items.map(p=>Math.abs(p.marginNum));
+    const mx=Math.max(...absVals,0.01);
+    metricVals=absVals.map(v=>(v/mx*100).toFixed(1));
+    metricFmt=items.map(p=>(p.marginNum>=0?'+':'')+p.marginNum.toFixed(1)+'%');
+  } else if(sort==='units'){
+    const mx=Math.max(...items.map(p=>p.units),1);
+    metricVals=items.map(p=>((p.units/mx)*100).toFixed(1));
+    metricFmt=items.map(p=>p.units+' u');
+  } else {
+    const mx=Math.max(...items.map(p=>p.rev),0.01);
+    metricVals=items.map(p=>((p.rev/mx)*100).toFixed(1));
+    metricFmt=items.map(p=>p.rev>=1?'₹'+p.rev.toFixed(2)+'L':'₹'+(p.rev*100).toFixed(0)+'K');
+  }
+
+  const rankCls=['r1','r2','r3','r4','r4','r4','r4','r4','r4','r4'];
+  document.getElementById('prodList').innerHTML=items.map((p,i)=>{
+    const barColor=p.mClass==='pos'?'var(--positive)':p.mClass==='neg'?'var(--negative)':'var(--warning)';
+    const revFmt=p.rev>=1?'₹'+p.rev.toFixed(2)+'L':'₹'+(p.rev*100).toFixed(0)+'K';
+    const sign=p.marginNum>=0?'+':'';
+    const chPills=(p.channels||[]).map(c=>`<span class="ch-pill" style="background:${CH_COLORS[c]}">${CHANNELS[CH_IDS.indexOf(c)]}</span>`).join('');
+    return `<div class="prod-row">
+      <div class="prod-rank ${rankCls[i]}">${i+1}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-brand">${p.brand}</div>
+        <div style="margin-top:3px">${chPills}</div>
+      </div>
+      <div class="prod-bar-wrap"><div class="prod-bar-bg"><div class="prod-bar-fill" style="width:${metricVals[i]}%;background:${barColor}"></div></div></div>
+      <div class="prod-rev">${revFmt}</div>
+      <span class="prod-margin ${p.mClass}">${sign}${p.marginNum.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+function renderProdInsights(ch) {
+  const key=PROD_INSIGHTS[ch]?ch:'all', ins=PROD_INSIGHTS[key];
+  document.getElementById('prodInsightsGrid').innerHTML=ins.map(i=>`<div class="insight-card"><div class="insight-num">${i.num}</div><div class="insight-body"><div class="title">${i.title}</div><div class="desc">${i.desc}</div><div class="action">${i.action}</div></div></div>`).join('');
+  document.getElementById('prodInsightsTag').textContent=`${ins.length} Product Insights`;
+}
+
+function switchProdView(v, btn) {
+  prodState.view=v;
+  document.querySelectorAll('#btnTop,#btnBottom,#btnAll10').forEach(b=>b.classList.remove('active','loss-mode'));
+  btn.classList.add('active'); if(v==='bottom') btn.classList.add('loss-mode');
+  const tag=document.getElementById('prodListTag');
+  tag.textContent=v==='top'?'Top Performers Shown':v==='bottom'?'Loss Makers Shown':'All 10 Products';
+  tag.className='tag '+(v==='top'?'green':v==='bottom'?'red':'blue');
+  const title=document.getElementById('prodListTitle'), sub=document.getElementById('prodListSub');
+  title.textContent=v==='top'?'🏆 Top 5 Performing Products':v==='bottom'?'🔻 Bottom 5 Loss-Making Products':'≡ All 10 Products — Top & Bottom';
+  sub.textContent=v==='top'?'Ranked by revenue contribution':v==='bottom'?'Negative or near-zero margin — action required':'Complete product view — sorted by selected metric';
+  renderProdList();
+}
+
+function sortProd(key, btn) {
+  prodState.sort=key;
+  document.querySelectorAll('#btnSortRev,#btnSortMargin').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderProdList();
+}
+
+function prodChannelChange(ch) {
+  filterChannel(ch);
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════
+function toggleTheme() {
+  const isDarkNow=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',isDarkNow?'light':'dark');
+  document.getElementById('themeThumb').textContent=isDarkNow?'☀️':'🌙';
+  [channelChart,trendChart,brandChart].forEach(ch=>{
+    if(!ch) return;
+    ['x','y'].forEach(ax=>{if(ch.options.scales[ax]){ch.options.scales[ax].ticks.color=tc();ch.options.scales[ax].grid.color=gc();}});
+    if(ch.options.scales.y1) ch.options.scales.y1.ticks.color='#f59e0b';
+    ch.options.plugins.tooltip.backgroundColor=tbg(); ch.options.plugins.tooltip.borderColor=tbr();
+    ch.options.plugins.tooltip.titleColor=ttc(); ch.options.plugins.tooltip.bodyColor=tbc();
+    if(ch.options.plugins.legend.labels) ch.options.plugins.legend.labels.color=tc();
+    ch.update();
+  });
+  if(donutChart){donutChart.data.datasets[0].borderColor=isDark()?'#161a20':'#ffffff';donutChart.update();}
+  if(sparklineChart) sparklineChart.update();
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLOCK + INIT
+// ═══════════════════════════════════════════════════════════
+function updateClock() {
+  const now=new Date();
+  document.getElementById('liveClock').textContent=
+    now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+' '+
+    now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock,1000); updateClock();
+
+let prodBarChart, prodMarginDonut;
+
+function buildProdCharts() {
+  // Product bar chart
+  const src = PROD_DATA['all'];
+  const allProds = [...src.top, ...src.bottom];
+  const names = allProds.map(p => p.name.length > 20 ? p.name.slice(0,18)+'…' : p.name);
+  const revs = allProds.map(p => +(p.rev * 100).toFixed(0));
+  const bgColors = allProds.map(p => p.mClass==='pos'?'rgba(16,185,129,0.8)':p.mClass==='neg'?'rgba(220,38,38,0.8)':'rgba(245,158,11,0.8)');
+
+  const ctx1 = document.getElementById('prodBarChart');
+  if(!ctx1) return;
+  prodBarChart = new Chart(ctx1.getContext('2d'), {
+    type:'bar',
+    data:{labels:names,datasets:[{label:'Revenue (₹K)',data:revs,backgroundColor:bgColors,borderRadius:4,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),callbacks:{label:c=>` ₹${c.raw}K`}}},
+      scales:{x:{ticks:{color:tc(),font:{size:10},callback:v=>'₹'+v+'K'},grid:{color:gc()}},y:{ticks:{color:tc(),font:{size:10}},grid:{display:false}}}}
+  });
+
+  // Margin donut
+  const ctx2 = document.getElementById('prodMarginDonut');
+  if(!ctx2) return;
+  const highM = allProds.filter(p=>p.marginNum>12).length;
+  const midM = allProds.filter(p=>p.marginNum>=0&&p.marginNum<=12).length;
+  const negM = allProds.filter(p=>p.marginNum<0).length;
+  prodMarginDonut = new Chart(ctx2.getContext('2d'), {
+    type:'doughnut',
+    data:{labels:['Healthy (>12%)','Moderate (0–12%)','Negative (<0%)'],
+      datasets:[{data:[highM,midM,negM],backgroundColor:['rgba(16,185,129,0.85)','rgba(245,158,11,0.8)','rgba(220,38,38,0.85)'],borderWidth:2,borderColor:'#ffffff',cutout:'65%'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),callbacks:{label:c=>` ${c.label}: ${c.raw} SKUs`}}}}
+  });
+  renderMarginLegend(highM,midM,negM);
+}
+
+function renderMarginLegend(h,m,n) {
+  const el = document.getElementById('prodMarginLegend');
+  if(!el) return;
+  el.innerHTML = [
+    {label:'Healthy >12%',val:h,color:'var(--positive)'},
+    {label:'Moderate 0–12%',val:m,color:'var(--warning)'},
+    {label:'Negative',val:n,color:'var(--negative)'},
+  ].map(r=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+    <div style="width:9px;height:9px;border-radius:50%;background:${r.color};flex-shrink:0"></div>
+    <div><div style="font-size:10px;color:var(--muted)">${r.label}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--text)">${r.val} SKUs</div></div>
+  </div>`).join('');
+}
+
+function exportSummary() {
+  const txt = `VINAYAK FOOD PRODUCTS — DISTRIBUTION SUMMARY\nDate: ${new Date().toLocaleDateString('en-IN')}\n\n` +
+    `📊 KEY NUMBERS\n• Total Revenue: ₹34.8L (Apr 2026)\n• Collection Gap: ₹7.45L outstanding\n• Cold Storage Risk: ₹5.82L (3 critical items)\n• Revenue Leakage: ₹12.3L identified\n\n` +
+    `⚠️ TODAY'S PRIORITIES\n1. Call pizza buyers — Mozzarella 5kg expires in 8 days (₹1.24L)\n2. Visit Sharma Kirana — ₹68K overdue, 52 days\n3. Pause Swiggy & Zomato — both net-negative margin\n4. Reorder Havmor Ice Cream 1L for DMart\n\n` +
+    `📈 BEST CHANNEL: DMart (18.2% margin)\n📉 WORST CHANNELS: Zomato (−5.7%), Swiggy (−3.1%)\n\nGenerated by Om Bagal Analytics · ombagal.official@gmail.com`;
+  if(navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(()=>{ const b=document.querySelector('.export-btn'); b.textContent='✓ Copied!'; setTimeout(()=>b.textContent='📤 Export',2000); });
+  } else { window.print(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRODUCT SELECTOR DATA
+// ═══════════════════════════════════════════════════════════
+const PROD_PROFILES = {
+  havmor_icecream: {
+    name:'Havmor Ice Cream 1L', emoji:'🍦', brand:'Havmor',
+    label:'⭐ Revenue Leader', mClass:'pos',
+    sub:'Top SKU across DMart, Reliance · 6/7 channels',
+    rev:'₹4.82L', margin:'+22.4%', units:'1,240', channels:'6',
+    spotClass:'',
+    channelRev:  {DMart:2.64, Reliance:1.62, BigBasket:1.22, Flipkart:1.10, Zepto:0.80, Swiggy:0.22, Zomato:0.16},
+    channelMargin:{DMart:22.4,Reliance:18.8,BigBasket:15.4,Flipkart:12.2,Zepto:7.4,Swiggy:1.6,Zomato:-0.4},
+    kpiTop:'Havmor Ice Cream 1L', kpiTopSub:'₹4.82L · +22.4% margin · 6 channels',
+    kpiWorst:'Zomato Channel', kpiWorstSub:'−0.4% on Zomato · Platform commission too high',
+    kpiUbiq:'6 of 7 Channels', kpiUbiqSub:'Missing only Zomato as profitable channel',
+    kpiFast:'680 units at DMart', kpiFastSub:'Fastest turnover at DMart · 2-week cycle',
+    kpiStorage:'No cold storage risk', kpiStorageSub:'Fast moving · stock clears in <30 days',
+    insight:{num:'01',title:'DMart is your powerhouse for Ice Cream 1L',desc:'₹2.64L revenue at 22.4% margin — this single SKU-channel combination outperforms entire Swiggy revenue.',action:'→ Maintain 2-week buffer at DMart at all times. Consider listing on Swiggy only via DMart fulfillment cost.'},
+  },
+  milkymist_paneer: {
+    name:'Milky Mist Paneer 200g', emoji:'🧀', brand:'Milky Mist',
+    label:'🌐 Most Ubiquitous SKU', mClass:'pos',
+    sub:'Present in all 7 channels · Steady demand',
+    rev:'₹3.94L', margin:'+19.1%', units:'986', channels:'7',
+    spotClass:'',
+    channelRev:  {DMart:1.98, Reliance:0.82, BigBasket:1.96, Flipkart:0.64, Zepto:0.48, Swiggy:0.48, Zomato:0.36},
+    channelMargin:{DMart:19.1,Reliance:16.4,BigBasket:19.4,Flipkart:13.8,Zepto:9.8,Swiggy:4.2,Zomato:2.8},
+    kpiTop:'BigBasket & DMart', kpiTopSub:'Both channels at ~19% margin · Paneer anchor',
+    kpiWorst:'Zomato (+2.8%)', kpiWorstSub:'Barely profitable at Zomato after fees',
+    kpiUbiq:'7 of 7 Channels', kpiUbiqSub:'Only SKU present on every channel',
+    kpiFast:'490 units at BigBasket', kpiFastSub:'High consistent turnover · low returns',
+    kpiStorage:'No cold storage risk', kpiStorageSub:'Fast moving perishable · priority restocking',
+    insight:{num:'01',title:'Milky Mist Paneer is your universal SKU — protect stock at all costs',desc:'Only product present on all 7 channels with no losses anywhere. Zomato barely positive at 2.8% but worth maintaining for reach.',action:'→ Prioritise Paneer in all channel replenishments. This is your most reliable margin product.'},
+  },
+  weikfield_custard: {
+    name:'Weikfield Custard Powder', emoji:'🍮', brand:'Weikfield',
+    label:'📈 High-Margin Performer', mClass:'pos',
+    sub:'Reliance #1 SKU · Strong in offline channels',
+    rev:'₹3.21L', margin:'+17.8%', units:'854', channels:'5',
+    spotClass:'',
+    channelRev:  {DMart:1.18, Reliance:1.84, BigBasket:0.84, Flipkart:1.70, Zepto:0.70, Swiggy:0.28, Zomato:0.22},
+    channelMargin:{DMart:16.4,Reliance:19.2,BigBasket:12.8,Flipkart:15.4,Zepto:6.8,Swiggy:2.4,Zomato:1.8},
+    kpiTop:'Reliance #1 SKU', kpiTopSub:'₹1.84L · 19.2% margin · top seller',
+    kpiWorst:'Zomato & Swiggy', kpiWorstSub:'Only 1.8–2.4% margin on Q-com',
+    kpiUbiq:'7 channels present', kpiUbiqSub:'Wide availability · consistent demand',
+    kpiFast:'490 units at Reliance', kpiFastSub:'Fastest turnover at Reliance channel',
+    kpiStorage:'No cold storage risk', kpiStorageSub:'Dry goods · long shelf life',
+    insight:{num:'01',title:'Weikfield Custard Powder is your Reliance star',desc:'₹1.84L revenue at 19.2% margin — Reliance is actually better than DMart for this SKU. Growth headroom available.',action:'→ Increase Weikfield allocation to Reliance by 25% next cycle. Reduce Q-com volume.'},
+  },
+  heritage_milk: {
+    name:'Heritage Full Cream Milk', emoji:'🥛', brand:'Heritage',
+    label:'📦 Volume Driver', mClass:'pos',
+    sub:'Broad channel presence · Stable margins',
+    rev:'₹2.88L', margin:'+15.3%', units:'720', channels:'5',
+    spotClass:'',
+    channelRev:  {DMart:0.96, Reliance:0.74, BigBasket:1.48, Flipkart:0.60, Zepto:0.72, Swiggy:0.38},
+    channelMargin:{DMart:15.2,Reliance:13.6,BigBasket:16.8,Flipkart:10.6,Zepto:8.2,Swiggy:3.8},
+    kpiTop:'BigBasket', kpiTopSub:'₹1.48L at 16.8% margin · BB strong fit',
+    kpiWorst:'Swiggy (+3.8%)', kpiWorstSub:'Very thin margin on Swiggy deliveries',
+    kpiUbiq:'5 of 7 Channels', kpiUbiqSub:'Strong offline + BigBasket reach',
+    kpiFast:'370 units at BigBasket', kpiFastSub:'Regular household repeat purchase',
+    kpiStorage:'Refrigerated · monitor', kpiStorageSub:'Short shelf life — avoid overstocking',
+    insight:{num:'01',title:'BigBasket is the strongest channel for Heritage Milk',desc:'₹1.48L at 16.8% margin — more than double the margin of Swiggy. BigBasket buyers regularly reorder.',action:'→ Prioritise BigBasket allocation for Heritage Milk. Reduce Swiggy listing to minimal.'},
+  },
+  milkymist_cheddar: {
+    name:'Milky Mist Cheddar Slices', emoji:'🧀', brand:'Milky Mist',
+    label:'📊 Margin Performer', mClass:'pos',
+    sub:'DMart & Reliance top performer · Specialty dairy',
+    rev:'₹2.44L', margin:'+14.6%', units:'611', channels:'4',
+    spotClass:'',
+    channelRev:  {DMart:1.42, Reliance:1.24, Flipkart:0.82, Zepto:0.52},
+    channelMargin:{DMart:18.2,Reliance:17.2,Flipkart:13.8,Zepto:9.4},
+    kpiTop:'DMart · ₹1.42L', kpiTopSub:'18.2% margin · consistent demand',
+    kpiWorst:'Zepto (+9.4%)', kpiWorstSub:'Q-com platform costs cut margin',
+    kpiUbiq:'4 channels', kpiUbiqSub:'Focused on premium / modern trade',
+    kpiFast:'356 units at DMart', kpiFastSub:'Specialty product · strong sell-through',
+    kpiStorage:'Refrigerated · 30-day', kpiStorageSub:'Monitor expiry · avoid over-ordering',
+    insight:{num:'01',title:'Cheddar Slices perform best in modern trade channels',desc:'DMart 18.2% and Reliance 17.2% — this is a premium product that fits premium retail positioning well.',action:'→ Expand SKU presence at DMart and Reliance. Consider adding BigBasket listing.'},
+  },
+  borges_olive: {
+    name:'Borges Olive Oil 500ml', emoji:'🫒', brand:'Borges',
+    label:'⚠ Loss SKU on Q-com', mClass:'neg',
+    sub:'Losing money on Swiggy, Zomato & Zepto',
+    rev:'₹3.10L', margin:'−8.4%', units:'780', channels:'7',
+    spotClass:'neg-spot',
+    channelRev:  {DMart:0.80, Reliance:1.20, BigBasket:0.64, Flipkart:0.52, Zepto:0.40, Swiggy:0.53, Zomato:0.34},
+    channelMargin:{DMart:4.8,Reliance:14.1,BigBasket:11.2,Flipkart:-3.4,Zepto:-4.6,Swiggy:-8.4,Zomato:-9.2},
+    kpiTop:'Reliance (+14.1%)', kpiTopSub:'Only channel with healthy margin',
+    kpiWorst:'Zomato (−9.2%)', kpiWorstSub:'Single worst SKU-channel combo in portfolio',
+    kpiUbiq:'7 channels present', kpiUbiqSub:'Too broad — losing on 3 channels',
+    kpiFast:'137 units at Reliance', kpiFastSub:'Low velocity overall · excess storage risk',
+    kpiStorage:'₹49,700/month drag', kpiStorageSub:'Slow mover · storage cost eroding all margin',
+    insight:{num:'01',title:'Delist Borges from Swiggy, Zomato & Zepto — confirmed losses',desc:'−9.2% on Zomato, −8.4% on Swiggy, −4.6% on Zepto. These aren\'t marginal losses — they\'re compounding. Reliance is the only channel where this product should stay.',action:'→ Remove Borges Olive Oil from all Q-com channels immediately. Focus 100% on Reliance.'},
+  },
+  milkymist_mozz: {
+    name:'Milky Mist Mozzarella 5kg', emoji:'🧊', brand:'Milky Mist',
+    label:'🚨 EXPIRY RISK — Act Now', mClass:'neg',
+    sub:'47 days cold storage · Expiry in 8 days · ₹1,24,000 at risk',
+    rev:'₹0.72L', margin:'−6.2%', units:'58', channels:'1',
+    spotClass:'neg-spot',
+    channelRev:  {BigBasket:0.42, Swiggy:0.20, Zomato:0.18},
+    channelMargin:{BigBasket:-5.8,Swiggy:-2.8,Zomato:-3.6},
+    kpiTop:'No profitable channel', kpiTopSub:'All current channels showing negative margin',
+    kpiWorst:'BigBasket (−5.8%)', kpiWorstSub:'47 days cold storage · no active order',
+    kpiUbiq:'1 active channel', kpiUbiqSub:'Extremely limited reach · institutional product',
+    kpiFast:'3 units/week', kpiFastSub:'Near-zero velocity — emergency action required',
+    kpiStorage:'₹1,24,000 WRITE-OFF RISK', kpiStorageSub:'Expiry in ~8 days · Call pizza buyers NOW',
+    insight:{num:'01',title:'EMERGENCY: Call 3 pizza restaurant buyers TODAY',desc:'Mozzarella 5kg has been in cold storage 47 days. Expiry in ~8 days. ₹1,24,000 at complete write-off risk. Offer at ₹85/unit (30% below MRP).',action:'→ URGENT: Call Dominos, local pizza chains NOW. Recover ₹87K at 70% vs ₹0. Every hour costs money.'},
+  },
+  borges_pasta: {
+    name:'Borges Pasta 500g (6-pack)', emoji:'🍝', brand:'Borges',
+    label:'⚠ Multi-Channel Loss SKU', mClass:'neg',
+    sub:'Negative margin on Flipkart, Zomato & Reliance',
+    rev:'₹0.54L', margin:'−4.1%', units:'180', channels:'3',
+    spotClass:'neg-spot',
+    channelRev:  {Reliance:0.19, Flipkart:0.18, BigBasket:0.18, Zomato:0.19},
+    channelMargin:{Reliance:-2.4,Flipkart:-4.1,BigBasket:-3.2,Zomato:-6.4},
+    kpiTop:'None — all channels negative', kpiTopSub:'This product loses money everywhere',
+    kpiWorst:'Zomato (−6.4%)', kpiWorstSub:'Worst margin in entire Borges portfolio on Zomato',
+    kpiUbiq:'4 channels · all losing', kpiUbiqSub:'Wide presence but zero profitable channels',
+    kpiFast:'62 units only', kpiFastSub:'Very slow mover · high return rate 18%',
+    kpiStorage:'Dry goods storage', kpiStorageSub:'Accumulating but not moving',
+    insight:{num:'01',title:'Borges Pasta has no profitable channel — consider delisting entirely',desc:'−2.4% Reliance, −3.2% BigBasket, −4.1% Flipkart, −6.4% Zomato. 18% return rate means every order creates a loss loop.',action:'→ Delist Borges Pasta from all channels. Reduce reorder to zero. Replace slot with Milky Mist Cheddar.'},
+  },
+  heritage_yogurt: {
+    name:'Heritage Flavoured Yogurt', emoji:'🥛', brand:'Heritage',
+    label:'⚠ Returns Eroding Margin', mClass:'warn',
+    sub:'High return rate 18–22% · Swiggy & Zomato losses',
+    rev:'₹0.39L', margin:'+1.2%', units:'310', channels:'4',
+    spotClass:'warn-spot',
+    channelRev:  {Reliance:0.14, BigBasket:0.12, Zepto:0.08, Swiggy:0.14, Zomato:0.06},
+    channelMargin:{Reliance:1.6,BigBasket:1.4,Zepto:1.4,Swiggy:-3.6,Zomato:-4.2},
+    kpiTop:'Reliance (+1.6%)', kpiTopSub:'Barely profitable even at best channel',
+    kpiWorst:'Zomato (−4.2%)', kpiWorstSub:'High returns (22%) + delivery = loss',
+    kpiUbiq:'5 channels', kpiUbiqSub:'Too many channels for such thin margins',
+    kpiFast:'115 units at Swiggy', kpiFastSub:'High velocity but most units returned',
+    kpiStorage:'Short shelf life risk', kpiStorageSub:'Returns of near-expiry stock → write-offs',
+    insight:{num:'01',title:'Heritage Flavoured Yogurt: reduce Q-com listing immediately',desc:'Return rates of 18-22% on Swiggy/Zomato are destroying already thin margins. Product is marginal at best everywhere.',action:'→ Delist from Swiggy & Zomato. Keep only BigBasket & Reliance where returns are lower. Renegotiate shelf life terms.'},
+  },
+  havmor_falooda: {
+    name:'Havmor Falooda Mix', emoji:'🥤', brand:'Havmor',
+    label:'📉 Slow Mover · Niche', mClass:'warn',
+    sub:'Low velocity · Only Zepto channel · Limited demand',
+    rev:'₹0.25L', margin:'+2.1%', units:'82', channels:'1',
+    spotClass:'warn-spot',
+    channelRev:  {DMart:0.15, Reliance:0.08, BigBasket:0.07, Zepto:0.08, Swiggy:0.06, Zomato:0.05},
+    channelMargin:{DMart:3.1,Reliance:2.8,BigBasket:2.6,Zepto:2.1,Swiggy:-1.4,Zomato:-2.1},
+    kpiTop:'DMart (+3.1%)', kpiTopSub:'Highest margin but low absolute volume',
+    kpiWorst:'Zomato (−2.1%)', kpiWorstSub:'Niche product — delivery cost wipes margin',
+    kpiUbiq:'6 channels', kpiUbiqSub:'Presence too broad for niche seasonal product',
+    kpiFast:'49 units at DMart', kpiFastSub:'Slow seasonal product · high storage risk',
+    kpiStorage:'Seasonal slow mover', kpiStorageSub:'Excess stock risk in off-season months',
+    insight:{num:'01',title:'Havmor Falooda Mix: reduce channels to DMart and Reliance only',desc:'Niche product with barely positive margins. Too broad channel presence means high storage risk in off-season. Swiggy/Zomato are actual losses.',action:'→ Consolidate Falooda to DMart + Reliance only. Reduce reorder by 50%. Seasonal product — plan cycle.'},
+  },
+};
+
+let activeProd = 'all';
+let prodChannelBarChart, prodChannelMarginChart;
+
+// ═══════════════════════════════════════════════════════════
+// PRODUCT SELECTOR BAR — DROPDOWN + CHIP HANDLERS
+// ═══════════════════════════════════════════════════════════
+
+// Maps the <select> dropdown value → selectProduct()
+function handleProdDropdown(sel) {
+  const val = sel.value;
+  // Style the dropdown based on selected product class
+  sel.classList.remove('has-selection','neg-selection','warn-selection');
+  if (val !== 'all') {
+    const p = PROD_PROFILES[val];
+    if (p) {
+      if (p.mClass === 'neg') sel.classList.add('neg-selection');
+      else if (p.mClass === 'warn') sel.classList.add('warn-selection');
+      else sel.classList.add('has-selection');
+    }
+  }
+  // Reset chips to "All" when dropdown changes to a specific product
+  _setActiveChip(val === 'all' ? 'all' : null);
+  selectProduct(val, null);
+}
+
+// Quick-filter chips: all | top | risk | loss
+function applyChip(type, chipEl) {
+  _setActiveChip(type);
+
+  // Reset dropdown to "All Products" so it doesn't show a stale product
+  const dd = document.getElementById('prodSelDropdown');
+  if (dd) {
+    dd.value = 'all';
+    dd.classList.remove('has-selection','neg-selection','warn-selection');
+  }
+
+  // Map chip type to prodState.view equivalents and show right badge
+  const badge = document.getElementById('prodSelBadge');
+  if (type === 'all') {
+    prodState.view = 'top'; // default — show top list
+    if (badge) { badge.textContent = 'All Products View'; badge.className = 'prod-sel-badge neutral-badge'; }
+    // Hide spotlight & channel section
+    document.getElementById('prodSpotlight').classList.remove('visible','neg-spot','warn-spot');
+    const cs = document.getElementById('prodChannelSection'); if (cs) cs.style.display = 'none';
+    activeProd = 'all';
+    renderProdList();
+    renderBrandKpis(activeChannel);
+    renderProdInsights(activeChannel);
+  } else if (type === 'top') {
+    if (badge) { badge.textContent = '⭐ Top Performers'; badge.className = 'prod-sel-badge'; }
+    document.getElementById('prodSpotlight').classList.remove('visible','neg-spot','warn-spot');
+    const cs = document.getElementById('prodChannelSection'); if (cs) cs.style.display = 'none';
+    activeProd = 'all';
+    prodState.view = 'top';
+    renderProdList();
+    renderBrandKpis(activeChannel);
+    renderProdInsights(activeChannel);
+  } else if (type === 'risk') {
+    if (badge) { badge.textContent = '⚠ At-Risk Products'; badge.className = 'prod-sel-badge warn-badge'; }
+    document.getElementById('prodSpotlight').classList.remove('visible','neg-spot','warn-spot');
+    const cs = document.getElementById('prodChannelSection'); if (cs) cs.style.display = 'none';
+    activeProd = 'all';
+    // Render only warn-class products
+    _renderFilteredByClass('warn');
+  } else if (type === 'loss') {
+    if (badge) { badge.textContent = '📉 Loss SKUs'; badge.className = 'prod-sel-badge neg-badge'; }
+    document.getElementById('prodSpotlight').classList.remove('visible','neg-spot','warn-spot');
+    const cs = document.getElementById('prodChannelSection'); if (cs) cs.style.display = 'none';
+    activeProd = 'all';
+    // Render only neg-class products
+    _renderFilteredByClass('neg');
+  }
+}
+
+// Helper: highlight the active chip button
+function _setActiveChip(type) {
+  ['all','top','risk','loss'].forEach(t => {
+    const el = document.getElementById('chip-'+t);
+    if (el) el.classList.toggle('chip-active', t === type);
+  });
+}
+
+// Helper: render prod list filtered by margin class (neg | warn)
+function _renderFilteredByClass(mClass) {
+  const src = PROD_DATA[prodState.ch] || PROD_DATA['all'];
+  const all = [...src.top, ...src.bottom];
+  const items = all.filter(p => p.mClass === mClass);
+  if (!items.length) {
+    document.getElementById('prodList').innerHTML = '<div style="padding:18px;text-align:center;color:var(--muted);font-size:12px">No products in this category for the current channel filter.</div>';
+    return;
+  }
+  const mx = Math.max(...items.map(p => p.rev), 0.01);
+  const rankCls = ['r1','r2','r3','r4','r4','r4','r4','r4'];
+  document.getElementById('prodList').innerHTML = items.map((p, i) => {
+    const barColor = p.mClass==='pos'?'var(--positive)':p.mClass==='neg'?'var(--negative)':'var(--warning)';
+    const barW = ((p.rev/mx)*100).toFixed(1);
+    const revFmt = p.rev>=1?'₹'+p.rev.toFixed(2)+'L':'₹'+(p.rev*100).toFixed(0)+'K';
+    const sign = p.marginNum>=0?'+':'';
+    const chPills = (p.channels||[]).map(c=>`<span class="ch-pill" style="background:${CH_COLORS[c]}">${CHANNELS[CH_IDS.indexOf(c)]}</span>`).join('');
+    return `<div class="prod-row">
+      <div class="prod-rank ${rankCls[i]||'r4'}">${i+1}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-brand">${p.brand}</div>
+        <div style="margin-top:3px">${chPills}</div>
+      </div>
+      <div class="prod-bar-wrap"><div class="prod-bar-bg"><div class="prod-bar-fill" style="width:${barW}%;background:${barColor}"></div></div></div>
+      <div class="prod-rev">${revFmt}</div>
+      <span class="prod-margin ${p.mClass}">${sign}${p.marginNum.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+function selectProduct(prodKey, btnEl) {
+  activeProd = prodKey;
+
+  // Sync dropdown selection
+  const dd = document.getElementById('prodSelDropdown');
+  if (dd && dd.value !== prodKey) dd.value = prodKey;
+
+  const badge = document.getElementById('prodSelBadge');
+  if (prodKey === 'all') {
+    // Hide spotlight, hide channel section, restore normal product view
+    document.getElementById('prodSpotlight').classList.remove('visible','neg-spot','warn-spot');
+    document.getElementById('prodChannelSection').style.display = 'none';
+    badge.textContent = 'All Products View';
+    badge.className = 'prod-sel-badge neutral-badge';
+    // Restore list to top-5
+    renderProdList();
+    renderBrandKpis(activeChannel);
+    renderProdInsights(activeChannel);
+    return;
+  }
+
+  const p = PROD_PROFILES[prodKey];
+
+  // Update badge
+  badge.textContent = p.mClass==='neg' ? '⚠ Loss Product' : p.mClass==='warn' ? '⚠ Watch Product' : '✓ Top Product';
+  badge.className = 'prod-sel-badge' + (p.mClass==='neg'?' neg-badge':p.mClass==='warn'?' warn-badge':'');
+
+  // Spotlight banner
+  const spot = document.getElementById('prodSpotlight');
+  spot.className = 'prod-spotlight visible' + (p.spotClass ? ' '+p.spotClass : '');
+  document.getElementById('spotEmoji').textContent = p.emoji;
+  document.getElementById('spotLabel').textContent = p.label;
+  document.getElementById('spotName').textContent = p.name;
+  document.getElementById('spotSub').textContent = p.sub;
+  document.getElementById('spotRev').textContent = p.rev;
+  document.getElementById('spotMargin').textContent = p.margin;
+  document.getElementById('spotUnits').textContent = p.units;
+  document.getElementById('spotChannels').textContent = p.channels;
+
+  // Update Product KPIs
+  document.getElementById('pkpiTop').textContent = p.kpiTop;
+  document.getElementById('pkpiTopSub').textContent = p.kpiTopSub;
+  document.getElementById('pkpiWorst').textContent = p.kpiWorst;
+  document.getElementById('pkpiWorstSub').textContent = p.kpiWorstSub;
+  document.getElementById('pkpiUbiq').textContent = p.kpiUbiq;
+  document.getElementById('pkpiUbiqSub').textContent = p.kpiUbiqSub;
+  document.getElementById('pkpiFast').textContent = p.kpiFast;
+  document.getElementById('pkpiFastSub').textContent = p.kpiFastSub;
+  document.getElementById('pkpiStorage').textContent = p.kpiStorage;
+  document.getElementById('pkpiStorageSub').textContent = p.kpiStorageSub;
+
+  // Show channel breakdown section
+  document.getElementById('prodChannelSection').style.display = 'block';
+  document.getElementById('prodChannelLabel').textContent = p.name;
+  document.getElementById('prodChannelChartTitle').textContent = `${p.name} — Revenue by Channel`;
+
+  const channelTag = document.getElementById('prodChannelTag');
+  channelTag.className = 'tag' + (p.mClass==='neg'?' red':p.mClass==='warn'?' amber':' green');
+  channelTag.textContent = p.mClass==='neg' ? '⚠ Loss on some channels' : p.mClass==='warn' ? '⚠ Thin margins' : '✓ Healthy Performance';
+
+  // Build/update channel charts
+  const chLabels = Object.keys(p.channelRev);
+  const chRevVals = Object.values(p.channelRev);
+  const chMarginVals = Object.values(p.channelMargin);
+  const chRevColors = chRevVals.map((v,i) => chMarginVals[i]>=0 ? 'rgba(26,86,219,0.8)' : 'rgba(220,38,38,0.8)');
+  const chMarginColors = chMarginVals.map(v => v>=0 ? 'rgba(16,185,129,0.85)' : 'rgba(220,38,38,0.85)');
+
+  if (prodChannelBarChart) { prodChannelBarChart.destroy(); prodChannelBarChart=null; }
+  if (prodChannelMarginChart) { prodChannelMarginChart.destroy(); prodChannelMarginChart=null; }
+
+  const ctx1 = document.getElementById('prodChannelBarChart');
+  const ctx2 = document.getElementById('prodChannelMarginChart');
+  if (!ctx1 || !ctx2) return;
+
+  prodChannelBarChart = new Chart(ctx1.getContext('2d'), {
+    type:'bar',
+    data:{labels:chLabels,datasets:[{label:'Revenue (₹L)',data:chRevVals,backgroundColor:chRevColors,borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),callbacks:{label:c=>' ₹'+c.raw.toFixed(2)+'L'}}},
+      scales:{x:{ticks:{color:tc(),font:{size:10}},grid:{display:false}},y:{ticks:{color:tc(),font:{size:10},callback:v=>'₹'+v+'L'},grid:{color:gc()}}}}
+  });
+
+  prodChannelMarginChart = new Chart(ctx2.getContext('2d'), {
+    type:'bar',
+    data:{labels:chLabels,datasets:[{label:'Margin %',data:chMarginVals,backgroundColor:chMarginColors,borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:tbg(),borderColor:tbr(),borderWidth:1,titleColor:ttc(),bodyColor:tbc(),callbacks:{label:c=>{const sign=c.raw>=0?'+':'';return ` Margin: ${sign}${c.raw.toFixed(1)}%`;}}}},
+      scales:{x:{ticks:{color:tc(),font:{size:10}},grid:{display:false}},y:{ticks:{color:tc(),font:{size:10},callback:v=>(v>=0?'+':'')+v+'%'},grid:{color:gc()},
+        suggestedMin:Math.min(...chMarginVals)-2,suggestedMax:Math.max(...chMarginVals)+2}}}
+  });
+
+  // Update product list to highlight selected product
+  renderProdListFiltered(p.name);
+
+  // Update insights to show product-specific insight
+  const insEl = document.getElementById('prodInsightsGrid');
+  insEl.innerHTML = `<div class="insight-card">
+    <div class="insight-num">${p.emoji}</div>
+    <div class="insight-body">
+      <div class="title">${p.insight.title}</div>
+      <div class="desc">${p.insight.desc}</div>
+      <div class="action">${p.insight.action}</div>
+    </div>
+  </div>`;
+  document.getElementById('prodInsightsTag').textContent = `1 Product Insight`;
+}
+
+function renderProdListFiltered(productName) {
+  // Show all channels, filter rows, highlight selected product
+  const src = PROD_DATA['all'];
+  const allItems = [...src.top, ...src.bottom];
+  const mx = Math.max(...allItems.map(p=>p.rev),0.01);
+  const rankCls = ['r1','r2','r3','r4','r4','r4','r4','r4','r4','r4'];
+
+  document.getElementById('prodList').innerHTML = allItems.map((p,i) => {
+    const isSelected = p.name === productName;
+    const barColor = p.mClass==='pos'?'var(--positive)':p.mClass==='neg'?'var(--negative)':'var(--warning)';
+    const barW = ((p.rev/mx)*100).toFixed(1);
+    const revFmt = p.rev>=1?'₹'+p.rev.toFixed(2)+'L':'₹'+(p.rev*100).toFixed(0)+'K';
+    const sign = p.marginNum>=0?'+':'';
+    const chPills = (p.channels||[]).map(c=>`<span class="ch-pill" style="background:${CH_COLORS[c]}">${CHANNELS[CH_IDS.indexOf(c)]}</span>`).join('');
+    const highlight = isSelected ? 'background:var(--surface3);border-radius:8px;outline:2px solid var(--positive);' : 'opacity:0.4;';
+    return `<div class="prod-row" style="${highlight}">
+      <div class="prod-rank ${rankCls[i]||'r4'}">${i+1}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}${isSelected?' <span style="background:var(--positive);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:4px">SELECTED</span>':''}</div>
+        <div class="prod-brand">${p.brand}</div>
+        <div style="margin-top:3px">${chPills}</div>
+      </div>
+      <div class="prod-bar-wrap"><div class="prod-bar-bg"><div class="prod-bar-fill" style="width:${barW}%;background:${barColor}"></div></div></div>
+      <div class="prod-rev">${revFmt}</div>
+      <span class="prod-margin ${p.mClass}">${sign}${p.marginNum.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+// Show prod selector bar only on product view
+const origSwitchView = switchView;
+window.switchView = function(v) {
+  origSwitchView(v);
+  // Reset product selector when switching away from products view
+  if (v === 'distribution') {
+    // Reset dropdown
+    const dd = document.getElementById('prodSelDropdown');
+    if (dd) { dd.value = 'all'; dd.classList.remove('has-selection','neg-selection','warn-selection'); }
+    // Reset chips
+    _setActiveChip('all');
+    selectProduct('all', null);
+  }
+};
+buildChannelChart(); buildTrendChart(); buildDonutChart(); buildBrandChart(); buildSparkline();
+updateInsights('all');
+// Products view initial renders (hidden but pre-built)
+renderBrandKpis('all'); renderProdList(); renderProdInsights('all');
+// Delay prod charts until after DOM settles
+setTimeout(buildProdCharts, 300);
+</script>
+</body>
+</html>
