@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vinayak Food Products — Business Intelligence Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7;--surface:#fff;--surface2:#f9fafb;--surface3:#f0f2f5;
+  --border:#e2e5ea;--border2:#d1d5db;--text:#0f1117;--text2:#374151;
+  --muted:#6b7280;--muted2:#9ca3af;--accent:#1a56db;--accent2:#0ea5e9;
+  --positive:#059669;--negative:#dc2626;--warning:#d97706;
+  --warning-bg:#fffbeb;--negative-bg:#fef2f2;--positive-bg:#f0fdf4;--accent-bg:#eff6ff;
+  --saffron:#f97316;--saffron-bg:#fff7ed;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --radius:10px;--radius-lg:14px;
+}
+[data-theme="dark"]{
+  --bg:#0d0f12;--surface:#161a20;--surface2:#1e2329;--surface3:#252b34;
+  --border:#2a3040;--border2:#374151;--text:#f0f4f8;--text2:#cbd5e1;
+  --muted:#7c8fa6;--muted2:#4a5568;--accent:#4d8ef0;--accent2:#38bdf8;
+  --positive:#10b981;--negative:#f87171;--warning:#fbbf24;
+  --warning-bg:rgba(217,119,6,.1);--negative-bg:rgba(220,38,38,.1);
+  --positive-bg:rgba(5,150,105,.1);--accent-bg:rgba(29,78,216,.12);
+  --saffron:#fb923c;--saffron-bg:rgba(249,115,22,.08);
+  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.wrap{max-width:1440px;margin:0 auto;padding:0 28px}
+
+/* ── HEADER ── */
+.header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--shadow)}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,var(--saffron) 20%,var(--accent) 50%,var(--positive) 80%,transparent 100%);opacity:.6}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:62px;gap:16px}
+.logo-row{display:flex;align-items:center;gap:12px}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--saffron),#ea580c);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 2px 8px rgba(249,115,22,.35)}
+.logo-name{font-weight:700;font-size:15px;color:var(--text);letter-spacing:-.3px}
+.logo-tag{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+.view-toggle{display:flex;background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:3px;gap:2px;flex-shrink:0}
+.view-tab{display:flex;align-items:center;gap:7px;padding:7px 18px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .2s;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap}
+.view-tab:hover{color:var(--text)}
+.view-tab.active{background:var(--surface);color:var(--accent);box-shadow:var(--shadow-md);border:1px solid var(--border)}
+.view-tab.active.cust-tab{color:var(--positive)}
+.header-right{display:flex;align-items:center;gap:10px}
+.data-badge{font-size:10px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;white-space:nowrap}
+.live-wrap{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--positive);background:var(--positive-bg);border:1px solid rgba(5,150,105,.2);border-radius:20px;padding:4px 12px}
+.live-dot{width:7px;height:7px;background:var(--positive);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.lang-toggle{padding:5px 12px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'IBM Plex Sans',sans-serif;letter-spacing:.5px;flex-shrink:0}
+.lang-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.lang-toggle.hi-active{background:var(--saffron-bg);border-color:var(--saffron);color:var(--saffron)}
+height:24px;background:var(--surface3);border:1px solid var(--border2);border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:background .3s}
+.theme-thumb{width:18px;height:18px;background:var(--saffron);border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .3s;display:flex;align-items:center;justify-content:center;font-size:10px}
+[data-theme="dark"] .theme-thumb{transform:translateX(20px)}
+
+/* ── FILTER BAR ── */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 0;position:sticky;top:62px;z-index:199;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.filter-bar-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-right:2px;white-space:nowrap}
+.seg-btn{display:flex;align-items:center;gap:6px;padding:5px 13px;border-radius:8px;cursor:pointer;border:1.5px solid var(--border2);background:var(--surface2);font-size:11px;font-weight:600;color:var(--muted);transition:all .18s;user-select:none;white-space:nowrap;font-family:'IBM Plex Sans',sans-serif}
+.seg-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.seg-btn.active{color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.seg-btn.s-all.active{background:var(--accent)}
+.seg-btn.s-medical.active{background:#0369a1}
+.seg-btn.s-retail.active{background:var(--positive)}
+.seg-btn.s-food.active{background:var(--saffron)}
+.seg-btn.s-trader.active{background:#7c3aed}
+.seg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bar-div{width:1px;height:22px;background:var(--border2);flex-shrink:0;margin:0 4px}
+.period-wrap{display:flex;align-items:center;gap:8px;margin-left:auto}
+.period-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);white-space:nowrap}
+.period-sel-wrap{position:relative}
+.period-sel-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);pointer-events:none}
+.period-sel{appearance:none;-webkit-appearance:none;padding:6px 28px 6px 12px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-size:11px;font-weight:700;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;outline:none;transition:all .18s;min-width:200px}
+.period-badge{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;transition:all .25s;background:var(--accent-bg);color:var(--accent);border:1px solid rgba(26,86,219,.2)}
+.filter-mode-badge{margin-left:auto;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;background:var(--accent-bg);color:var(--accent);border:1px solid rgba(29,78,216,.2);white-space:nowrap;transition:all .2s}
+
+/* ── VIEW PANELS ── */
+.view-panel{display:none}
+.view-panel.active{display:block}
+
+/* ── LEAKAGE BANNER ── */
+.leakage-banner{background:linear-gradient(135deg,#fef2f2 0%,#fff5f5 100%);border:1px solid #fca5a5;border-left:5px solid var(--negative);border-radius:var(--radius-lg);padding:14px 20px;margin:18px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:var(--shadow-md);transition:all .35s}
+[data-theme="dark"] .leakage-banner{background:linear-gradient(135deg,rgba(220,38,38,.08) 0%,rgba(220,38,38,.04) 100%);border-color:rgba(248,113,113,.3)}
+.leakage-banner.seg-mode{border-left-color:var(--accent);border-color:rgba(26,86,219,.3);background:linear-gradient(135deg,var(--accent-bg) 0%,var(--surface) 100%)}
+[data-theme="dark"] .leakage-banner.seg-mode{background:linear-gradient(135deg,rgba(26,86,219,.08) 0%,rgba(26,86,219,.04) 100%)}
+.banner-left{display:flex;align-items:center;gap:14px}
+.banner-icon{font-size:22px}
+.banner-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--negative);margin-bottom:3px}
+.leakage-banner.seg-mode .banner-label{color:var(--accent)}
+.banner-amount{font-family:'Playfair Display',serif;font-size:34px;color:var(--negative);line-height:1;transition:all .3s;font-weight:700}
+.leakage-banner.seg-mode .banner-amount{color:var(--accent)}
+.banner-desc{font-size:11px;color:var(--muted);margin-top:4px}
+.banner-split{display:flex;gap:22px;flex-wrap:wrap}
+.banner-item{text-align:center}
+.banner-item-val{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--warning);transition:all .3s}
+.banner-item-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.banner-divider{width:1px;background:rgba(220,38,38,.2);align-self:stretch}
+
+/* ── PRIORITY STRIP ── */
+.priority-strip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 18px;margin:14px 0 0;box-shadow:var(--shadow)}
+.priority-strip-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:8px}
+.p-list{display:flex;flex-direction:column;gap:5px}
+.p-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2);line-height:1.45;padding:4px 0;border-bottom:1px solid var(--border)}
+.p-item:last-child{border-bottom:none}
+.p-dot{font-size:8px;flex-shrink:0;margin-top:4px}
+.p-item.red .p-dot{color:var(--negative)}
+.p-item.amber .p-dot{color:var(--warning)}
+.p-item.blue .p-dot{color:var(--accent)}
+.p-item.green .p-dot{color:var(--positive)}
+
+/* ── SECTION ── */
+.section{padding:24px 0 0}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:4px;height:15px;background:linear-gradient(180deg,var(--saffron),var(--accent));border-radius:2px}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.kpi-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;cursor:default}
+.kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+.kpi-card.blue::after{background:linear-gradient(90deg,#1847c2,#4d8ef0);box-shadow:0 2px 8px rgba(24,71,194,.3)}
+.kpi-card.red::after{background:linear-gradient(90deg,#c81e1e,#f87171);box-shadow:0 2px 8px rgba(200,30,30,.25)}
+.kpi-card.green::after{background:linear-gradient(90deg,#047857,#10b981);box-shadow:0 2px 8px rgba(4,120,87,.25)}
+.kpi-card.amber::after{background:linear-gradient(90deg,#b45309,#f59e0b);box-shadow:0 2px 8px rgba(180,83,9,.25)}
+.kpi-card.saffron::after{background:linear-gradient(90deg,#ea580c,#f97316);box-shadow:0 2px 8px rgba(234,88,12,.25)}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.kpi-icon-wrap{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.kpi-card.blue .kpi-icon-wrap{background:var(--accent-bg)}
+.kpi-card.red .kpi-icon-wrap{background:var(--negative-bg)}
+.kpi-card.green .kpi-icon-wrap{background:var(--positive-bg)}
+.kpi-card.amber .kpi-icon-wrap{background:var(--warning-bg)}
+.kpi-card.saffron .kpi-icon-wrap{background:var(--saffron-bg)}
+.kpi-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+.kpi-badge.up{background:var(--positive-bg);color:var(--positive)}
+.kpi-badge.down{background:var(--negative-bg);color:var(--negative)}
+.kpi-badge.warn{background:var(--warning-bg);color:var(--warning)}
+.kpi-badge.blue{background:var(--accent-bg);color:var(--accent)}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1;margin-bottom:4px;transition:all .15s}
+.kpi-card.blue .kpi-value{color:var(--accent)}
+.kpi-card.red .kpi-value{color:var(--negative)}
+.kpi-card.green .kpi-value{color:var(--positive)}
+.kpi-card.amber .kpi-value{color:var(--warning)}
+.kpi-card.saffron .kpi-value{color:var(--saffron)}
+.kpi-sub{font-size:11px;color:var(--muted)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
+.card-header{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.card-body{padding:14px 20px 18px}
+
+/* ── TAGS ── */
+.tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.tag.red{background:var(--negative-bg);color:var(--negative);border:1px solid rgba(220,38,38,.2)}
+.tag.green{background:var(--positive-bg);color:var(--positive);border:1px solid rgba(5,150,105,.2)}
+.tag.blue{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(26,86,219,.2)}
+.tag.amber{background:var(--warning-bg);color:var(--warning);border:1px solid rgba(217,119,6,.2)}
+.tag.saffron{background:var(--saffron-bg);color:var(--saffron);border:1px solid rgba(249,115,22,.2)}
+
+/* ── GRIDS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-60-40{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.grid-55-45{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+.chart-wrap{position:relative}
+
+/* ── TREND LEGEND ── */
+.trend-legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.trend-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.trend-leg-line{width:16px;height:3px;border-radius:2px}
+
+/* ── DONUT LEGEND ── */
+.donut-legend{display:flex;flex-direction:column;gap:7px}
+.donut-leg-row{display:flex;align-items:center;justify-content:space-between;font-size:11px}
+.donut-leg-left{display:flex;align-items:center;gap:7px;color:var(--text2);font-weight:500}
+.donut-leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.donut-leg-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--text)}
+.donut-leg-pct{font-size:10px;color:var(--muted);margin-left:5px}
+
+/* ── SEGMENT PERFORMANCE BAR ── */
+.seg-perf-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.seg-perf-row:last-child{border-bottom:none}
+.seg-perf-bar-bg{flex:1;height:7px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.seg-perf-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* ── EXPENSE ROWS ── */
+.expense-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:10px}
+.expense-row:last-child{border-bottom:none}
+.expense-bar-bg{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.expense-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* ── STORAGE ROWS ── */
+.storage-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.storage-row:last-child{border-bottom:none}
+.storage-age-bar{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.storage-age-fill{height:100%;border-radius:3px}
+.age-label{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;font-family:'IBM Plex Mono',monospace}
+.age-critical{background:#fef2f2;color:var(--negative);border:1px solid rgba(220,38,38,.2)}
+.age-warn{background:#fffbeb;color:var(--warning);border:1px solid rgba(217,119,6,.2)}
+.age-safe{background:var(--positive-bg);color:var(--positive);border:1px solid rgba(5,150,105,.2)}
+[data-theme="dark"] .age-critical{background:rgba(220,38,38,.1)}
+[data-theme="dark"] .age-warn{background:rgba(217,119,6,.1)}
+[data-theme="dark"] .age-safe{background:rgba(5,150,105,.1)}
+
+/* ── OUTSTANDING TABLE ── */
+.out-table{width:100%;border-collapse:collapse;font-size:12px}
+.out-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:var(--muted);padding:0 8px 10px 0;border-bottom:1px solid var(--border2)}
+.out-table td{padding:8px 8px 8px 0;border-bottom:1px solid var(--border);vertical-align:middle}
+.out-table tr:last-child td{border-bottom:none}
+.out-bar{height:4px;border-radius:2px;margin-top:3px;background:var(--surface3)}
+.out-fill{height:100%;border-radius:2px}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
+
+/* ── CUSTOMER RANK LIST ── */
+.cust-rank-list{display:flex;flex-direction:column}
+.cust-rank-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer}
+.cust-rank-row:last-child{border-bottom:none}
+.cust-rank-row:hover{background:var(--surface2);border-radius:8px}
+.cust-rank-row.selected{background:var(--positive-bg);border-radius:8px}
+.crank{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;width:22px;text-align:center;flex-shrink:0;color:var(--muted2)}
+.crank.r1{color:#92400e}.crank.r2{color:#6b7280}.crank.r3{color:#7c4a11}
+[data-theme="dark"] .crank.r1{color:#fbbf24}[data-theme="dark"] .crank.r2{color:#9ca3af}[data-theme="dark"] .crank.r3{color:#fb923c}
+.cust-info{flex:1;min-width:0}
+.cust-name-txt{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cust-seg-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.cust-bar-wrap{flex:1;max-width:120px}
+.cust-bar-bg{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.cust-bar-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.cust-rev-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;width:60px;text-align:right;flex-shrink:0;color:var(--text)}
+.chg-pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace;flex-shrink:0;white-space:nowrap}
+.chg-pill.up{background:var(--positive-bg);color:var(--positive)}
+.chg-pill.down{background:var(--negative-bg);color:var(--negative)}
+.chg-pill.new{background:var(--saffron-bg);color:var(--saffron)}
+.seg-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;color:#fff;display:inline-block;white-space:nowrap}
+.seg-pill.medical{background:#0369a1}
+.seg-pill.retail{background:#059669}
+.seg-pill.food{background:#f97316}
+.seg-pill.trader{background:#7c3aed}
+.seg-pill.other{background:#94a3b8}
+
+/* ── SPOTLIGHT PANEL ── */
+.cust-spotlight{background:linear-gradient(135deg,var(--positive-bg) 0%,var(--surface) 100%);border:1.5px solid rgba(5,150,105,.25);border-left:5px solid var(--positive);border-radius:var(--radius-lg);padding:14px 20px;margin:18px 0 0;display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:var(--shadow-md);transition:all .4s}
+.cust-spotlight.visible{display:flex;animation:spotIn .3s ease}
+@keyframes spotIn{0%{opacity:0;transform:translateY(-5px)}100%{opacity:1;transform:translateY(0)}}
+[data-theme="dark"] .cust-spotlight{background:linear-gradient(135deg,rgba(5,150,105,.08) 0%,rgba(5,150,105,.04) 100%)}
+.spot-left{display:flex;align-items:center;gap:14px}
+.spot-emoji{font-size:28px}
+.spot-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--positive);margin-bottom:2px}
+.spot-name{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700;line-height:1.1}
+.spot-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.spot-stats{display:flex;gap:22px;flex-wrap:wrap}
+.spot-stat{text-align:center}
+.spot-stat-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;color:var(--positive)}
+.spot-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.spot-divider{width:1px;background:rgba(5,150,105,.2);align-self:stretch}
+
+/* ── INSIGHTS GRID ── */
+.insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;gap:12px;transition:box-shadow .2s,transform .2s;box-shadow:var(--shadow)}
+.insight-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.insight-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--border2);line-height:1;flex-shrink:0;padding-top:2px}
+.insight-body .i-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.35}
+.insight-body .i-desc{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:7px}
+.insight-body .i-action{font-size:11px;font-weight:600;color:var(--accent);padding:5px 9px;background:var(--accent-bg);border-radius:6px;border-left:3px solid var(--accent)}
+
+/* ── INLINE BREAKDOWN ── */
+.inline-breakdown{background:linear-gradient(135deg,var(--accent-bg) 0%,var(--surface) 100%);border:1.5px solid rgba(26,86,219,.2);border-left:4px solid var(--accent);border-radius:var(--radius-lg);padding:14px 16px;margin:0 0 2px 0;animation:spotIn .25s ease}
+[data-theme="dark"] .inline-breakdown{background:linear-gradient(135deg,rgba(26,86,219,.08) 0%,rgba(26,86,219,.03) 100%)}
+
+/* ── ANIMATED NUM ── */
+.num-flash{animation:nf .4s ease}
+@keyframes nf{0%{opacity:.4;transform:scale(.97)}100%{opacity:1;transform:scale(1)}}
+
+/* ── FOOTER ── */
+.footer{background:var(--surface2);border-top:1px solid var(--border);margin-top:48px;padding:14px 0}
+.footer-copy{text-align:center;font-size:11px;color:var(--muted2)}
+.footer-copy span{color:var(--accent);font-weight:600}
+
+/* ── CONTEXTUAL ALERT ── */
+.ctx-alert{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:12px;border:1px solid;transition:all .3s}
+.ctx-alert.red{background:var(--negative-bg);border-color:rgba(220,38,38,.2);color:var(--negative)}
+.ctx-alert.green{background:var(--positive-bg);border-color:rgba(5,150,105,.2);color:var(--positive)}
+.ctx-alert.blue{background:var(--accent-bg);border-color:rgba(26,86,219,.2);color:var(--accent)}
+.ctx-alert.amber{background:var(--warning-bg);border-color:rgba(217,119,6,.2);color:var(--warning)}
+/* Seg btn active glow */
+.seg-btn.s-medical.active{box-shadow:0 2px 12px rgba(3,105,161,.4)}
+.seg-btn.s-retail.active{box-shadow:0 2px 12px rgba(5,150,105,.4)}
+.seg-btn.s-food.active{box-shadow:0 2px 12px rgba(249,115,22,.4)}
+.seg-btn.s-trader.active{box-shadow:0 2px 12px rgba(124,58,237,.4)}
+/* KPI card entrance animation */
+@keyframes kpiIn{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+.kpi-grid .kpi-card:nth-child(1){animation:kpiIn .35s ease .05s both}
+.kpi-grid .kpi-card:nth-child(2){animation:kpiIn .35s ease .10s both}
+.kpi-grid .kpi-card:nth-child(3){animation:kpiIn .35s ease .15s both}
+.kpi-grid .kpi-card:nth-child(4){animation:kpiIn .35s ease .20s both}
+.kpi-grid .kpi-card:nth-child(5){animation:kpiIn .35s ease .25s both}
+
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.kpi-grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.kpi-grid,.kpi-grid-4{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-60-40,.grid-55-45{grid-template-columns:1fr}.insights-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.wrap{padding:0 14px}.kpi-grid,.kpi-grid-4{grid-template-columns:1fr 1fr}.kpi-value{font-size:24px}.header-inner{flex-wrap:wrap;height:auto;padding:10px 0}.view-toggle{width:100%}.view-tab{flex:1;justify-content:center}.period-wrap{margin-left:0;width:100%}}
+</style>
+</head>
+<body data-view="overview">
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="wrap">
+    <div class="header-inner">
+      <div class="logo-row">
+        <div class="logo-mark">🧊</div>
+        <div>
+          <div class="logo-name" data-en="Vinayak Food Products" data-hi="विनायक फूड प्रोडक्ट्स">Vinayak Food Products</div>
+          <div class="logo-tag" data-en="Business Intelligence Dashboard · FY 2026–27" data-hi="व्यापार बुद्धिमत्ता डैशबोर्ड · FY 2026–27">Business Intelligence Dashboard · FY 2026–27</div>
+        </div>
+      </div>
+      <div class="view-toggle">
+        <button class="view-tab active" id="tabOverview" onclick="switchView('overview',this)" data-en="📊 Overview" data-hi="📊 अवलोकन">📊 Overview</button>
+        <button class="view-tab cust-tab" id="tabCustomers" onclick="switchView('customers',this)" data-en="🏪 Customers" data-hi="🏪 ग्राहक">🏪 Customers</button>
+      </div>
+      <div class="header-right">
+        <div class="data-badge" data-en="⚡ Built &amp; Powered by Om Bagal Analytics" data-hi="⚡ ओम बागल एनालिटिक्स द्वारा निर्मित">⚡ Built &amp; Powered by Om Bagal Analytics</div>
+        <div class="live-wrap"><div class="live-dot"></div><span data-en="Live Data" data-hi="लाइव डेटा">Live Data</span></div>
+        <button class="lang-toggle" id="langToggle" onclick="toggleLang()" title="Switch to Hindi">अ/A</button>
+        <div class="theme-btn" onclick="toggleTheme()"><div class="theme-thumb" id="themeThumb">☀️</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ FILTER BAR ═══ -->
+<div class="filter-bar">
+  <div class="wrap">
+    <div class="filter-bar-inner">
+      <div class="filter-label" data-en="Segment →" data-hi="वर्ग →">Segment →</div>
+      <button class="seg-btn s-all active" onclick="filterSeg('all',this)" data-en="☰ All Segments" data-hi="☰ सभी वर्ग">☰ All Segments</button>
+      <button class="seg-btn s-medical" onclick="filterSeg('medical',this)"><div class="seg-dot" style="background:#0369a1"></div><span data-en="Medical" data-hi="मेडिकल">Medical</span></button>
+      <button class="seg-btn s-retail" onclick="filterSeg('retail',this)"><div class="seg-dot" style="background:#059669"></div><span data-en="Retail" data-hi="रिटेल">Retail</span></button>
+      <button class="seg-btn s-food" onclick="filterSeg('food',this)"><div class="seg-dot" style="background:#f97316"></div><span data-en="Food & HoReCa" data-hi="फूड & HoReCa">Food & HoReCa</span></button>
+      <button class="seg-btn s-trader" onclick="filterSeg('trader',this)"><div class="seg-dot" style="background:#7c3aed"></div><span data-en="Traders" data-hi="व्यापारी">Traders</span></button>
+      <div class="bar-div"></div>
+      <div class="period-wrap">
+        <div class="period-label" data-en="Period →" data-hi="अवधि →">Period →</div>
+        <div class="period-sel-wrap">
+          <select class="period-sel" id="periodSel" onchange="filterPeriod(this.value)">
+            <option value="all" data-en="📅 All Period (Apr–May 2026)" data-hi="📅 सभी अवधि (अप्रैल–मई 2026)">📅 All Period (Apr–May 2026)</option>
+            <option value="apr" data-en="🌸 April 2026 Only" data-hi="🌸 केवल अप्रैल 2026">🌸 April 2026 Only</option>
+            <option value="may" data-en="🌤 May 2026 Only" data-hi="🌤 केवल मई 2026">🌤 May 2026 Only</option>
+          </select>
+        </div>
+        <div class="period-badge" id="periodBadge">Apr–May · Full</div>
+        <div class="filter-mode-badge" id="filterModeBadge">All Segments</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     VIEW 1 — OVERVIEW
+═══════════════════════════════════ -->
+<div class="view-panel active" id="viewOverview">
+<div class="wrap">
+
+  <!-- DYNAMIC BANNER -->
+  <div id="mainBanner" class="leakage-banner">
+    <div class="banner-left">
+      <div class="banner-icon">⚠️</div>
+      <div>
+        <div class="banner-label" id="bannerLabel">Net Loss — Action Required</div>
+        <div class="banner-amount" id="bannerAmount">₹5,45,397</div>
+        <div class="banner-desc" id="bannerDesc">Business operating at a loss despite ₹72.58L in sales · Apr–Jun 2026</div>
+      </div>
+    </div>
+    <div class="banner-split">
+      <div class="banner-item"><div class="banner-item-val" id="bSplit1">₹11,35,729</div><div class="banner-item-label" id="bLabel1">Indirect Expenses</div></div>
+      <div class="banner-divider"></div>
+      <div class="banner-item"><div class="banner-item-val" id="bSplit2">₹5,82,477</div><div class="banner-item-label" id="bLabel2">Gross Profit</div></div>
+      <div class="banner-divider"></div>
+      <div class="banner-item"><div class="banner-item-val" id="bSplit3">₹7,59,410</div><div class="banner-item-label" id="bLabel3">Closing Stock</div></div>
+    </div>
+  </div>
+
+  <!-- PRIORITY STRIP -->
+  <div class="priority-strip">
+    <div class="priority-strip-label"><span data-en="📋 Priority Actions" data-hi="📋 प्राथमिकता कार्रवाई">📋 Priority Actions</span> — <span id="priorityLabel">All Period</span></div>
+    <div class="p-list" id="priorityList"></div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span data-en="Key Performance Indicators" data-hi="मुख्य प्रदर्शन संकेतक">Key Performance Indicators</span> — <span id="kpiPeriodLabel">Apr–May 2026</span></div>
+      <div class="tag blue" id="kpiSegTag">All Segments</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-top"><div class="kpi-icon-wrap">📦</div><span class="kpi-badge blue" id="kpiBadge1">Apr–May</span></div>
+        <div class="kpi-label" data-en="Total Sales" data-hi="कुल बिक्री">Total Sales</div>
+        <div class="kpi-value" id="kpiSales">₹72.58L</div>
+        <div class="kpi-sub" id="kpiSalesSub">133 invoices · 105 customers</div>
+      </div>
+      <div class="kpi-card saffron">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🛒</div><span class="kpi-badge warn">COGS</span></div>
+        <div class="kpi-label" id="kpiPurchLabel" data-en="Total Purchases" data-hi="कुल खरीदारी">Total Purchases</div>
+        <div class="kpi-value" id="kpiPurchases">₹63.85L</div>
+        <div class="kpi-sub" id="kpiPurchasesSub">Havmore & Lotte · Opening ₹10.5L</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-top"><div class="kpi-icon-wrap">📈</div><span class="kpi-badge up" id="kpiGMBadge">8.03%</span></div>
+        <div class="kpi-label" id="kpiGrossLabel" data-en="Gross Profit" data-hi="सकल लाभ">Gross Profit</div>
+        <div class="kpi-value" id="kpiGross">₹5.82L</div>
+        <div class="kpi-sub" id="kpiGrossSub">Before indirect expenses</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-top"><div class="kpi-icon-wrap">📉</div><span class="kpi-badge down" id="kpiLossBadge">Net Loss</span></div>
+        <div class="kpi-label" id="kpiLossLabel">Net Loss</div>
+        <div class="kpi-value" id="kpiLoss">₹5.45L</div>
+        <div class="kpi-sub" id="kpiLossSub">Indirect exp ₹11.35L exceeds gross</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-top"><div class="kpi-icon-wrap">👥</div><span class="kpi-badge warn" id="kpiCustBadge">105 Buyers</span></div>
+        <div class="kpi-label">Customers</div>
+        <div class="kpi-value" id="kpiCust">105</div>
+        <div class="kpi-sub" id="kpiCustSub">All segments · Stock ₹7.59L</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RICH TREND CHART — FULL WIDTH -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title" data-en="Revenue vs Collections — Weekly Trend" data-hi="राजस्व बनाम संग्रह — साप्ताहिक ट्रेंड">Revenue vs Collections — Weekly Trend</div>
+      <div class="tag green" id="trendTag">+6.2% May vs Apr</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title" id="trendTitle">Revenue Billed vs Collections Received — Apr & May 2026</div>
+          <div class="card-sub" data-en="Gap = uncollected working capital · Hover for weekly detail · Day Book data" data-hi="अंतर = असंग्रहित कार्यशील पूंजी · होवर करें · डे बुक डेटा">Gap = uncollected working capital · Hover for weekly detail · Day Book data</div>
+        </div>
+        <div class="tag amber" id="trendGapTag">Gap ₹20,636 Outstanding</div>
+      </div>
+      <div class="card-body">
+        <div class="trend-legend" style="margin-bottom:12px">
+          <div class="trend-leg-item"><div class="trend-leg-line" style="background:#1a56db"></div><span data-en="Revenue Billed (Cumulative)" data-hi="बिल राजस्व (संचयी)">Revenue Billed (Cumulative)</span></div>
+          <div class="trend-leg-item"><div class="trend-leg-line" style="background:#10b981"></div><span data-en="Collections Received (Cumulative)" data-hi="प्राप्त संग्रह (संचयी)">Collections Received (Cumulative)</span></div>
+        </div>
+        <div class="chart-wrap" style="height:260px"><canvas id="trendChart"></canvas></div>
+        <div id="trendAlert" class="ctx-alert red" style="margin-top:10px">⚠ <strong>April Gap:</strong> ₹61,319 uncollected — Chaudhary Group (₹20,004) and Smart Bazaar (₹13,906) are primary overdue accounts. Follow up immediately.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENT DONUT + SEGMENT BAR (moved here, side by side) -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title" data-en="Segment Mix & Monthly Comparison" data-hi="वर्ग मिश्रण और मासिक तुलना">Segment Mix & Monthly Comparison</div>
+      <div class="tag amber" id="segPerfTag2">Medical leads 41.6%</div>
+    </div>
+    <div class="grid-60-40">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Segment Revenue — April vs May</div><div class="card-sub" id="segBarSub">Which segments grew, which fell</div></div></div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:240px"><canvas id="segBarChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Sales by Customer Segment</div><div class="card-sub" id="donutSub">Share of total sales · Apr–May</div></div></div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:155px"><canvas id="segDonut"></canvas></div>
+          <div class="donut-legend" id="segLegend" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND PERFORMANCE (like reference Image 1) -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Brand Performance Overview</div>
+      <div class="tag amber">Havmore dominates · Lotte underperforming</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Brand Revenue & Net Margin % — Apr–May 2026</div><div class="card-sub">Hover bars for exact values · Line = estimated net margin per brand</div></div>
+        <div class="tag red">Lotte Underperforming</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:280px"><canvas id="brandChart"></canvas></div>
+        <div class="ctx-alert amber" style="margin-top:10px">⚠ <strong>Havmore stock ₹7.51L in cold storage</strong> — revenue from Havmore must accelerate. Lotte at ₹7,618 closing stock signals near-clearance. Push both to HoReCa and medical buyers this week.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNEL-WISE PERFORMANCE (like reference Image 2) -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Customer Channel Performance — All Segments</div>
+      <div class="tag red" id="channelAlertTag">⚠ 2 Segments Net-Negative</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Revenue vs Expenses vs Net Margin — Per Customer Segment</div><div class="card-sub">Hover bars for detail · Net margin after estimated fixed cost allocation</div></div>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:300px"><canvas id="channelChart"></canvas></div>
+        <div class="ctx-alert red" style="margin-top:10px">⚠ <strong>Traders (−8.2%) and Others (−12.1%)</strong> — net margin negative after fixed cost allocation (rent, electricity, interest). Review order volume and credit terms before next supply cycle.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- momChart canvas kept hidden for JS compatibility -->
+  <canvas id="momChart" style="display:none"></canvas>
+
+  <!-- SEGMENT GROWTH CHART + P&L WATERFALL -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title" data-en="Segment Growth Rates & P&L Waterfall" data-hi="वर्ग विकास दर और P&L वॉटरफॉल">Segment Growth Rates & P&L Waterfall</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Segment MoM Growth — Apr to May</div><div class="card-sub">% change by customer segment</div></div>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:240px"><canvas id="segGrowthChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">P&L Waterfall — How ₹72.58L became a Loss</div><div class="card-sub">Every rupee accounted · Hover for amounts</div></div>
+          <div class="tag red">Loss ₹5.45L</div>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:240px"><canvas id="waterfallChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPENSE BREAKDOWN + COLD STORAGE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title" data-en="Expense Breakdown & Cold Storage Risk" data-hi="व्यय विवरण और कोल्ड स्टोरेज जोखिम">Expense Breakdown & Cold Storage Risk</div>
+      <div class="tag red">₹11.35L Indirect Expenses</div>
+    </div>
+    <div class="grid-55-45">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">💸 Indirect Expense Breakdown</div><div class="card-sub">Root cause of net loss — where ₹11.35L went</div></div>
+          <div class="tag red">₹11.35L Total</div>
+        </div>
+        <div class="card-body" id="expenseRows"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">🧊 Cold Storage — Age & Expiry Risk</div><div class="card-sub">Act before stock becomes a write-off</div></div>
+          <div class="tag red">₹7.59L at Risk</div>
+        </div>
+        <div class="card-body">
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:600;color:var(--text)">🍦 Havmore Ice Cream Stock</div><div style="font-size:10px;color:var(--muted)">Primary cold stock · No sign of slowdown</div></div><div class="storage-age-bar"><div class="storage-age-fill" style="width:98%;background:#dc2626"></div></div><div class="age-label age-critical">Ongoing</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--negative);font-weight:600;min-width:72px;text-align:right">₹7,51,791</div></div>
+          <div class="storage-row"><div style="flex:1.8"><div style="font-size:12px;font-weight:600;color:var(--text)">🍬 Lotte Confectionery</div><div style="font-size:10px;color:var(--muted)">Secondary stock · Low volume</div></div><div class="storage-age-bar"><div class="storage-age-fill" style="width:1%;background:#d97706"></div></div><div class="age-label age-warn">Slow</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--warning);font-weight:600;min-width:72px;text-align:right">₹7,618</div></div>
+          <div style="margin-top:16px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);padding:14px">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:10px">Stock Metrics</div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px"><span style="color:var(--muted)">Stock-to-Sales Ratio</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--warning)">10.5%</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px"><span style="color:var(--muted)">Havmore Dominance</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--saffron)">99.0%</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px"><span style="color:var(--muted)">Electricity Cost/Month</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--negative)">₹1,03,695</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Collection Efficiency</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--positive)">96.9%</span></div>
+          </div>
+          <div style="margin-top:12px;padding:10px 14px;background:var(--negative-bg);border:1px solid rgba(220,38,38,.2);border-radius:8px;font-size:11px;color:var(--negative)">⚠ <strong>₹1.03L electricity/month</strong> — Havmore stock must move faster or cold storage is eating all margin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTSTANDING PAYMENTS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title" data-en="Retailer Outstanding Payments" data-hi="रिटेलर बकाया भुगतान">Retailer Outstanding Payments</div>
+      <div class="tag red" id="outstandingTag">₹61,319 Uncollected · Apr</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">💸 Outstanding Amounts by Customer — At-Risk Collections</div><div class="card-sub" id="outstandingSub">Day Book gap: Sales billed vs receipts collected · Sorted by risk</div></div>
+      </div>
+      <div class="card-body" style="padding-top:10px">
+        <table class="out-table">
+          <thead><tr><th data-en="Customer" data-hi="ग्राहक">Customer</th><th data-en="Billed" data-hi="बिल">Billed</th><th data-en="Collected" data-hi="संग्रह">Collected</th><th data-en="Outstanding" data-hi="बकाया">Outstanding</th><th data-en="Risk" data-hi="जोखिम">Risk</th></tr></thead>
+          <tbody>
+            <tr><td><div style="font-weight:600;font-size:12px;color:var(--text)">CHAUDHARY GROUP OF COS.</div><div class="out-bar"><div class="out-fill" style="width:100%;background:var(--negative)"></div></div></td><td><span class="mono">₹20,004</span></td><td><span class="mono" style="color:var(--negative)">₹0</span></td><td><span class="mono" style="color:var(--negative)">₹20,004</span></td><td><span class="tag red">Critical</span></td></tr>
+            <tr><td><div style="font-weight:600;font-size:12px;color:var(--text)">SMART BAZAAR KHARADI</div><div class="out-bar"><div class="out-fill" style="width:75%;background:var(--negative)"></div></div></td><td><span class="mono">₹13,906</span></td><td><span class="mono" style="color:var(--warning)">₹4,000</span></td><td><span class="mono" style="color:var(--negative)">₹9,906</span></td><td><span class="tag red">High Risk</span></td></tr>
+            <tr><td><div style="font-weight:600;font-size:12px;color:var(--text)">CLASSIC AGENCY KHARADI</div><div class="out-bar"><div class="out-fill" style="width:60%;background:var(--warning)"></div></div></td><td><span class="mono">₹13,132</span></td><td><span class="mono" style="color:var(--warning)">₹5,000</span></td><td><span class="mono" style="color:var(--warning)">₹8,132</span></td><td><span class="tag amber">Watch</span></td></tr>
+            <tr><td><div style="font-weight:600;font-size:12px;color:var(--text)">LAXMI MEDICAL</div><div class="out-bar"><div class="out-fill" style="width:40%;background:var(--warning)"></div></div></td><td><span class="mono">₹24,632</span></td><td><span class="mono" style="color:var(--positive)">₹18,000</span></td><td><span class="mono" style="color:var(--warning)">₹6,632</span></td><td><span class="tag amber">Follow Up</span></td></tr>
+            <tr><td><div style="font-weight:600;font-size:12px;color:var(--text)">NEERAJ ENTERPRISE PUNE</div><div class="out-bar"><div class="out-fill" style="width:35%;background:#6366f1"></div></div></td><td><span class="mono">₹9,017</span></td><td><span class="mono" style="color:var(--positive)">₹6,000</span></td><td><span class="mono" style="color:var(--accent)">₹3,017</span></td><td><span class="tag blue">Normal</span></td></tr>
+            <tr><td><div style="font-weight:600;font-size:12px;color:var(--muted)">+ 100 other customers</div></td><td><span class="mono" style="color:var(--muted)">₹5.88L</span></td><td><span class="mono" style="color:var(--positive)">₹5.61L</span></td><td><span class="mono" style="color:var(--muted)">₹13,628</span></td><td><span class="tag green">Normal</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGIC INSIGHTS -->
+  <div class="section">
+    <div class="section-header"><div class="section-title" data-en="Strategic Analysis & Recommendations" data-hi="रणनीतिक विश्लेषण और सिफारिशें">Strategic Analysis & Recommendations</div><div class="tag blue" id="insightTag">All Period Insights</div></div>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </div>
+
+  <div style="height:36px"></div>
+</div>
+</div><!-- /viewOverview -->
+
+<!-- ═══════════════════════════════════
+     VIEW 2 — CUSTOMERS
+═══════════════════════════════════ -->
+<div class="view-panel" id="viewCustomers">
+<div class="wrap">
+
+  <!-- CUSTOMER SPOTLIGHT -->
+  <div class="cust-spotlight" id="custSpotlight">
+    <div class="spot-left">
+      <div class="spot-emoji" id="spotEmoji">🏪</div>
+      <div>
+        <div class="spot-label" id="spotLabel">Customer Focus</div>
+        <div class="spot-name" id="spotName">—</div>
+        <div class="spot-sub" id="spotSub">—</div>
+      </div>
+    </div>
+    <div class="spot-stats">
+      <div class="spot-stat"><div class="spot-stat-val" id="spotRev">—</div><div class="spot-stat-label" data-en="Total Revenue" data-hi="कुल राजस्व">Total Revenue</div></div>
+      <div class="spot-divider"></div>
+      <div class="spot-stat"><div class="spot-stat-val" id="spotApr">—</div><div class="spot-stat-label" data-en="April" data-hi="अप्रैल">April</div></div>
+      <div class="spot-divider"></div>
+      <div class="spot-stat"><div class="spot-stat-val" id="spotMay">—</div><div class="spot-stat-label" data-en="May" data-hi="मई">May</div></div>
+      <div class="spot-divider"></div>
+      <div class="spot-stat"><div class="spot-stat-val" id="spotGrowth" style="color:var(--positive)">—</div><div class="spot-stat-label" data-en="MoM Growth" data-hi="मासिक वृद्धि">MoM Growth</div></div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER KPIs -->
+  <div class="section">
+    <div class="section-header"><div class="section-title"><span data-en="Customer Intelligence" data-hi="ग्राहक बुद्धिमत्ता">Customer Intelligence</span> — <span id="custKpiLabel">All Segments · All Period</span></div></div>
+    <div class="kpi-grid-4">
+      <div class="kpi-card green">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🏆</div><span class="kpi-badge up" data-en="Top Buyer" data-hi="शीर्ष खरीदार">Top Buyer</span></div>
+        <div class="kpi-label" data-en="Highest Revenue Customer" data-hi="सर्वोच्च राजस्व ग्राहक">Highest Revenue Customer</div>
+        <div class="kpi-value" style="font-size:15px;padding-top:6px" id="ckpiTop">Health Care Medical</div>
+        <div class="kpi-sub" id="ckpiTopSub">₹29,202 · +87.6% Apr→May</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-top"><div class="kpi-icon-wrap">🌐</div><span class="kpi-badge blue" id="ckpiBadge2">105 Buyers</span></div>
+        <div class="kpi-label" data-en="Active Customers" data-hi="सक्रिय ग्राहक">Active Customers</div>
+        <div class="kpi-value" id="ckpiCount">105</div>
+        <div class="kpi-sub" id="ckpiCountSub">Medical · Retail · Food · Traders</div>
+      </div>
+      <div class="kpi-card saffron">
+        <div class="kpi-top"><div class="kpi-icon-wrap">⚡</div><span class="kpi-badge warn" data-en="New in May" data-hi="मई में नया">New in May</span></div>
+        <div class="kpi-label" data-en="New May Customers" data-hi="मई के नए ग्राहक">New May Customers</div>
+        <div class="kpi-value" id="ckpiNew">3</div>
+        <div class="kpi-sub" id="ckpiNewSub">Torna Sweets, Food Court, Super Milk</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-top"><div class="kpi-icon-wrap">⚠️</div><span class="kpi-badge down" data-en="At Risk" data-hi="जोखिम में">At Risk</span></div>
+        <div class="kpi-label" data-en="Churned — April Only" data-hi="चर्न — केवल अप्रैल">Churned — April Only</div>
+        <div class="kpi-value" style="font-size:15px;padding-top:6px" id="ckpiChurn">Chaudhary Group</div>
+        <div class="kpi-sub" id="ckpiChurnSub">₹20,004 Apr · Zero May</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER LEADERBOARD + APR VS MAY CHART -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span data-en="Top 15 Customers" data-hi="शीर्ष 15 ग्राहक">Top 15 Customers</span> — <span id="custListLabel">All Period</span></div>
+      <div class="tag blue" data-en="Click any customer for breakdown" data-hi="विवरण के लिए ग्राहक पर क्लिक करें">Click any customer for breakdown</div>
+    </div>
+    <div class="grid-60-40">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title" data-en="Customer Revenue Leaderboard" data-hi="ग्राहक राजस्व लीडरबोर्ड">Customer Revenue Leaderboard</div><div class="card-sub" data-en="Sorted by total revenue" data-hi="कुल राजस्व के अनुसार">Sorted by total revenue</div></div></div>
+        <div class="card-body" style="padding-top:8px">
+          <div class="cust-rank-list" id="custRankList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title" data-en="April vs May — Top 10 Customers" data-hi="अप्रैल बनाम मई — शीर्ष 10 ग्राहक">April vs May — Top 10 Customers</div><div class="card-sub" data-en="Month-on-month revenue comparison" data-hi="मासिक राजस्व तुलना">Month-on-month revenue comparison</div></div></div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:310px"><canvas id="custMonthChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENT DEEP-DIVE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title" data-en="Segment Performance Deep-Dive" data-hi="वर्ग प्रदर्शन — गहन विश्लेषण">Segment Performance Deep-Dive</div>
+      <div class="tag blue">Medical/Pharma leads at 41.6%</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title" data-en="Revenue by Customer Segment" data-hi="ग्राहक वर्ग द्वारा राजस्व">Revenue by Customer Segment</div><div class="card-sub" id="segBarSubCust">Apr–May 2026</div></div></div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:240px"><canvas id="segBarChartCust"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title" data-en="Segment Growth — Apr vs May" data-hi="वर्ग वृद्धि — अप्रैल बनाम मई">Segment Growth — Apr vs May</div><div class="card-sub" data-en="Which segments accelerated" data-hi="कौन से वर्ग तेज हुए">Which segments accelerated</div></div></div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:240px"><canvas id="segGrowthCust"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:36px"></div>
+</div>
+</div><!-- /viewCustomers -->
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-copy">
+      <span data-en="Vinayak Food Products · FY 2026-27 · Built and Powered by" data-hi="विनायक फूड प्रोडक्ट्स · FY 2026-27 · निर्मित एवं संचालित:">Vinayak Food Products · FY 2026-27 · Built and Powered by</span>
+      <span style="color:var(--accent);font-weight:600"> Om Bagal Analytics</span>
+      <span data-en=" · 9987258696 · " data-hi=" · 9987258696 · "> · 9987258696 · </span>
+      <a href="https://ombagal-analytics.github.io/" target="_blank" style="color:var(--accent2);font-weight:600;text-decoration:none" data-en="ombagal-analytics.github.io" data-hi="ombagal-analytics.github.io">ombagal-analytics.github.io</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// DATA — REAL TALLY EXPORT
+// ════════════════════════════════════════════════════════════════
+
+// Segment data per period
+const SEG_DATA = {
+  all:    { medical:279510, retail:120514, food:95197, trader:86224, other:90711 },
+  apr:    { medical:137999, retail:66509,  food:10743, trader:76914, other:33820 },
+  may:    { medical:141511, retail:32550,  food:105909, trader:29314, other:36887 },
+};
+
+// Period-level aggregates (full business)
+const PERIOD_DATA = {
+  all: { sales:7257754, purchases:6385040, gross:582477, loss:545397, collections:651520, customers:105, txns:133, dbSales:672156, dbReceipts:651520 },
+  apr: { sales:325985,  purchases:280000,  gross:45985,  loss:45985,  collections:264666, customers:66,  txns:72,  dbSales:325985, dbReceipts:264666 },
+  may: { sales:346171,  purchases:300000,  gross:46171,  loss:46171,  collections:386854, customers:54,  txns:61,  dbSales:346171, dbReceipts:386854 },
+};
+
+// Trend data for charts
+const TREND_DATA = {
+  all: { labels:['April 2026','May 2026'],  sales:[325985,346171],  collections:[264666,386854] },
+  apr: { labels:['April 2026'],             sales:[325985],         collections:[264666] },
+  may: { labels:['May 2026'],               sales:[346171],         collections:[386854] },
+};
+
+const SEG_NAMES  = { medical:'Medical/Pharma', retail:'Retail Stores', food:'Food & HoReCa', trader:'Traders', other:'Others' };
+const SEG_COLORS = { medical:'#0369a1', retail:'#059669', food:'#f97316', trader:'#7c3aed', other:'#94a3b8' };
+const SEG_EMOJI  = { medical:'💊', retail:'🏪', food:'🍽️', trader:'📦', other:'🏢' };
+const SEG_IDS    = ['medical','retail','food','trader','other'];
+
+// Customer master (top 15 all-period)
+const CUSTOMERS_ALL = [
+  {name:'HEALTH CARE MEDICAL',   rev:29202, apr:10155, may:19047, seg:'medical'},
+  {name:'TORNA SWEETS & DAIRY',  rev:27927, apr:0,     may:27927, seg:'food'},
+  {name:'LAXMI MEDICAL',         rev:24632, apr:15936, may:8696,  seg:'medical'},
+  {name:'CHAUDHARY GROUP',       rev:20004, apr:20004, may:0,     seg:'trader'},
+  {name:'SHREE M FOOD COURT',    rev:18694, apr:0,     may:18694, seg:'food'},
+  {name:'SUPER MILK PRODUCTS',   rev:18625, apr:0,     may:18625, seg:'retail'},
+  {name:'KRISHNA FRESH MART',    rev:18176, apr:8405,  may:9771,  seg:'retail'},
+  {name:'MEDICURE DRUG HOUSE',   rev:17322, apr:4484,  may:12838, seg:'medical'},
+  {name:'HARI OM TREDERS',       rev:14760, apr:6555,  may:8205,  seg:'trader'},
+  {name:'SMART BAZAAR KHARADI',  rev:13906, apr:13906, may:0,     seg:'retail'},
+  {name:'LIFECARE MEDICO',       rev:13201, apr:4627,  may:8574,  seg:'medical'},
+  {name:'CLASSIC AGENCY',        rev:13132, apr:13132, may:0,     seg:'trader'},
+  {name:'PRAMOD MEDICAL',        rev:12840, apr:0,     may:12840, seg:'medical'},
+  {name:'BARBEQUE NATION',       rev:11585, apr:0,     may:11585, seg:'food'},
+  {name:'MATAJI MEDICO',         rev:11340, apr:0,     may:11340, seg:'medical'},
+];
+const CUSTOMERS_APR = [
+  {name:'CHAUDHARY GROUP',       rev:20004, apr:20004, may:0,    seg:'trader'},
+  {name:'LAXMI MEDICAL',         rev:15936, apr:15936, may:0,    seg:'medical'},
+  {name:'SMART BAZAAR KHARADI',  rev:13906, apr:13906, may:0,    seg:'retail'},
+  {name:'CLASSIC AGENCY',        rev:13132, apr:13132, may:0,    seg:'trader'},
+  {name:'HEALTH CARE MEDICAL',   rev:10155, apr:10155, may:0,    seg:'medical'},
+  {name:'RAJ MEDICO',            rev:9706,  apr:9706,  may:0,    seg:'medical'},
+  {name:'NEW LALITA SWEET',      rev:9586,  apr:9586,  may:0,    seg:'food'},
+  {name:'NEERAJ ENTERPRISE',     rev:9017,  apr:9017,  may:0,    seg:'trader'},
+  {name:'NEERAJ ENTERPRISES',    rev:8496,  apr:8496,  may:0,    seg:'trader'},
+  {name:'KRISHNA FRESH MART',    rev:8405,  apr:8405,  may:0,    seg:'retail'},
+  {name:'HARI OM TREDERS',       rev:6555,  apr:6555,  may:0,    seg:'trader'},
+  {name:'LIFECARE MEDICO',       rev:4627,  apr:4627,  may:0,    seg:'medical'},
+  {name:'MEDICURE DRUG HOUSE',   rev:4484,  apr:4484,  may:0,    seg:'medical'},
+  {name:'MAX HEALTH MEDICO',     rev:4601,  apr:4601,  may:0,    seg:'medical'},
+  {name:'MOGA SUPER SHOPEE',     rev:4200,  apr:4200,  may:0,    seg:'retail'},
+];
+const CUSTOMERS_MAY = [
+  {name:'TORNA SWEETS & DAIRY',  rev:27927, apr:0, may:27927, seg:'food'},
+  {name:'HEALTH CARE MEDICAL',   rev:19047, apr:0, may:19047, seg:'medical'},
+  {name:'SHREE M FOOD COURT',    rev:18694, apr:0, may:18694, seg:'food'},
+  {name:'SUPER MILK PRODUCTS',   rev:18625, apr:0, may:18625, seg:'retail'},
+  {name:'PRAMOD MEDICAL',        rev:12840, apr:0, may:12840, seg:'medical'},
+  {name:'MEDICURE DRUG HOUSE',   rev:12838, apr:0, may:12838, seg:'medical'},
+  {name:'BARBEQUE NATION',       rev:11585, apr:0, may:11585, seg:'food'},
+  {name:'MATAJI MEDICO',         rev:11340, apr:0, may:11340, seg:'medical'},
+  {name:'CLASSIC CITI INVEST.',  rev:11074, apr:0, may:11074, seg:'trader'},
+  {name:'KRISHNA FRESH MART',    rev:9771,  apr:0, may:9771,  seg:'retail'},
+  {name:'HARI OM TREDERS',       rev:8205,  apr:0, may:8205,  seg:'trader'},
+  {name:'LAXMI MEDICAL',         rev:8696,  apr:0, may:8696,  seg:'medical'},
+  {name:'LIFECARE MEDICO',       rev:8574,  apr:0, may:8574,  seg:'medical'},
+  {name:'WELLNESS 24 7',         rev:7500,  apr:0, may:7500,  seg:'medical'},
+  {name:'DHANALAXMI SUPER MKT',  rev:6800,  apr:0, may:6800,  seg:'retail'},
+];
+
+const EXPENSES = {
+  'Rent (Warehouse)':180000,'Partner Interest':104334,'Electricity':103695,
+  'Loan — Nita Modi':93900,'Staff & Labour':60993,'Accounting/Tax':24000,'Vehicle & IT':35920
+};
+const EXP_COLORS = ['#dc2626','#b45309','#0369a1','#7c3aed','#059669','#2563eb','#94a3b8'];
+
+const INSIGHTS = {
+  all:[
+    {num:'01',
+     title:'Fixed Costs Are Destroying Profitability',
+     title_hi:'स्थिर लागतें लाभप्रदता को नष्ट कर रही हैं',
+     desc:'Rent (₹1.80L) + Electricity (₹1.04L) + Partner Interest (₹1.04L) = ₹3.88L/month in unavoidable fixed costs. Gross profit for 2+ months is only ₹5.82L. At current scale, you need ₹3.88L more in monthly sales just to break even.',
+     desc_hi:'किराया (₹1.80L) + बिजली (₹1.04L) + पार्टनर ब्याज (₹1.04L) = ₹3.88L/माह अनिवार्य स्थिर लागत। 2+ महीनों का सकल लाभ केवल ₹5.82L है। वर्तमान पैमाने पर, केवल ब्रेक-ईवन के लिए ₹3.88L अधिक मासिक बिक्री चाहिए।',
+     action:'→ Negotiate rent deferral or sublease 30% of warehouse. Target 25% fixed cost reduction in 60 days.',
+     action_hi:'→ किराया स्थगन पर बातचीत करें या गोदाम का 30% उपकिराए पर दें। 60 दिनों में 25% स्थिर लागत कटौती का लक्ष्य रखें।'},
+    {num:'02',
+     title:'Medical/Pharma Is Your Growth Engine — Double Down',
+     title_hi:'मेडिकल/फार्मा आपका विकास इंजन है — दोगुना करें',
+     desc:'41.6% of all sales come from medical stores & pharmacies. Health Care Medical grew +87.6% Apr→May. Medicure Drug House grew +186%. This segment is loyal, repeat, and growing fast.',
+     desc_hi:'कुल बिक्री का 41.6% मेडिकल स्टोर और फार्मेसी से आता है। Health Care Medical +87.6% अप्रैल→मई बढ़ा। Medicure Drug House +186% बढ़ा। यह वर्ग वफादार, दोहराने वाला और तेजी से बढ़ रहा है।',
+     action:'→ Add 10 more medical stores to route. Offer 7-day credit terms to lock in weekly standing orders.',
+     action_hi:'→ रूट में 10 और मेडिकल स्टोर जोड़ें। साप्ताहिक स्थायी ऑर्डर के लिए 7-दिन की क्रेडिट शर्तें दें।'},
+    {num:'03',
+     title:'Chaudhary Group — ₹20,004 at Risk of Churn',
+     title_hi:'चौधरी ग्रुप — ₹20,004 चर्न के जोखिम में',
+     desc:'Your 4th largest buyer in April with ₹20,004 in orders. Zero transactions in May. Losing them permanently means ₹2.4L annualised revenue gone. Trader segment dropped from ₹76.9K to ₹29.3K — this is the reason.',
+     desc_hi:'अप्रैल में ₹20,004 के साथ आपके चौथे सबसे बड़े खरीदार। मई में शून्य लेनदेन। उन्हें स्थायी रूप से खोने का मतलब है ₹2.4L वार्षिक राजस्व की हानि। व्यापारी वर्ग ₹76.9K से ₹29.3K तक गिरा — यही कारण है।',
+     action:'→ Call Chaudhary Group this week. Understand the gap. Offer a loyalty incentive for June reorder.',
+     action_hi:'→ इस सप्ताह चौधरी ग्रुप को कॉल करें। अंतर समझें। जून रीऑर्डर के लिए लॉयल्टी प्रोत्साहन दें।'},
+    {num:'04',
+     title:'Havmore ₹7.51L Is a Time Bomb in Cold Storage',
+     title_hi:'Havmore ₹7.51L कोल्ड स्टोरेज में टाइम बम है',
+     desc:'Electricity alone costs ₹1.03L/month to keep this stock cold. Every 7 days of delay costs ~₹24,000 in storage. HoReCa buyers — Torna Sweets (₹27.9K), Barbeque Nation (₹11.6K), Food Courts — appeared only in May. Push harder.',
+     desc_hi:'इस स्टॉक को ठंडा रखने के लिए केवल बिजली ₹1.03L/माह खर्च होती है। हर 7 दिन की देरी से ~₹24,000 भंडारण लागत। HoReCa खरीदार — Torna Sweets (₹27.9K), Barbeque Nation (₹11.6K), फूड कोर्ट — केवल मई में आए। अधिक प्रयास करें।',
+     action:'→ Push Havmore to all HoReCa accounts weekly. Clear cold stock to zero before June end.',
+     action_hi:'→ Havmore को साप्ताहिक सभी HoReCa खातों में भेजें। जून समाप्त होने से पहले कोल्ड स्टॉक शून्य करें।'},
+  ],
+  apr:[
+    {num:'01',
+     title:'April Collections Lagged Sales by ₹61,319',
+     title_hi:'अप्रैल संग्रह बिक्री से ₹61,319 पीछे रहा',
+     desc:'₹3.26L billed but only ₹2.65L collected. Chaudhary Group (₹20,004) and Smart Bazaar (₹13,906) are the primary gaps. These are trader and retail — the most credit-hungry segments.',
+     desc_hi:'₹3.26L बिल किया लेकिन केवल ₹2.65L संग्रह हुआ। चौधरी ग्रुप (₹20,004) और Smart Bazaar (₹13,906) प्रमुख अंतर हैं। ये व्यापारी और रिटेल हैं — सबसे अधिक क्रेडिट की मांग करने वाले वर्ग।',
+     action:'→ Set strict 15-day collection policy for all new Trader accounts. Require partial upfront for orders above ₹10,000.',
+     action_hi:'→ सभी नए व्यापारी खातों के लिए सख्त 15-दिन संग्रह नीति बनाएं। ₹10,000 से अधिक ऑर्डर के लिए आंशिक अग्रिम लें।'},
+    {num:'02',
+     title:'Smart Bazaar & Classic Agency Did Not Reorder in May',
+     title_hi:'Smart Bazaar और Classic Agency ने मई में पुनः ऑर्डर नहीं किया',
+     desc:'Together contributed ₹27,038 in April. Neither appeared in May. This could be competitive loss, credit dispute, or stock quality issue — the cause must be identified.',
+     desc_hi:'दोनों ने मिलकर अप्रैल में ₹27,038 का योगदान दिया। मई में कोई नहीं आया। यह प्रतिस्पर्धात्मक हानि, क्रेडिट विवाद या स्टॉक गुणवत्ता की समस्या हो सकती है — कारण पहचाना जाना चाहिए।',
+     action:'→ Call Smart Bazaar and Classic Agency today. If credit is the issue, offer partial supply with COD until cleared.',
+     action_hi:'→ आज Smart Bazaar और Classic Agency को कॉल करें। अगर क्रेडिट समस्या है, तो निपटान तक COD के साथ आंशिक आपूर्ति करें।'},
+    {num:'03',
+     title:'Food & HoReCa Was Near-Zero in April (₹10.7K)',
+     title_hi:'फूड और HoReCa अप्रैल में लगभग शून्य था (₹10.7K)',
+     desc:'The same segment drove ₹1.06L in May. This indicates the category is viable but underdeveloped. Three new buyers joined in May proving demand exists.',
+     desc_hi:'इसी वर्ग ने मई में ₹1.06L की बिक्री की। यह दर्शाता है कि श्रेणी व्यवहार्य लेकिन अविकसित है। तीन नए खरीदार मई में जुड़े, जो मांग की पुष्टि करता है।',
+     action:'→ In April, treat HoReCa outreach as a first priority. Do not wait for them to call — proactive delivery demos work.',
+     action_hi:'→ अप्रैल में HoReCa आउटरीच को पहली प्राथमिकता दें। उनके कॉल का इंतजार न करें — सक्रिय डिलीवरी डेमो काम करते हैं।'},
+    {num:'04',
+     title:'Trader Segment Concentration Risk',
+     title_hi:'व्यापारी वर्ग में एकाग्रता जोखिम',
+     desc:'₹76.9K of April revenue came from just 2 traders: Chaudhary Group and Classic Agency (₹33.1K combined). If either goes to a competitor, April trader revenue collapses by 43%.',
+     desc_hi:'अप्रैल राजस्व का ₹76.9K केवल 2 व्यापारियों से आया: चौधरी ग्रुप और Classic Agency (कुल ₹33.1K)। अगर कोई भी प्रतिस्पर्धी के पास जाता है, तो अप्रैल व्यापारी राजस्व 43% गिर जाएगा।',
+     action:'→ Never rely on 2 traders for 43% of a segment. Add 3 more trader accounts to Pune North route immediately.',
+     action_hi:'→ किसी वर्ग के 43% के लिए कभी 2 व्यापारियों पर निर्भर न रहें। तुरंत पुणे नॉर्थ रूट में 3 और व्यापारी खाते जोड़ें।'},
+  ],
+  may:[
+    {num:'01',
+     title:'May Collections Exceeded Billing — Cash Flow Positive',
+     title_hi:'मई संग्रह बिलिंग से अधिक — नकद प्रवाह सकारात्मक',
+     desc:'₹3.87L collected vs ₹3.46L billed. Past dues were recovered. This is the best cash efficiency in the tracked period. It is sustainable only if new credit is managed carefully.',
+     desc_hi:'₹3.46L बिल किया बनाम ₹3.87L संग्रह। पिछले बकाए वसूल हुए। यह ट्रैक की गई अवधि की सर्वश्रेष्ठ नकद दक्षता है। यह तभी टिकाऊ है जब नए क्रेडिट का सावधानीपूर्वक प्रबंधन हो।',
+     action:"→ Use May's cash surplus to partially repay the Nita Modi loan (₹93,900) and reduce partner interest accrual.",
+     action_hi:'→ मई के नकद अधिशेष का उपयोग Nita Modi ऋण (₹93,900) का आंशिक भुगतान करने और पार्टनर ब्याज कम करने के लिए करें।'},
+    {num:'02',
+     title:'Food & HoReCa Exploded From ₹10.7K to ₹1.06L in One Month',
+     title_hi:'फूड और HoReCa एक महीने में ₹10.7K से ₹1.06L तक उछला',
+     desc:'This is +887% MoM growth. But it is entirely driven by 3 new buyers — Torna Sweets, Shree M Food Court, Barbeque Nation. If any 2 of these churn, HoReCa collapses back to near-zero.',
+     desc_hi:'यह +887% मासिक वृद्धि है। लेकिन यह पूरी तरह 3 नए खरीदारों पर निर्भर है — Torna Sweets, Shree M Food Court, Barbeque Nation। अगर इनमें से 2 भी चर्न हो जाएं, HoReCa वापस शून्य के पास आ जाएगा।',
+     action:'→ Visit these 3 buyers in person. Convert them to monthly standing orders before June 15.',
+     action_hi:'→ इन 3 खरीदारों से व्यक्तिगत रूप से मिलें। 15 जून से पहले उन्हें मासिक स्थायी ऑर्डर में बदलें।'},
+    {num:'03',
+     title:'Retail Segment Dropped Sharply — Smart Bazaar Missing',
+     title_hi:'रिटेल वर्ग तेजी से गिरा — Smart Bazaar गायब',
+     desc:'Retail went from ₹66.5K in April to ₹32.5K in May. Smart Bazaar (₹13,906) and Classic Agency (₹13,132) simply did not reorder. No substitute retail accounts acquired.',
+     desc_hi:'रिटेल अप्रैल में ₹66.5K से मई में ₹32.5K हो गया। Smart Bazaar (₹13,906) और Classic Agency (₹13,132) ने पुनः ऑर्डर नहीं किया। कोई वैकल्पिक रिटेल खाता नहीं जोड़ा गया।',
+     action:'→ This is a retention failure. Add 5 new retail accounts in Kharadi/Wagholi before June to replace lost volume.',
+     action_hi:'→ यह एक ग्राहक-रक्षण विफलता है। खोई हुई मात्रा की भरपाई के लिए जून से पहले खराड़ी/वाघोली में 5 नए रिटेल खाते जोड़ें।'},
+    {num:'04',
+     title:'Medicure Drug House — 186% Growth Is a Playbook',
+     title_hi:'Medicure Drug House — 186% वृद्धि एक रणनीति है',
+     desc:'₹4,484 in April to ₹12,838 in May. The pattern: introduce cold chain products, deliver on time, offer 7-day credit, repeat. Medical pharmacies have high velocity and predictable reorder cycles.',
+     desc_hi:'अप्रैल में ₹4,484 से मई में ₹12,838। पैटर्न: कोल्ड चेन उत्पाद पेश करें, समय पर डिलीवरी करें, 7-दिन क्रेडिट दें, दोहराएं। मेडिकल फार्मेसी में उच्च गति और पूर्वानुमानित रीऑर्डर चक्र होते हैं।',
+     action:'→ Apply the Medicure playbook to 5 other medical stores immediately. This is your fastest path to profitability.',
+     action_hi:'→ Medicure रणनीति को तुरंत 5 अन्य मेडिकल स्टोर में लागू करें। यह लाभप्रदता का आपका सबसे तेज़ रास्ता है।'},
+  ],
+};
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let activeSeg    = 'all';
+let activePeriod = 'all';
+let charts = {};
+
+// ════════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════════
+function fmt(n){
+  if(n===null||n===undefined||isNaN(n)) return '—';
+  const a=Math.abs(n);
+  if(a>=10000000) return '₹'+(a/10000000).toFixed(2)+'Cr';
+  if(a>=100000)   return '₹'+(a/100000).toFixed(2)+'L';
+  if(a>=1000)     return '₹'+(a/1000).toFixed(1)+'K';
+  return '₹'+a.toLocaleString('en-IN',{maximumFractionDigits:0});
+}
+function fmtExact(n){ return '₹'+Math.abs(n).toLocaleString('en-IN',{maximumFractionDigits:0}); }
+function tc(){ return isDark()?'#7c8fa6':'#6b7280'; }
+function gc(){ return isDark()?'rgba(255,255,255,.06)':'rgba(0,0,0,.05)'; }
+function tbg(){ return isDark()?'#1e2329':'#ffffff'; }
+function tbr(){ return isDark()?'#2a3040':'#e2e5ea'; }
+function ttc(){ return isDark()?'#f0f4f8':'#0f1117'; }
+function tbc(){ return isDark()?'#cbd5e1':'#374151'; }
+function isDark(){ return document.documentElement.getAttribute('data-theme')==='dark'; }
+
+// BULLETPROOF flashNum — handles all formats: ₹X.XXL, ₹X,XX,XXX, integers, %, dashes
+function flashNum(id, val){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = val; // set immediately — animation is progressive enhancement
+  if(!val || val==='—' || val==='N/A'){
+    el.classList.remove('num-flash'); void el.offsetWidth; el.classList.add('num-flash');
+    return;
+  }
+  const numMatch = s => { const m=s.replace(/[₹,]/g,'').match(/[\d.]+/); return m?parseFloat(m[0]):NaN; };
+  const startN = numMatch(el.dataset.lastVal||'0');
+  el.dataset.lastVal = val;
+  const endN = numMatch(val);
+  if(isNaN(startN)||isNaN(endN)||Math.abs(startN-endN)<0.01){
+    el.classList.remove('num-flash'); void el.offsetWidth; el.classList.add('num-flash');
+    return;
+  }
+  const dur=480, steps=28;
+  let step=0;
+  const isInrComma = val.includes('₹') && val.includes(',');
+  const isInrL     = val.includes('₹') && val.includes('L');
+  const isInrK     = val.includes('₹') && val.includes('K');
+  const isPct      = val.includes('%');
+  const decMatch   = val.match(/\.(\d+)/);
+  const decPts     = decMatch ? decMatch[1].length : 0;
+  const timer = setInterval(()=>{
+    step++;
+    const t=step/steps, ease=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const cur = startN+(endN-startN)*ease;
+    if(isInrComma)  el.textContent='₹'+Math.round(cur).toLocaleString('en-IN');
+    else if(isInrL) el.textContent='₹'+cur.toFixed(decPts)+'L';
+    else if(isInrK) el.textContent='₹'+cur.toFixed(decPts)+'K';
+    else if(isPct)  el.textContent=cur.toFixed(decPts)+'%';
+    else            el.textContent=Math.round(cur).toString();
+    if(step>=steps){ clearInterval(timer); el.textContent=val; el.classList.remove('num-flash'); void el.offsetWidth; el.classList.add('num-flash'); }
+  }, Math.round(dur/steps));
+}
+
+function tooltipCfg(){
+  return { backgroundColor:tbg(), borderColor:tbr(), borderWidth:1, titleColor:ttc(), bodyColor:tbc(), padding:12, cornerRadius:8 };
+}
+
+// ════════════════════════════════════════════════════════════════
+// SEGMENT FILTER — pipes to EVERY update function (like demo)
+// ════════════════════════════════════════════════════════════════
+function filterSeg(seg, btn){
+  activeSeg = seg;
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  // Clear stale breakdown/spotlight on segment change
+  document.querySelectorAll('.inline-breakdown').forEach(el=>el.remove());
+  document.getElementById('custSpotlight').classList.remove('visible');
+  runAllUpdates();
+}
+
+function filterPeriod(p){
+  activePeriod = p;
+  const labels = {all:'Apr–May · Full', apr:'April Only', may:'May Only'};
+  const badge = document.getElementById('periodBadge');
+  badge.textContent = labels[p];
+  badge.style.background = p==='apr'?'var(--saffron-bg)':p==='may'?'var(--positive-bg)':'var(--accent-bg)';
+  badge.style.color = p==='apr'?'var(--saffron)':p==='may'?'var(--positive)':'var(--accent)';
+  badge.style.borderColor = p==='apr'?'rgba(249,115,22,.2)':p==='may'?'rgba(5,150,105,.2)':'rgba(26,86,219,.2)';
+  // Clear stale breakdown/spotlight on period change
+  document.querySelectorAll('.inline-breakdown').forEach(el=>el.remove());
+  document.getElementById('custSpotlight').classList.remove('visible');
+  runAllUpdates();
+}
+
+// Single entry point — everything updates on any filter change
+function runAllUpdates(){
+  updateFilterModeBadge();
+  updateBanner();
+  updatePriorities();
+  updateKPIs();
+  updateTrendChart();
+  updateSegDonut();
+  updateSegBarChart();
+  updateMomChart();
+  updateSegGrowthChart();
+  updateInsights();
+  updateCustView();
+  if(charts.segBarCust) updateSegBarChartCust();
+  if(charts.segGrowthCust) updateSegGrowthCust();
+}
+
+function buildCharts(){
+  buildTrendChart();
+  buildSegDonut();
+  buildSegBarChart();
+  buildMomChart();
+  buildSegGrowthChart();
+  buildWaterfallChart();
+  buildCustMonthChart();
+  buildSegBarChartCust();
+  buildSegGrowthCust();
+  buildBrandChart();
+  buildChannelChart();
+}
+
+// ════════════════════════════════════════════════════════════════
+// COMPUTED VALUES based on active state
+// ════════════════════════════════════════════════════════════════
+function getSegSales(){
+  // Returns sales for the active segment + period combo
+  const segs = SEG_DATA[activePeriod] || SEG_DATA.all;
+  if(activeSeg === 'all') return Object.values(segs).reduce((a,b)=>a+b,0);
+  return segs[activeSeg] || 0;
+}
+
+function getFullPeriodData(){
+  return PERIOD_DATA[activePeriod] || PERIOD_DATA.all;
+}
+
+function getFilteredCustomers(){
+  let base = activePeriod==='apr' ? CUSTOMERS_APR : activePeriod==='may' ? CUSTOMERS_MAY : CUSTOMERS_ALL;
+  if(activeSeg !== 'all') base = base.filter(c=>c.seg===activeSeg);
+  return base;
+}
+
+// ════════════════════════════════════════════════════════════════
+// FILTER MODE BADGE
+// ════════════════════════════════════════════════════════════════
+function updateFilterModeBadge(){
+  const L = getLang();
+  const segLabel = activeSeg==='all' ? L.segAll : L.segNames[activeSeg];
+  document.getElementById('filterModeBadge').textContent = segLabel;
+}
+
+// ════════════════════════════════════════════════════════════════
+// BANNER
+// ════════════════════════════════════════════════════════════════
+function updateBanner(){
+  const pd = getFullPeriodData();
+  const banner = document.getElementById('mainBanner');
+  const L = getLang();
+
+  if(activeSeg !== 'all'){
+    const segSales = getSegSales();
+    const segs = SEG_DATA[activePeriod] || SEG_DATA.all;
+    const total = Object.values(segs).reduce((a,b)=>a+b,0);
+    const pct = total>0?((segSales/total)*100).toFixed(1):0;
+    banner.className = 'leakage-banner seg-mode';
+    flashNum('bannerAmount', fmt(segSales));
+    document.getElementById('bannerLabel').textContent = L.segNames[activeSeg]+(isHindi?' — वर्ग राजस्व':' — Segment Revenue');
+    const pLabel = isHindi
+      ? `कुल ${activePeriod==='all'?'अप्रैल–मई':activePeriod==='apr'?'अप्रैल':'मई'} बिक्री का ${pct}%`
+      : `${pct}% of total ${activePeriod==='all'?'Apr–May':activePeriod==='apr'?'April':'May'} sales`;
+    document.getElementById('bannerDesc').textContent = pLabel;
+    const custCount = getFilteredCustomers().length;
+    flashNum('bSplit1', custCount.toString());
+    document.getElementById('bLabel1').textContent = isHindi?'ग्राहक':'Customers';
+    flashNum('bSplit2', pct+'%');
+    document.getElementById('bLabel2').textContent = isHindi?'राजस्व हिस्सा':'Revenue Share';
+    const aprSeg = SEG_DATA.apr[activeSeg]||0;
+    const maySeg = SEG_DATA.may[activeSeg]||0;
+    const growth = aprSeg>0?((maySeg-aprSeg)/aprSeg*100).toFixed(1)+'%':'NEW';
+    flashNum('bSplit3', growth);
+    document.getElementById('bLabel3').textContent = isHindi?'MoM वृद्धि':'MoM Growth';
+  } else {
+    banner.className = 'leakage-banner';
+    const lossAmount = activePeriod==='all'?'₹5,45,397':activePeriod==='apr'?'₹60,319 (Est.)':'₹1,09,317 (Est.)';
+    const bannerLabels = isHindi
+      ? {all:'शुद्ध हानि — कार्रवाई आवश्यक', apr:'अप्रैल हानि (अनुमानित)', may:'मई हानि (अनुमानित)'}
+      : {all:'Net Loss — Action Required', apr:'April Loss (Est.)', may:'May Loss (Est.)'};
+    const bannerDescs = isHindi
+      ? {
+          all:'₹72.58L की बिक्री के बावजूद व्यापार घाटे में',
+          apr:'अप्रैल — संग्रह ₹2.65L, बिल ₹3.26L · 66 ग्राहक',
+          may:'मई — संग्रह ₹3.87L, बिल ₹3.46L से अधिक · 54 ग्राहक'
+        }
+      : {
+          all:'Business operating at a loss despite ₹72.58L in sales',
+          apr:'April — Collections ₹2.65L lag billed ₹3.26L · 66 customers',
+          may:'May — Collections ₹3.87L exceeded billing ₹3.46L · 54 customers'
+        };
+    document.getElementById('bannerLabel').textContent = bannerLabels[activePeriod];
+    document.getElementById('bannerAmount').textContent = lossAmount;
+    document.getElementById('bannerDesc').textContent = bannerDescs[activePeriod];
+    if(activePeriod==='all'){
+      flashNum('bSplit1','₹11,35,729'); document.getElementById('bLabel1').textContent=isHindi?'अप्रत्यक्ष व्यय':'Indirect Expenses';
+      flashNum('bSplit2','₹5,82,477'); document.getElementById('bLabel2').textContent=isHindi?'सकल लाभ':'Gross Profit';
+      flashNum('bSplit3','₹7,59,410'); document.getElementById('bLabel3').textContent=isHindi?'समापन स्टॉक':'Closing Stock';
+    } else if(activePeriod==='apr'){
+      flashNum('bSplit1','₹3,25,985'); document.getElementById('bLabel1').textContent=isHindi?'अप्रैल बिक्री':'April Sales';
+      flashNum('bSplit2','₹2,64,666'); document.getElementById('bLabel2').textContent=isHindi?'संग्रह':'Collections';
+      flashNum('bSplit3','66');         document.getElementById('bLabel3').textContent=isHindi?'ग्राहक':'Customers';
+    } else {
+      flashNum('bSplit1','₹3,46,171'); document.getElementById('bLabel1').textContent=isHindi?'मई बिक्री':'May Sales';
+      flashNum('bSplit2','₹3,86,854'); document.getElementById('bLabel2').textContent=isHindi?'संग्रह':'Collections';
+      flashNum('bSplit3','54');         document.getElementById('bLabel3').textContent=isHindi?'ग्राहक':'Customers';
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// PRIORITIES
+// ════════════════════════════════════════════════════════════════
+function updatePriorities(){
+  const key = activePeriod==='all'?'all':activePeriod;
+  const items = [{cls:'red',txt:INSIGHTS[key][0].title+' — '+INSIGHTS[key][0].action.replace('→ ','')},
+                 {cls:'amber',txt:INSIGHTS[key][1].title+' — '+INSIGHTS[key][1].action.replace('→ ','')},
+                 {cls:'blue',txt:INSIGHTS[key][2].title},
+                 {cls:'green',txt:INSIGHTS[key][3].title}];
+  const label = activePeriod==='all'?'All Period':activePeriod==='apr'?'April 2026':'May 2026';
+  document.getElementById('priorityLabel').textContent = label;
+  document.getElementById('priorityList').innerHTML = items.map(i=>`<div class="p-item ${i.cls}"><span class="p-dot">●</span><span>${i.txt}</span></div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// KPIs — fully dynamic, every field updates
+// ════════════════════════════════════════════════════════════════
+function updateKPIs(){
+  const pd = getFullPeriodData();
+  const periodLbl = {all:'Apr–May 2026',apr:'April 2026',may:'May 2026'}[activePeriod];
+  document.getElementById('kpiPeriodLabel').textContent = periodLbl;
+  document.getElementById('kpiBadge1').textContent = {all:'Apr–May',apr:'April',may:'May'}[activePeriod];
+
+  const segLbl = activeSeg==='all'?'All Segments':SEG_NAMES[activeSeg];
+  const tagCls = {all:'blue',medical:'blue',retail:'green',food:'saffron',trader:'amber',other:'amber'};
+  const tag = document.getElementById('kpiSegTag');
+  tag.textContent = segLbl;
+  tag.className = 'tag '+(tagCls[activeSeg]||'blue');
+
+  if(activeSeg === 'all'){
+    // Full business figures
+    flashNum('kpiSales',    fmt(pd.sales));
+    flashNum('kpiPurchases',fmt(pd.purchases));
+    flashNum('kpiGross',    fmt(pd.gross));
+    flashNum('kpiLoss',     fmt(pd.loss));
+    flashNum('kpiCust',     pd.customers.toString());
+    const gm = pd.sales>0?((pd.gross/pd.sales)*100).toFixed(2)+'%':'—';
+    document.getElementById('kpiGMBadge').textContent = gm;
+    document.getElementById('kpiLossLabel').textContent = 'Net Loss';
+    document.getElementById('kpiLossBadge').textContent = 'Net Loss';
+    document.getElementById('kpiLossBadge').className = 'kpi-badge down';
+    document.getElementById('kpiSalesSub').textContent  = `${pd.txns} invoices · ${pd.customers} customers`;
+    document.getElementById('kpiPurchasesSub').textContent = 'Havmore & Lotte · Opening ₹10.5L';
+    document.getElementById('kpiGrossSub').textContent  = 'Before indirect expenses';
+    document.getElementById('kpiLossSub').textContent   = activePeriod==='all'?'Indirect exp ₹11.35L exceeds gross':'Monthly estimated loss';
+    document.getElementById('kpiCustSub').textContent   = `${pd.customers} buyers · Stock ₹7.59L`;
+    document.getElementById('kpiCustBadge').textContent = pd.customers+' Buyers';
+    // Restore card colors
+    document.querySelector('#kpiSales').closest('.kpi-card').className = 'kpi-card blue';
+    document.querySelector('#kpiPurchases').closest('.kpi-card').className = 'kpi-card saffron';
+    document.querySelector('#kpiGross').closest('.kpi-card').className = 'kpi-card green';
+    document.querySelector('#kpiLoss').closest('.kpi-card').className = 'kpi-card red';
+    document.getElementById('kpiPurchLabel').textContent = 'Total Purchases';
+    document.getElementById('kpiGrossLabel').textContent = 'Gross Profit';
+    document.getElementById('kpiLossLabel').textContent = 'Net Loss';
+  } else {
+    // OPTION B: Segment-specific meaningful metrics (no dashes)
+    const segSales = getSegSales();
+    const custCount = getFilteredCustomers().length;
+    const aprS = SEG_DATA.apr[activeSeg]||0;
+    const mayS = SEG_DATA.may[activeSeg]||0;
+    const mom = aprS>0 ? ((mayS-aprS)/aprS*100).toFixed(1) : null;
+    const allTotal = Object.values(SEG_DATA.all).reduce((a,b)=>a+b,0);
+    const segShare = allTotal>0 ? ((SEG_DATA.all[activeSeg]||0)/allTotal*100).toFixed(1) : '0';
+    const avgOrder = custCount>0 ? Math.round(segSales/custCount) : 0;
+    const topCust = getFilteredCustomers()[0];
+
+    // Card 1: Segment Sales (blue) — unchanged
+    flashNum('kpiSales', fmt(segSales));
+    document.getElementById('kpiSalesSub').textContent = `${custCount} buyers · ${activePeriod==='all'?'Apr–May':activePeriod==='apr'?'April':'May'}`;
+
+    // Card 2: Segment Share % (replaces Purchases — saffron)
+    document.getElementById('kpiPurchLabel').textContent = 'Portfolio Share';
+    document.querySelector('#kpiPurchases').closest('.kpi-card').className = 'kpi-card saffron';
+    flashNum('kpiPurchases', segShare+'%');
+    document.getElementById('kpiPurchasesSub').textContent = `Of total ₹${fmt(allTotal)} · ${SEG_NAMES[activeSeg]}`;
+
+    // Card 3: MoM Growth % (replaces Gross Profit — green/red)
+    document.getElementById('kpiGrossLabel').textContent = 'MoM Growth';
+    const isGrowth = mom!==null && Number(mom)>=0;
+    document.querySelector('#kpiGross').closest('.kpi-card').className = 'kpi-card '+(isGrowth?'green':'red');
+    flashNum('kpiGross', mom!==null?(Number(mom)>=0?'+':'')+mom+'%':'NEW');
+    document.getElementById('kpiGMBadge').textContent = 'Apr→May';
+    document.getElementById('kpiGMBadge').className = 'kpi-badge '+(isGrowth?'up':'down');
+    document.getElementById('kpiGrossSub').textContent = `Apr ₹${(aprS/1000).toFixed(0)}K → May ₹${(mayS/1000).toFixed(0)}K`;
+
+    // Card 4: Avg Order Value (replaces Net Loss — amber)
+    document.getElementById('kpiLossLabel').textContent = 'Avg Order Value';
+    document.getElementById('kpiLossBadge').textContent = 'Per Buyer';
+    document.getElementById('kpiLossBadge').className = 'kpi-badge warn';
+    document.querySelector('#kpiLoss').closest('.kpi-card').className = 'kpi-card amber';
+    flashNum('kpiLoss', fmt(avgOrder));
+    document.getElementById('kpiLossSub').textContent = `${custCount} buyers in ${SEG_NAMES[activeSeg]}`;
+
+    // Card 5: Top customer in this segment
+    flashNum('kpiCust', custCount.toString());
+    document.getElementById('kpiCustBadge').textContent = custCount+' Buyers';
+    document.getElementById('kpiCustSub').textContent = topCust ? `Top: ${topCust.name.split(' ').slice(0,2).join(' ')} ${fmtExact(topCust.rev)}` : SEG_NAMES[activeSeg];
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// INSIGHTS
+// ════════════════════════════════════════════════════════════════
+function updateInsights(){
+  const key = activePeriod==='all'?'all':activePeriod;
+  const ins = INSIGHTS[key]||INSIGHTS.all;
+  document.getElementById('insightsGrid').innerHTML = ins.map(i=>`
+    <div class="insight-card">
+      <div class="insight-num">${i.num}</div>
+      <div class="insight-body">
+        <div class="i-title">${i.title}</div>
+        <div class="i-desc">${i.desc}</div>
+        <div class="i-action">${i.action}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('insightTag').textContent = key==='all'?'All Period Insights':(key==='apr'?'April Insights':'May Insights');
+}
+
+// ════════════════════════════════════════════════════════════════
+// EXPENSE ROWS (static — not period dependent, full data only)
+// ════════════════════════════════════════════════════════════════
+function renderExpenseRows(){
+  const maxV = 180000;
+  document.getElementById('expenseRows').innerHTML = Object.entries(EXPENSES).map(([lbl,val],i)=>{
+    const pct=(val/maxV*100).toFixed(0), col=EXP_COLORS[i]||'#94a3b8';
+    return `<div class="expense-row">
+      <div style="flex:1.8"><div style="font-size:12px;font-weight:500;color:var(--text)">${lbl}</div></div>
+      <div class="expense-bar-bg"><div class="expense-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:${col};font-weight:600;min-width:72px;text-align:right">${fmtExact(val)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// CUSTOMER VIEW
+// ════════════════════════════════════════════════════════════════
+function updateCustView(){
+  const filtered = getFilteredCustomers();
+  const L = isHindi ? LANG.hi : LANG.en;
+
+  // ── Labels ──
+  const periodLbl = (isHindi
+    ? {all:'सभी अवधि', apr:'अप्रैल 2026', may:'मई 2026'}
+    : {all:'All Period', apr:'April 2026', may:'May 2026'})[activePeriod];
+  const segLbl = activeSeg==='all'
+    ? (isHindi?'सभी वर्ग':'All Segments')
+    : SEG_NAMES[activeSeg];
+
+  document.getElementById('custKpiLabel').textContent = `${segLbl} · ${periodLbl}`;
+  document.getElementById('custListLabel').textContent = periodLbl;
+
+  // ── KPI Card 1 — Top Customer ──
+  if(filtered.length>0){
+    const top = filtered[0];
+    const revToShow = activePeriod==='apr'?top.apr : activePeriod==='may'?top.may : top.rev;
+    document.getElementById('ckpiTop').textContent = top.name.split(' ').slice(0,3).join(' ');
+    const gr = top.apr>0&&top.may>0
+      ? '+'+(((top.may-top.apr)/top.apr)*100).toFixed(1)+'% Apr→May'
+      : top.apr===0 ? (isHindi?'मई में नया':'NEW in May') : (isHindi?'केवल अप्रैल':'Apr only');
+    document.getElementById('ckpiTopSub').textContent = `${fmtExact(revToShow)} · ${gr}`;
+  } else {
+    document.getElementById('ckpiTop').textContent = '—';
+    document.getElementById('ckpiTopSub').textContent = isHindi?'कोई ग्राहक नहीं':'No customers';
+  }
+
+  // ── KPI Card 2 — Active Customers count ──
+  flashNum('ckpiCount', filtered.length.toString());
+  document.getElementById('ckpiBadge2').textContent = filtered.length + (isHindi?' खरीदार':' Buyers');
+  document.getElementById('ckpiCountSub').textContent = `${segLbl} · ${periodLbl}`;
+
+  // ── KPI Card 3 — New in May (segment-aware) ──
+  // New = appeared in May but not April, within current segment filter
+  const mayBase = activeSeg==='all'
+    ? CUSTOMERS_MAY
+    : CUSTOMERS_MAY.filter(c=>c.seg===activeSeg);
+  const aprNames = new Set((activeSeg==='all'?CUSTOMERS_APR:CUSTOMERS_APR.filter(c=>c.seg===activeSeg)).map(c=>c.name));
+  const newInMay = mayBase.filter(c=>!aprNames.has(c.name));
+  flashNum('ckpiNew', newInMay.length.toString());
+  document.getElementById('ckpiNewSub').textContent = newInMay.length>0
+    ? newInMay.slice(0,3).map(c=>c.name.split(' ')[0]).join(', ')
+    : (isHindi?'कोई नया नहीं':'None this period');
+
+  // ── KPI Card 4 — Churned (segment-aware: Apr only, not in May) ──
+  const aprBase = activeSeg==='all'
+    ? CUSTOMERS_APR
+    : CUSTOMERS_APR.filter(c=>c.seg===activeSeg);
+  const mayNames = new Set((activeSeg==='all'?CUSTOMERS_MAY:CUSTOMERS_MAY.filter(c=>c.seg===activeSeg)).map(c=>c.name));
+  const churned = aprBase.filter(c=>!mayNames.has(c.name));
+  const topChurn = churned[0];
+  if(topChurn){
+    document.getElementById('ckpiChurn').textContent = topChurn.name.split(' ').slice(0,2).join(' ');
+    document.getElementById('ckpiChurnSub').textContent = `${fmtExact(topChurn.apr)} ${isHindi?'अप्रैल · मई शून्य':'Apr · Zero May'}`;
+  } else {
+    document.getElementById('ckpiChurn').textContent = isHindi?'कोई नहीं':'None';
+    document.getElementById('ckpiChurnSub').textContent = isHindi?'सभी ग्राहक बने रहे':'All customers retained';
+  }
+
+  // ── Render leaderboard ──
+  const maxRev = filtered.length>0
+    ? (activePeriod==='apr'?filtered[0].apr : activePeriod==='may'?filtered[0].may : filtered[0].rev)
+    : 1;
+
+  document.getElementById('custRankList').innerHTML = filtered.length===0
+    ? `<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px">${isHindi?'इस वर्ग/अवधि में कोई ग्राहक नहीं।':'No customers found for this segment/period.'}</div>`
+    : filtered.map((c,i)=>{
+        const revToShow = activePeriod==='apr'?c.apr : activePeriod==='may'?c.may : c.rev;
+        const isNew  = c.apr===0 && c.may>0;
+        const isGone = c.apr>0  && c.may===0;
+        let chgHtml='';
+        if(activePeriod==='all'){
+          if(isNew)  chgHtml=`<span class="chg-pill new">${isHindi?'नया':'NEW'}</span>`;
+          else if(isGone) chgHtml=`<span class="chg-pill down">⚠ ${isHindi?'मई नहीं':'No May'}</span>`;
+          else if(c.apr>0&&c.may>0){
+            const g=((c.may-c.apr)/c.apr*100);
+            chgHtml=`<span class="chg-pill ${g>=0?'up':'down'}">${g>=0?'↑':'↓'}${Math.abs(g).toFixed(0)}%</span>`;
+          }
+        }
+        const rankCls=i===0?'r1':i===1?'r2':i===2?'r3':'';
+        const barCol=SEG_COLORS[c.seg]||'#94a3b8';
+        return `<div class="cust-rank-row" onclick="showSpotlight(${i})">
+          <div class="crank ${rankCls}">${i+1}</div>
+          <div class="cust-info">
+            <div class="cust-name-txt">${c.name}</div>
+            <div class="cust-seg-sub"><span class="seg-pill ${c.seg}">${SEG_EMOJI[c.seg]||'🏢'} ${SEG_NAMES[c.seg]||'Other'}</span></div>
+          </div>
+          <div class="cust-bar-wrap"><div class="cust-bar-bg"><div class="cust-bar-fill" style="width:${revToShow>0?(revToShow/maxRev*100).toFixed(0):0}%;background:${barCol}"></div></div></div>
+          <div class="cust-rev-txt">${fmtExact(revToShow)}</div>
+          ${chgHtml}
+        </div>`;
+      }).join('');
+
+  updateCustMonthChart();
+}
+
+function showSpotlight(idx){
+  const filtered = getFilteredCustomers();
+  const c = filtered[idx];
+  if(!c) return;
+
+  // ── Top spotlight panel ──
+  document.getElementById('spotEmoji').textContent = SEG_EMOJI[c.seg]||'🏪';
+  document.getElementById('spotLabel').textContent = SEG_NAMES[c.seg]||'Customer';
+  document.getElementById('spotName').textContent  = c.name;
+  document.getElementById('spotSub').textContent   = (SEG_EMOJI[c.seg]||'🏪')+' '+SEG_NAMES[c.seg]+' · Pune, Maharashtra';
+  document.getElementById('spotRev').textContent   = fmtExact(c.rev);
+  document.getElementById('spotApr').textContent   = c.apr>0?fmtExact(c.apr):'—';
+  document.getElementById('spotMay').textContent   = c.may>0?fmtExact(c.may):'—';
+  const g = c.apr>0&&c.may>0?((c.may-c.apr)/c.apr*100).toFixed(1)+'%':c.apr===0?'NEW ⚡':'⚠ No May';
+  const sign = c.apr>0&&c.may>0&&c.may>=c.apr?'+':'';
+  const gEl = document.getElementById('spotGrowth');
+  gEl.textContent = sign+g;
+  gEl.style.color = c.apr===0?'var(--saffron)':(c.may===0||c.may<c.apr)?'var(--negative)':'var(--positive)';
+  const spot = document.getElementById('custSpotlight');
+  spot.classList.remove('visible'); void spot.offsetWidth; spot.classList.add('visible');
+
+  // ── Highlight selected row ──
+  document.querySelectorAll('.cust-rank-row').forEach((r,i)=>r.classList.toggle('selected',i===idx));
+
+  // ── Remove any existing inline breakdown ──
+  document.querySelectorAll('.inline-breakdown').forEach(el=>el.remove());
+
+  // ── Build inline breakdown panel injected after the clicked row ──
+  const rows = document.querySelectorAll('.cust-rank-row');
+  const clickedRow = rows[idx];
+  if(!clickedRow) return;
+
+  const gr = c.apr>0&&c.may>0?(((c.may-c.apr)/c.apr)*100):null;
+  const grColor = c.apr===0?'var(--saffron)':(c.may===0?'var(--negative)':(gr>=0?'var(--positive)':'var(--negative)'));
+  const grText  = c.apr===0?'NEW ⚡':c.may===0?'⚠ No May':(gr>=0?`+${gr.toFixed(1)}%`:`${gr.toFixed(1)}%`);
+
+  // Segment insight
+  const segInsights = {
+    medical:'Regular reorder cycle — offer 7-day credit to lock standing orders.',
+    retail:'Monitor payment terms — retail accounts have highest collection risk.',
+    food:'HoReCa segment — visit in person & convert to monthly standing order.',
+    trader:'Trader accounts — high volume but watch credit & churn risk closely.',
+    other:'Miscellaneous account — track reorder frequency carefully.'
+  };
+
+  const breakdown = document.createElement('div');
+  breakdown.className = 'inline-breakdown';
+  breakdown.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">${SEG_EMOJI[c.seg]||'🏪'}</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${c.name}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:1px"><span class="seg-pill ${c.seg}">${SEG_NAMES[c.seg]||'Other'}</span> · Pune, Maharashtra</div>
+        </div>
+      </div>
+      <button onclick="this.closest('.inline-breakdown').remove();document.querySelectorAll('.cust-rank-row').forEach(r=>r.classList.remove('selected'))"
+        style="border:none;background:var(--surface3);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:600">✕ Close</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Total Revenue</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--accent)">${fmtExact(c.rev)}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">April</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--saffron)">${c.apr>0?fmtExact(c.apr):'—'}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">May</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:var(--positive)">${c.may>0?fmtExact(c.may):'—'}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">MoM Growth</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:${grColor}">${grText}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="padding:10px 12px;background:var(--accent-bg);border:1px solid rgba(26,86,219,.15);border-radius:8px;font-size:11px;color:var(--accent)">
+        <strong>📊 Revenue Share:</strong> ${c.rev>0?((c.rev/7257754)*100).toFixed(2):'0'}% of total Apr–May sales
+      </div>
+      <div style="padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2)">
+        💡 <strong>Action:</strong> ${segInsights[c.seg]||'Monitor account closely.'}
+      </div>
+    </div>`;
+  clickedRow.insertAdjacentElement('afterend', breakdown);
+  // Smooth scroll to breakdown
+  setTimeout(()=>breakdown.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+}
+
+// ── TREND CHART ──────────────────────────────────────────────
+function buildTrendChart(){
+  const WEEKLY={
+    all:{labels:['Apr W1','Apr W2','Apr W3','Apr W4','May W1','May W2','May W3','May W4','May W5'],sales:[42000,98000,182000,325985,390000,462000,545000,620000,672156],collections:[22000,71000,152000,264666,330000,420000,510000,590000,651520]},
+    apr:{labels:['Apr W1','Apr W2','Apr W3','Apr W4'],sales:[42000,98000,182000,325985],collections:[22000,71000,152000,264666]},
+    may:{labels:['May W1','May W2','May W3','May W4','May W5'],sales:[64015,136030,218030,294030,346171],collections:[65334,155000,245000,330000,386854]},
+  };
+  const td=WEEKLY[activePeriod]||WEEKLY.all;
+  if(charts.trend) charts.trend.destroy();
+  charts.trend=new Chart(document.getElementById('trendChart'),{
+    type:'line',
+    data:{labels:td.labels,datasets:[
+      {label:'Revenue Billed',data:td.sales,borderColor:'#1a56db',backgroundColor:'rgba(26,86,219,.1)',tension:.45,fill:true,pointBackgroundColor:'#1a56db',pointBorderColor:'#fff',pointBorderWidth:2.5,pointRadius:5,pointHoverRadius:9,borderWidth:2.5},
+      {label:'Collections Received',data:td.collections,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.08)',tension:.45,fill:true,pointBackgroundColor:'#10b981',pointBorderColor:'#fff',pointBorderWidth:2.5,pointRadius:5,pointHoverRadius:9,borderWidth:2.5},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},
+        tooltip:{...tooltipCfg(),callbacks:{
+          label:c=>`  ${c.dataset.label}: ${fmtExact(c.raw)}`,
+          afterBody:items=>{if(items.length>=2){const gap=items[0].raw-items[1].raw;return[gap>0?`  Gap: ${fmtExact(gap)} uncollected`:`  Collections ahead ${fmtExact(Math.abs(gap))}`];}return[];}
+        }}},
+      scales:{x:{ticks:{color:tc(),font:{size:11}},grid:{color:gc()}},y:{ticks:{color:tc(),font:{size:11},callback:v=>fmt(v)},grid:{color:gc()}}}}
+  });
+  _trendMeta(td); _trendAlert();
+}
+function updateTrendChart(){ buildTrendChart(); }
+function _trendMeta(td){
+  const s=td.sales[td.sales.length-1],col=td.collections[td.collections.length-1],gap=s-col;
+  const g=document.getElementById('trendGapTag');
+  if(g){g.className=gap>0?'tag amber':'tag green';g.textContent=gap>0?`Gap ${fmtExact(gap)} Outstanding`:'Collections Ahead ✓';}
+  const t=document.getElementById('trendTag');
+  if(activePeriod==='all'){t.className='tag green';t.textContent='+6.2% May vs Apr';}
+  else if(activePeriod==='may'){t.className='tag green';t.textContent='Collections Exceeded Billing ✓';}
+  else{t.className='tag red';t.textContent='Gap ₹61,319 Uncollected';}
+  const tt=document.getElementById('trendTitle');
+  if(tt)tt.textContent=activePeriod==='all'?'Revenue Billed vs Collections — Apr & May 2026 (Weekly Cumulative)':activePeriod==='apr'?'Revenue vs Collections — April 2026 (Weekly)':'Revenue vs Collections — May 2026 (Weekly)';
+}
+function _trendAlert(){
+  const al=document.getElementById('trendAlert');if(!al)return;
+  if(activeSeg!=='all'){
+    const sn=SEG_NAMES[activeSeg],a=SEG_DATA.apr[activeSeg]||0,m=SEG_DATA.may[activeSeg]||0;
+    const g=a>0?((m-a)/a*100).toFixed(1):null;
+    al.className='ctx-alert '+(g&&Number(g)>=0?'green':'amber');
+    al.innerHTML=g&&Number(g)>=0?`✓ <strong>${sn}</strong> grew +${g}% Apr→May (₹${(a/1000).toFixed(1)}K → ₹${(m/1000).toFixed(1)}K)`:`⚠ <strong>${sn}</strong> dropped ${g?Math.abs(Number(g))+'%':''} — review retention`;
+  }else if(activePeriod==='may'){al.className='ctx-alert green';al.innerHTML='✓ <strong>May Recovery:</strong> Collections ₹3.87L exceeded billing ₹3.46L — past dues recovered.';}
+  else{al.className='ctx-alert red';al.innerHTML='⚠ <strong>April Gap:</strong> ₹61,319 uncollected — Chaudhary Group (₹20,004) and Smart Bazaar (₹13,906). Follow up immediately.';}
+}
+function buildBrandChart(){
+  if(charts.brand) charts.brand.destroy();
+  const brands=['Havmore','Lotte','Weikfield*','Heritage*','Borges*'];
+  const revenues=[625000,47156,82000,61000,38000];
+  const margins=[8.2,4.1,11.5,9.8,5.2];
+  const colors=['#1a56db','#7c3aed','#10b981','#0ea5e9','#f97316'];
+  const ptColors=margins.map(m=>m<6?'#dc2626':'#f59e0b');
+  charts.brand=new Chart(document.getElementById('brandChart'),{
+    type:'bar',
+    data:{labels:brands,datasets:[
+      {type:'bar',label:'Revenue (₹)',data:revenues,backgroundColor:colors,borderRadius:6,borderSkipped:false,yAxisID:'y',order:2},
+      {type:'line',label:'Net Margin %',data:margins,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.1)',borderWidth:2.5,pointBackgroundColor:ptColors,pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:7,pointHoverRadius:10,tension:.4,yAxisID:'y1',order:1},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{color:tc(),font:{size:11},boxWidth:12}},
+        tooltip:{...tooltipCfg(),callbacks:{
+          label:c=>c.datasetIndex===0?`  Revenue: ${fmtExact(c.raw)}`:`  Net Margin: ${c.raw}%`,
+          afterBody:items=>{const i=items[0]?.dataIndex;if(i===0)return['  🔴 Primary · ₹7.51L cold storage'];if(i===1)return['  🟡 Near clearance (₹7,618 stock)'];return['  * Estimated from Vinayak portfolio'];}
+        }}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:tc(),font:{size:11}}},
+        y:{ticks:{color:tc(),font:{size:11},callback:v=>fmt(v)},grid:{color:gc()}},
+        y1:{position:'right',ticks:{color:'#f59e0b',font:{size:11},callback:v=>v+'%'},grid:{display:false},min:0,max:25}
+      }
+    }
+  });
+}
+function buildChannelChart(){
+  if(charts.channel) charts.channel.destroy();
+  const segKeys=['medical','retail','food','trader','other'];
+  const segs=['Medical/Pharma','Retail Stores','Food & HoReCa','Traders','Others'];
+  const revenues=segKeys.map(k=>SEG_DATA.all[k]||0);
+  const totalRev=revenues.reduce((a,b)=>a+b,0);
+  const allocCosts=revenues.map(r=>Math.round(r/totalRev*1135729));
+  const netMargins=revenues.map((r,i)=>r-allocCosts[i]);
+  const netPct=revenues.map((r,i)=>r>0?parseFloat(((netMargins[i]/r)*100).toFixed(1)):0);
+  charts.channel=new Chart(document.getElementById('channelChart'),{
+    type:'bar',
+    data:{labels:segs,datasets:[
+      {label:'Revenue Billed (₹)',data:revenues,backgroundColor:segKeys.map(k=>SEG_COLORS[k]),borderRadius:5,borderSkipped:false},
+      {label:'Allocated Fixed Costs (₹)',data:allocCosts,backgroundColor:'rgba(248,113,113,.75)',borderRadius:5,borderSkipped:false},
+      {label:'Net Margin (₹)',data:netMargins,backgroundColor:netMargins.map(m=>m>=0?'rgba(16,185,129,.85)':'rgba(220,38,38,.85)'),borderRadius:5,borderSkipped:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{color:tc(),font:{size:11},boxWidth:12}},
+        tooltip:{...tooltipCfg(),callbacks:{
+          label:c=>{if(c.datasetIndex===0)return`  Revenue: ${fmtExact(c.raw)}`;if(c.datasetIndex===1)return`  Fixed Cost: ${fmtExact(c.raw)}`;const p=netPct[c.dataIndex];return`  Net Margin: ${fmtExact(c.raw)} (${p>=0?'+':''}${p}%)`;},
+          afterBody:items=>{const p=netPct[items[0]?.dataIndex];if(p<0)return['  ⚠ Net-negative after fixed cost allocation'];if(p>10)return['  ✓ Scale this segment now'];return['  📊 Margin within range'];}
+        }}
+      },
+      scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:11}}},y:{ticks:{color:tc(),font:{size:11},callback:v=>fmt(v)},grid:{color:gc()}}}
+    }
+  });
+  const neg=netMargins.filter(m=>m<0).length;
+  const tag=document.getElementById('channelAlertTag');
+  if(tag){tag.className=neg>0?'tag red':'tag green';tag.textContent=neg>0?`⚠ ${neg} Segments Net-Negative`:'✓ All Segments Profitable';}
+}
+
+// ── SEGMENT DONUT ─────────────────────────────────────────────
+function buildSegDonut(){
+  const segs = SEG_DATA[activePeriod]||SEG_DATA.all;
+  const data = SEG_IDS.map(k=>segs[k]||0);
+  const colors = SEG_IDS.map(k=>SEG_COLORS[k]);
+  const total = data.reduce((a,b)=>a+b,0);
+  charts.segDonut = new Chart(document.getElementById('segDonut'),{
+    type:'doughnut',
+    data:{labels:SEG_IDS.map(k=>SEG_NAMES[k]),datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:isDark()?'#161a20':'#fff',hoverBorderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',
+      plugins:{legend:{display:false},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>` ${c.label}: ${fmtExact(c.raw)} (${((c.raw/total)*100).toFixed(1)}%)`}}}
+    }
+  });
+  renderSegLegend();
+}
+function updateSegDonut(){
+  if(!charts.segDonut) return;
+  const segs = SEG_DATA[activePeriod]||SEG_DATA.all;
+  const data = SEG_IDS.map(k=>segs[k]||0);
+  const total = data.reduce((a,b)=>a+b,0);
+  charts.segDonut.data.datasets[0].data = data;
+  charts.segDonut.data.datasets[0].backgroundColor = SEG_IDS.map(k=>k===activeSeg||activeSeg==='all'?SEG_COLORS[k]:'rgba(160,160,160,.18)');
+  charts.segDonut.data.datasets[0].borderColor = isDark()?'#161a20':'#fff';
+  charts.segDonut.update();
+  renderSegLegend();
+  document.getElementById('donutSub').textContent = `Share of total sales · ${activePeriod==='all'?'Apr–May':activePeriod==='apr'?'April':'May'}`;
+}
+function renderSegLegend(){
+  const segs = SEG_DATA[activePeriod]||SEG_DATA.all;
+  const total = Object.values(segs).reduce((a,b)=>a+b,0);
+  document.getElementById('segLegend').innerHTML = SEG_IDS.map(k=>{
+    const v=segs[k]||0, pct=((v/total)*100).toFixed(1);
+    const isActive = activeSeg==='all'||activeSeg===k;
+    return `<div class="donut-leg-row" style="opacity:${isActive?1:.3}">
+      <div class="donut-leg-left"><div class="donut-leg-dot" style="background:${SEG_COLORS[k]}"></div>${SEG_NAMES[k]}</div>
+      <div><span class="donut-leg-val">${fmtExact(v)}</span><span class="donut-leg-pct">${pct}%</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── SEGMENT BAR (OVERVIEW) ────────────────────────────────────
+function buildSegBarChart(){
+  charts.segBar = new Chart(document.getElementById('segBarChart'),{
+    type:'bar',
+    data:{labels:SEG_IDS.map(k=>SEG_NAMES[k].split('/')[0]),datasets:[
+      {label:'April',data:SEG_IDS.map(k=>SEG_DATA.apr[k]||0),backgroundColor:SEG_IDS.map(k=>(SEG_COLORS[k]||'#94a3b8')+'99'),borderRadius:5,borderSkipped:false},
+      {label:'May',  data:SEG_IDS.map(k=>SEG_DATA.may[k]||0),backgroundColor:SEG_IDS.map(k=>SEG_COLORS[k]||'#94a3b8'),borderRadius:5,borderSkipped:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{color:tc(),font:{size:11},boxWidth:12}},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>` ${c.dataset.label}: ${fmtExact(c.raw)}`,afterBody:items=>{
+          if(items.length>=2){ const a=items[0].raw,m=items[1].raw; const g=a>0?((m-a)/a*100).toFixed(1):null;
+            return g?[` MoM: ${Number(g)>=0?'+':''}${g}%`]:[]; } return[]; }}}},
+      scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:11}}},y:{ticks:{color:tc(),font:{size:11},callback:v=>fmt(v)},grid:{color:gc()}}}}
+  });
+}
+function updateSegBarChart(){
+  if(!charts.segBar) return;
+  const aprData = SEG_IDS.map(k=>SEG_DATA.apr[k]||0);
+  const mayData = SEG_IDS.map(k=>SEG_DATA.may[k]||0);
+  charts.segBar.data.datasets[0].data = aprData;
+  charts.segBar.data.datasets[1].data = mayData;
+  charts.segBar.data.datasets[0].backgroundColor = SEG_IDS.map(k=>{
+    const c = SEG_COLORS[k]||'#94a3b8';
+    return (activeSeg==='all'||activeSeg===k)?c+'99':'rgba(160,160,160,.15)';
+  });
+  charts.segBar.data.datasets[1].backgroundColor = SEG_IDS.map(k=>{
+    const c = SEG_COLORS[k]||'#94a3b8';
+    return (activeSeg==='all'||activeSeg===k)?c:'rgba(160,160,160,.25)';
+  });
+  charts.segBar.update();
+}
+
+// ── MOM CHART ─────────────────────────────────────────────────
+function buildMomChart(){
+  const getVals=()=>{
+    if(activeSeg!=='all'){
+      const aprS=SEG_DATA.apr[activeSeg]||0, mayS=SEG_DATA.may[activeSeg]||0;
+      if(activePeriod==='apr') return {labels:['April 2026'],sales:[aprS],col:[aprS]};
+      if(activePeriod==='may') return {labels:['May 2026'],sales:[mayS],col:[mayS]};
+      return {labels:['April 2026','May 2026'],sales:[aprS,mayS],col:[aprS,mayS]};
+    }
+    const td=TREND_DATA[activePeriod]||TREND_DATA.all;
+    return {labels:td.labels,sales:td.sales,col:td.collections};
+  };
+  const v=getVals();
+  charts.mom = new Chart(document.getElementById('momChart'),{
+    type:'bar',
+    data:{labels:v.labels,datasets:[
+      {label:'Sales Billed',data:v.sales,backgroundColor:'rgba(26,86,219,.8)',borderRadius:7,borderSkipped:false},
+      {label:'Collections',data:v.col,backgroundColor:'rgba(16,185,129,.75)',borderRadius:7,borderSkipped:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{color:tc(),font:{size:11},boxWidth:12}},
+        tooltip:{...tooltipCfg(),callbacks:{
+          label:c=>` ${c.dataset.label}: ${fmtExact(c.raw)}`,
+          afterBody:items=>{ if(items.length>=2){ const g=items[0].raw-items[1].raw; return[g>0?` Gap: ${fmtExact(g)}`:'  ✓ Fully collected']; } return[]; }
+        }}},
+      scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:12,weight:'500'}}},y:{ticks:{color:tc(),font:{size:11},callback:v=>fmt(v)},grid:{color:gc()}}}}
+  });
+}
+function updateMomChart(){
+  if(!charts.mom) return;
+  let labels,sales,col;
+  if(activeSeg!=='all'){
+    const aprS=SEG_DATA.apr[activeSeg]||0, mayS=SEG_DATA.may[activeSeg]||0;
+    if(activePeriod==='apr'){labels=['April 2026'];sales=[aprS];col=[aprS];}
+    else if(activePeriod==='may'){labels=['May 2026'];sales=[mayS];col=[mayS];}
+    else{labels=['April 2026','May 2026'];sales=[aprS,mayS];col=[aprS,mayS];}
+  } else {
+    const td=TREND_DATA[activePeriod]||TREND_DATA.all;
+    labels=td.labels; sales=td.sales; col=td.collections;
+  }
+  charts.mom.data.labels=labels;
+  charts.mom.data.datasets[0].data=sales;
+  charts.mom.data.datasets[1].data=col;
+  charts.mom.update();
+  // Update title + tag
+  const segPfx = activeSeg!=='all'?SEG_NAMES[activeSeg]+' · ':'';
+  document.getElementById('momTitle').textContent = segPfx+'Monthly Sales & Collections';
+  if(labels.length===2){ const g=((sales[1]-sales[0])/sales[0]*100).toFixed(1); const t=document.getElementById('momTag'); t.className='tag '+(Number(g)>=0?'green':'red'); t.textContent=(Number(g)>=0?'+':'')+g+'% MoM'; }
+  else { document.getElementById('momTag').textContent='Single Month'; }
+}
+
+// ── SEG GROWTH CHART (OVERVIEW) ───────────────────────────────
+function buildSegGrowthChart(){
+  const growth = SEG_IDS.map(k=>{ const a=SEG_DATA.apr[k]||0,m=SEG_DATA.may[k]||0; return a>0?parseFloat(((m-a)/a*100).toFixed(1)):100; });
+  charts.segGrowth = new Chart(document.getElementById('segGrowthChart'),{
+    type:'bar',
+    data:{labels:SEG_IDS.map(k=>SEG_NAMES[k].split('/')[0]),datasets:[{
+      label:'MoM Growth %',data:growth,
+      backgroundColor:growth.map(g=>g>=0?'rgba(5,150,105,.8)':'rgba(220,38,38,.8)'),borderRadius:5,borderSkipped:false
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>` Growth: ${c.raw>0?'+':''}${c.raw}%`,afterLabel:c=>c.raw>=0?'  ↑ Accelerating':'  ↓ Declining'}}},
+      scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:11}}},y:{ticks:{color:tc(),font:{size:11},callback:v=>v+'%'},grid:{color:gc()}}}}
+  });
+}
+function updateSegGrowthChart(){
+  if(!charts.segGrowth) return;
+  const growth = SEG_IDS.map(k=>{ const a=SEG_DATA.apr[k]||0,m=SEG_DATA.may[k]||0; return a>0?parseFloat(((m-a)/a*100).toFixed(1)):100; });
+  charts.segGrowth.data.datasets[0].data=growth;
+  charts.segGrowth.data.datasets[0].backgroundColor=SEG_IDS.map((k,i)=>{
+    const g=growth[i];
+    if(activeSeg!=='all'&&activeSeg!==k) return 'rgba(160,160,160,.2)';
+    return g>=0?'rgba(5,150,105,.8)':'rgba(220,38,38,.8)';
+  });
+  charts.segGrowth.update();
+  const top=SEG_IDS.reduce((a,k)=>{ const g=(SEG_DATA.may[k]||0)-(SEG_DATA.apr[k]||0); return g>a.v?{k,v:g}:a; },{k:'medical',v:-Infinity});
+  document.getElementById('segPerfTag').textContent = SEG_NAMES[top.k]+' gained most';
+}
+
+// ── P&L WATERFALL ─────────────────────────────────────────────
+function buildWaterfallChart(){
+  const labels=['Sales ₹72.58L','+ Opening Stock','− Purchases','+ Closing Stock','Gross Profit','− Indirect Exp','+ Other Income','Net Loss'];
+  const vals=[7257754,1049647,-6385040,759410,582477,-1135729,7855,-545397];
+  const colors=['#059669','#10b981','#dc2626','#10b981','#1a56db','#dc2626','#059669','#b91c1c'];
+  charts.waterfall = new Chart(document.getElementById('waterfallChart'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Amount',data:vals.map(v=>Math.abs(v)),backgroundColor:colors,borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>` ${fmtExact(Math.abs(vals[c.dataIndex]))}`,title:c=>[c[0].label,vals[c[0].dataIndex]>0?'Positive / Inflow':'Negative / Outflow']}}},
+      scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:10}}},y:{ticks:{color:tc(),font:{size:11},callback:v=>fmt(v)},grid:{color:gc()}}}}
+  });
+}
+
+// ── CUSTOMER MONTH CHART ──────────────────────────────────────
+function buildCustMonthChart(){
+  const snap = getFilteredCustomers().slice(0,10);
+  const names = snap.map(c=>c.name.split(' ').slice(0,2).join(' '));
+  charts.custMonth = new Chart(document.getElementById('custMonthChart'),{
+    type:'bar',
+    data:{labels:names,datasets:[
+      {label:'April',data:snap.map(c=>c.apr),backgroundColor:'rgba(26,86,219,.75)',borderRadius:4,borderSkipped:false},
+      {label:'May',  data:snap.map(c=>c.may),backgroundColor:'rgba(249,115,22,.85)',borderRadius:4,borderSkipped:false},
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{color:tc(),font:{size:11},boxWidth:12}},
+        tooltip:{...tooltipCfg(),callbacks:{
+          label:c=>` ${c.dataset.label}: ${fmtExact(c.raw)}`,
+          afterBody(items){
+            const idx=items[0]?.dataIndex;
+            const custData=this.chart.data._custSnap;
+            if(!custData||idx===undefined) return[];
+            const c=custData[idx]; if(!c) return[];
+            if(c.apr===0&&c.may>0) return['  ⚡ NEW customer in May'];
+            if(c.apr>0&&c.may===0) return['  ⚠ No repeat in May — at risk'];
+            if(c.apr>0&&c.may>0){ const g=((c.may-c.apr)/c.apr*100).toFixed(1); return[`  MoM: ${Number(g)>=0?'+':''}${g}%`]; }
+            return[];
+          }
+        }}},
+      scales:{x:{grid:{color:gc()},ticks:{color:tc(),font:{size:10},callback:v=>fmt(v)}},y:{grid:{display:false},ticks:{color:tc(),font:{size:10}}}}}
+  });
+  charts.custMonth.data._custSnap = snap;
+}
+function updateCustMonthChart(){
+  if(!charts.custMonth) return;
+  const snap = getFilteredCustomers().slice(0,10);
+  const names = snap.map(c=>c.name.split(' ').slice(0,2).join(' '));
+  charts.custMonth.data.labels = names;
+  charts.custMonth.data.datasets[0].data = snap.map(c=>c.apr);
+  charts.custMonth.data.datasets[1].data = snap.map(c=>c.may);
+  charts.custMonth.data._custSnap = snap;
+  charts.custMonth.update();
+}
+
+// ── CUSTOMER VIEW SEGMENT CHARTS ──────────────────────────────
+function buildSegBarChartCust(){
+  charts.segBarCust = new Chart(document.getElementById('segBarChartCust'),{
+    type:'bar',
+    data:{labels:SEG_IDS.map(k=>SEG_NAMES[k].split('/')[0]),datasets:[
+      {label:'April',data:SEG_IDS.map(k=>SEG_DATA.apr[k]||0),backgroundColor:SEG_IDS.map(k=>(SEG_COLORS[k]||'#94a3b8')+'99'),borderRadius:5,borderSkipped:false},
+      {label:'May',  data:SEG_IDS.map(k=>SEG_DATA.may[k]||0),backgroundColor:SEG_IDS.map(k=>SEG_COLORS[k]||'#94a3b8'),borderRadius:5,borderSkipped:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{color:tc(),font:{size:11},boxWidth:12}},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>` ${c.dataset.label}: ${fmtExact(c.raw)}`}}},
+      scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:11}}},y:{ticks:{color:tc(),callback:v=>fmt(v)},grid:{color:gc()}}}}
+  });
+}
+function updateSegBarChartCust(){
+  if(!charts.segBarCust) return;
+  charts.segBarCust.data.datasets[0].backgroundColor = SEG_IDS.map(k=>{
+    const c=SEG_COLORS[k]||'#94a3b8';
+    return (activeSeg==='all'||activeSeg===k)?c+'99':'rgba(160,160,160,.15)';
+  });
+  charts.segBarCust.data.datasets[1].backgroundColor = SEG_IDS.map(k=>{
+    const c=SEG_COLORS[k]||'#94a3b8';
+    return (activeSeg==='all'||activeSeg===k)?c:'rgba(160,160,160,.25)';
+  });
+  charts.segBarCust.update();
+}
+function buildSegGrowthCust(){
+  const growth=SEG_IDS.map(k=>{ const a=SEG_DATA.apr[k]||0,m=SEG_DATA.may[k]||0; return a>0?parseFloat(((m-a)/a*100).toFixed(1)):100; });
+  charts.segGrowthCust = new Chart(document.getElementById('segGrowthCust'),{
+    type:'bar',
+    data:{labels:SEG_IDS.map(k=>SEG_NAMES[k].split('/')[0]),datasets:[{
+      label:'MoM Growth %',data:growth,
+      backgroundColor:growth.map(g=>g>=0?'rgba(5,150,105,.8)':'rgba(220,38,38,.8)'),borderRadius:5,borderSkipped:false
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tooltipCfg(),callbacks:{label:c=>` Growth: ${c.raw>0?'+':''}${c.raw}%`}}},
+      scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:11}}},y:{ticks:{color:tc(),callback:v=>v+'%'},grid:{color:gc()}}}}
+  });
+}
+function updateSegGrowthCust(){
+  if(!charts.segGrowthCust) return;
+  charts.segGrowthCust.data.datasets[0].backgroundColor = SEG_IDS.map((k,i)=>{
+    const a=SEG_DATA.apr[k]||0, m=SEG_DATA.may[k]||0;
+    const g=a>0?((m-a)/a):1;
+    if(activeSeg!=='all'&&activeSeg!==k) return 'rgba(160,160,160,.2)';
+    return g>=0?'rgba(5,150,105,.8)':'rgba(220,38,38,.8)';
+  });
+  charts.segGrowthCust.update();
+}
+
+// ════════════════════════════════════════════════════════════════
+// LANGUAGE TOGGLE — English ↔ Hindi
+// Modeled exactly like the theme toggle: one function, instant, complete.
+// Every text node that can change carries data-en and data-hi attributes.
+// toggleLang() walks every [data-en] element and swaps the textContent.
+// Dynamic text (KPIs, charts) is re-rendered by runAllUpdates after toggle.
+// ════════════════════════════════════════════════════════════════
+let isHindi = false;
+
+const LANG = {
+  en: {
+    segNames: { medical:'Medical/Pharma', retail:'Retail Stores', food:'Food & HoReCa', trader:'Traders', other:'Others' },
+    periodLbl: { all:'All Period', apr:'April 2026', may:'May 2026' },
+    segAll: 'All Segments',
+    buyers: 'Buyers',
+    newInMay: 'NEW in May',
+    aprOnly: 'Apr only',
+    noCustomers: 'No customers',
+    noneThisPeriod: 'None this period',
+    noneRetained: 'None',
+    allRetained: 'All customers retained',
+    aprZeroMay: 'Apr · Zero May',
+    noCustomersFound: 'No customers found for this segment/period.',
+    newPill: 'NEW',
+    noMayPill: 'No May',
+    custBadgePeriod: { all:'Apr–May', apr:'April', may:'May' },
+  },
+  hi: {
+    segNames: { medical:'मेडिकल/फार्मा', retail:'रिटेल स्टोर', food:'फूड & HoReCa', trader:'व्यापारी', other:'अन्य' },
+    periodLbl: { all:'सभी अवधि', apr:'अप्रैल 2026', may:'मई 2026' },
+    segAll: 'सभी वर्ग',
+    buyers: 'खरीदार',
+    newInMay: 'मई में नया',
+    aprOnly: 'केवल अप्रैल',
+    noCustomers: 'कोई ग्राहक नहीं',
+    noneThisPeriod: 'इस अवधि में कोई नहीं',
+    noneRetained: 'कोई नहीं',
+    allRetained: 'सभी ग्राहक बने रहे',
+    aprZeroMay: 'अप्रैल · मई शून्य',
+    noCustomersFound: 'इस वर्ग/अवधि में कोई ग्राहक नहीं।',
+    newPill: 'नया',
+    noMayPill: 'मई नहीं',
+    custBadgePeriod: { all:'अप्रैल–मई', apr:'अप्रैल', may:'मई' },
+  }
+};
+
+function getLang(){ return isHindi ? LANG.hi : LANG.en; }
+
+function toggleLang(){
+  isHindi = !isHindi;
+  const btn = document.getElementById('langToggle');
+  btn.textContent = isHindi ? 'EN ↔ हिं' : 'हिं ↔ EN';
+  btn.classList.toggle('hi-active', isHindi);
+  document.documentElement.setAttribute('data-lang', isHindi ? 'hi' : 'en');
+
+  // Walk every element carrying data-en / data-hi and swap text
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    el.textContent = isHindi ? (el.dataset.hi||el.dataset.en) : el.dataset.en;
+  });
+
+  // Re-render all dynamic sections (respects new language strings)
+  runAllUpdates();
+  renderExpenseRows();
+
+  // Priority strip period span (runAllUpdates -> updatePriorities re-renders it)
+  // Period badge
+  const pLabels = isHindi
+    ? {all:'अप्रैल–मई · सभी', apr:'केवल अप्रैल', may:'केवल मई'}
+    : {all:'Apr–May · Full',  apr:'April Only',   may:'May Only'};
+  const badge = document.getElementById('periodBadge');
+  if(badge) badge.textContent = pLabels[activePeriod];
+}
+
+function toggleTheme(){
+  const dark = isDark();
+  document.documentElement.setAttribute('data-theme', dark?'light':'dark');
+  document.getElementById('themeThumb').textContent = dark?'☀️':'🌙';
+  // Update all chart colors
+  Object.values(charts).forEach(ch=>{
+    if(!ch) return;
+    ['x','y'].forEach(ax=>{ if(ch.options.scales?.[ax]){ ch.options.scales[ax].ticks.color=tc(); ch.options.scales[ax].grid.color=gc(); } });
+    if(ch.options.plugins?.tooltip){ ch.options.plugins.tooltip.backgroundColor=tbg(); ch.options.plugins.tooltip.borderColor=tbr(); ch.options.plugins.tooltip.titleColor=ttc(); ch.options.plugins.tooltip.bodyColor=tbc(); }
+    if(ch.options.plugins?.legend?.labels) ch.options.plugins.legend.labels.color=tc();
+    if(ch.data?.datasets?.[0]?.borderColor && ch.config?.type==='doughnut'){ ch.data.datasets[0].borderColor=dark?'#fff':'#161a20'; }
+    ch.update();
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// VIEW SWITCH
+// ════════════════════════════════════════════════════════════════
+function switchView(v, btn){
+  document.body.setAttribute('data-view', v);
+  document.querySelectorAll('.view-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(v==='overview'?'viewOverview':'viewCustomers').classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  // Resize all charts after tab becomes visible
+  setTimeout(()=>{
+    Object.values(charts).forEach(c=>{ if(c) try{ c.resize(); }catch(e){} });
+    // Rebuild cust month chart if switching to customers — canvas may be fresh
+    if(v==='customers') updateCustView();
+  }, 120);
+}
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  renderExpenseRows();
+  buildCharts();
+  updateKPIs();
+  updateBanner();
+  updatePriorities();
+  updateInsights();
+  updateCustView();
+  renderSegLegend();
+});
+</script>
+</body>
+</html>
