@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IT Procurement — Dubai Client</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f4f0;color:#1a1a1a;font-family:'Inter',sans-serif;min-height:100vh;}
+
+.header{
+  background:#fff;border-bottom:1px solid #e5e3de;
+  padding:16px 36px;display:flex;align-items:center;justify-content:space-between;
+}
+.header h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.01em;}
+.header p{font-size:11px;color:#aaa;margin-top:2px;font-family:'DM Mono',monospace;}
+.curr-group{display:flex;gap:5px;align-items:center;}
+.curr-label{font-size:11px;color:#bbb;margin-right:4px;}
+.curr-btn{font-size:11px;padding:4px 13px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#777;cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;}
+.curr-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.curr-btn:hover:not(.active){border-color:#1a1a1a;color:#1a1a1a;}
+
+.page{padding:24px 36px;display:flex;flex-direction:column;gap:18px;}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kpi{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:16px 18px;}
+.kpi-label{font-size:10px;color:#aaa;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:5px;}
+.kpi-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:#1a1a1a;line-height:1;}
+.kpi-sub{font-size:10px;color:#ccc;margin-top:4px;font-family:'DM Mono',monospace;}
+.kpi-accent .kpi-val{color:#e85d04;}
+
+.row{display:grid;gap:18px;}
+.col-2{grid-template-columns:1fr 1fr;}
+.col-3{grid-template-columns:1fr 1fr 1fr;}
+
+.card{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:20px 22px;}
+.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:2px;}
+.card-sub{font-size:10px;color:#bbb;margin-bottom:16px;font-family:'DM Mono',monospace;}
+
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{padding:8px 11px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#bbb;border-bottom:1px solid #f0ede8;}
+tbody tr{border-bottom:1px solid #f5f3ef;transition:background 0.1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#faf9f7;}
+tbody td{padding:10px 11px;color:#1a1a1a;}
+.pill{display:inline-block;font-size:10px;font-weight:500;padding:2px 9px;border-radius:20px;}
+.price-inp{width:100px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #e0ddd8;background:#faf9f7;color:#1a1a1a;outline:none;transition:border 0.15s;}
+.price-inp:focus{border-color:#1a1a1a;}
+.line-total{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#e85d04;}
+tfoot td{padding:11px;border-top:2px solid #f0ede8;background:#faf9f7;}
+.grand-label{font-size:10px;color:#aaa;text-align:right;letter-spacing:0.07em;text-transform:uppercase;}
+.grand-value{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#e85d04;text-align:right;}
+
+.hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.hbar-label{font-size:11px;color:#888;width:105px;flex-shrink:0;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hbar-track{flex:1;background:#f5f3ef;border-radius:4px;height:22px;overflow:hidden;}
+.hbar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+.hbar-pct{font-size:11px;font-family:'DM Mono',monospace;font-weight:500;color:#fff;white-space:nowrap;}
+.hbar-amt{font-size:10px;font-family:'DM Mono',monospace;color:#aaa;width:80px;text-align:right;flex-shrink:0;}
+
+/* INSIGHT — only shown after prices entered */
+.insight-card{
+  background:#1a1a1a;border-radius:10px;padding:20px 24px;
+  display:none;
+}
+.insight-card.visible{display:block;}
+.insight-eyebrow{font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#e85d04;margin-bottom:6px;}
+.insight-headline{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;line-height:1.45;margin-bottom:8px;}
+.insight-body{font-size:11px;color:#888;line-height:1.7;}
+.insight-stat{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#e85d04;margin:10px 0 2px;}
+.insight-stat-sub{font-size:10px;color:#555;font-family:'DM Mono',monospace;}
+.insight-divider{width:28px;height:2px;background:#e85d04;margin-bottom:12px;border-radius:2px;}
+
+.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.leg-name{font-size:11px;color:#777;flex:1;}
+.leg-val{font-size:12px;font-family:'Syne',sans-serif;font-weight:700;color:#1a1a1a;}
+
+.actions{display:flex;gap:10px;}
+.act-btn{font-size:12px;padding:8px 18px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.act-btn:hover{border-color:#1a1a1a;color:#1a1a1a;}
+.act-btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.act-btn.primary:hover{background:#333;}
+.note{font-size:10px;color:#ccc;font-family:'DM Mono',monospace;}
+
+.empty-hint{text-align:center;padding:28px 0;color:#ccc;font-size:11px;font-family:'DM Mono',monospace;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>IT Procurement — Bill of Materials</h1>
+    <p>Dubai Client · Quotation Reference · May 2026</p>
+  </div>
+  <div class="curr-group">
+    <span class="curr-label">Currency</span>
+    <button class="curr-btn active" onclick="setCurrency('AED')">AED</button>
+    <button class="curr-btn" onclick="setCurrency('USD')">USD</button>
+    <button class="curr-btn" onclick="setCurrency('INR')">INR</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Total Line Items</div><div class="kpi-val">6</div><div class="kpi-sub">Unique SKUs</div></div>
+    <div class="kpi"><div class="kpi-label">Total Units</div><div class="kpi-val">31</div><div class="kpi-sub">Across all items</div></div>
+    <div class="kpi kpi-accent"><div class="kpi-label">Grand Total</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub" id="kpi-sub">Enter prices below</div></div>
+    <div class="kpi"><div class="kpi-label">Items Priced</div><div class="kpi-val" id="kpi-filled">0 / 6</div><div class="kpi-sub">With unit price</div></div>
+  </div>
+
+  <!-- ROW 1: Table + Pie + Qty -->
+  <div class="row col-2">
+
+    <div class="card">
+      <div class="card-title">Line Item Detail</div>
+      <div class="card-sub">Enter unit prices — totals compute in real time</div>
+      <table>
+        <thead><tr>
+          <th>#</th><th>Item</th><th>Cat.</th>
+          <th style="text-align:center;">Qty</th>
+          <th style="text-align:right;">Unit Price</th>
+          <th style="text-align:right;">Line Total</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot><tr>
+          <td colspan="4"></td>
+          <td class="grand-label">Grand Total</td>
+          <td class="grand-value" id="grand-total">—</td>
+        </tr></tfoot>
+      </table>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- PIE CHART -->
+      <div class="card" style="flex:1;">
+        <div class="card-title">Category Split</div>
+        <div class="card-sub">Cost share by category — updates with prices</div>
+        <div style="display:flex;align-items:center;gap:20px;">
+          <div style="width:150px;height:150px;flex-shrink:0;">
+            <canvas id="pieChart" role="img" aria-label="Pie chart of cost by category"></canvas>
+          </div>
+          <div style="flex:1;">
+            <div class="leg-row"><div class="leg-dot" style="background:#2563eb;"></div><span class="leg-name">Workstations</span><span class="leg-val" id="leg-ws">—</span></div>
+            <div class="leg-row"><div class="leg-dot" style="background:#16a34a;"></div><span class="leg-name">Networking</span><span class="leg-val" id="leg-net">—</span></div>
+            <div class="leg-row"><div class="leg-dot" style="background:#ea580c;"></div><span class="leg-name">Infrastructure</span><span class="leg-val" id="leg-inf">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QTY BAR -->
+      <div class="card" style="flex:1;">
+        <div class="card-title">Units per Item</div>
+        <div class="card-sub">Quantity ordered by line</div>
+        <div style="position:relative;height:130px;">
+          <canvas id="qtyChart" role="img" aria-label="Bar chart of quantities per item"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ROW 2: Hbars + Cat bar — only when prices entered -->
+  <div class="row col-2" id="row2" style="display:none;">
+    <div class="card">
+      <div class="card-title">Cost Breakdown per Item</div>
+      <div class="card-sub">% share of total spend</div>
+      <div id="hbars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Category Total Cost</div>
+      <div class="card-sub">Aggregated spend per category</div>
+      <div style="position:relative;height:220px;">
+        <canvas id="catChart" role="img" aria-label="Bar chart of total cost by category"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHT — shown only when all 6 are priced -->
+  <div class="insight-card" id="insightCard">
+    <div class="insight-eyebrow">🔍 Hidden Insight</div>
+    <div class="insight-divider"></div>
+    <div class="insight-headline">One SKU quietly controls your entire negotiation leverage.</div>
+    <div style="display:flex;align-items:flex-start;gap:32px;margin-top:10px;">
+      <div>
+        <div class="insight-stat">64.5%</div>
+        <div class="insight-stat-sub">of total units = Lenovo AIO alone</div>
+      </div>
+      <div class="insight-body" style="flex:1;padding-top:4px;">
+        The Lenovo IdeaCentre (qty 20) is 1 of 6 SKUs but makes up nearly two-thirds of all units ordered. A <strong style="color:#e8d5c0;">5% volume discount</strong> on this single item saves more than completely removing the MikroTik router line. Before finalising this quote, push the vendor on the Lenovo unit price — that's where the real money is.
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="act-btn primary" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="act-btn" onclick="window.print()">🖨 Print / PDF</button>
+  </div>
+
+  <div class="note">Indicative rates: 1 USD = 3.67 AED · 1 USD = 83.5 INR · All prices editable</div>
+
+</div>
+
+<script>
+const RATES={AED:1,USD:1/3.67,INR:83.5/3.67};
+const SYMS={AED:'AED ',USD:'$',INR:'₹'};
+let currency='AED';
+const prices={};
+
+const ITEMS=[
+  {id:1,main:'Lenovo IdeaCentre AIO 24IRH9',spec:'i7-13620H · 16GB · 512GB · WIN11 PRO K',cat:'ws',qty:20},
+  {id:2,main:'HP Pro Tower 290 G9',spec:'i7-14700 · 64GB · 512GB · WIN11 PRO',cat:'ws',qty:2},
+  {id:3,main:'Fortinet FortiGate 61F',spec:'Hardware + License',cat:'net',qty:2},
+  {id:4,main:'Cisco Switch 24-port PoE C1300',spec:'Layer 2 Managed · PoE+',cat:'net',qty:3},
+  {id:5,main:'Router MikroTik 4011',spec:'RouterBOARD · 10-port',cat:'net',qty:2},
+  {id:6,main:'Server Rack Cabinet 20U',spec:'With PDU mounts',cat:'inf',qty:2},
+];
+const CAT_LABEL={ws:'Workstation',net:'Networking',inf:'Infrastructure'};
+const CAT_BG={ws:'#eff6ff',net:'#f0fdf4',inf:'#fff7ed'};
+const CAT_TX={ws:'#2563eb',net:'#16a34a',inf:'#ea580c'};
+const CAT_HEX={ws:'#2563eb',net:'#16a34a',inf:'#ea580c'};
+const SHORT=['Lenovo AIO','HP Tower','FortiGate 61F','Cisco Switch','MikroTik','Rack 20U'];
+
+function fmt(v){
+  const n=v*RATES[currency];
+  return SYMS[currency]+n.toLocaleString('en-AE',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+
+function renderTable(){
+  document.getElementById('tbody').innerHTML=ITEMS.map(it=>`
+    <tr>
+      <td style="color:#ccc;font-family:'DM Mono',monospace;font-size:11px;">${it.id}</td>
+      <td>
+        <div style="font-weight:500;font-size:12px;">${it.main}</div>
+        <div style="font-size:10px;color:#ccc;margin-top:1px;font-family:'DM Mono',monospace;">${it.spec}</div>
+      </td>
+      <td><span class="pill" style="background:${CAT_BG[it.cat]};color:${CAT_TX[it.cat]};">${CAT_LABEL[it.cat]}</span></td>
+      <td style="text-align:center;font-weight:600;font-family:'Syne',sans-serif;">${it.qty}</td>
+      <td style="text-align:right;">
+        <input class="price-inp" type="number" min="0" step="1" placeholder="0.00"
+          id="p${it.id}" value="${prices[it.id]||''}" oninput="onPrice(${it.id},this.value)"/>
+      </td>
+      <td style="text-align:right;">
+        <span class="line-total" id="t${it.id}">${prices[it.id]?fmt(prices[it.id]*it.qty):'—'}</span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function onPrice(id,val){
+  const v=parseFloat(val);
+  if(!isNaN(v)&&v>=0)prices[id]=v; else delete prices[id];
+  updateAll();
+}
+
+function updateAll(){
+  let grand=0,filled=0;
+  const lines={};
+  ITEMS.forEach(it=>{
+    if(prices[it.id]){const l=prices[it.id]*it.qty;grand+=l;filled++;lines[it.id]=l;}
+    else lines[it.id]=0;
+    const el=document.getElementById('t'+it.id);
+    if(el)el.textContent=lines[it.id]>0?fmt(lines[it.id]):'—';
+  });
+  document.getElementById('grand-total').textContent=grand>0?fmt(grand):'—';
+  document.getElementById('kpi-total').textContent=grand>0?fmt(grand):'—';
+  document.getElementById('kpi-filled').textContent=filled+' / 6';
+  document.getElementById('kpi-sub').textContent=filled===6?'All items quoted':(filled>0?filled+' item(s) priced':'Enter prices below');
+
+  // show row2 only when at least 1 price entered
+  document.getElementById('row2').style.display=filled>0?'grid':'none';
+  // show insight only when all 6 priced
+  document.getElementById('insightCard').classList.toggle('visible',filled===6);
+
+  updatePie(lines,grand);
+  if(filled>0){updateHBars(lines,grand);updateCatChart(lines);}
+}
+
+/* PIE */
+let pieInst=null;
+function updatePie(lines,grand){
+  const ws=ITEMS.filter(i=>i.cat==='ws').reduce((s,i)=>s+(lines[i.id]||0),0);
+  const net=ITEMS.filter(i=>i.cat==='net').reduce((s,i)=>s+(lines[i.id]||0),0);
+  const inf=ITEMS.filter(i=>i.cat==='inf').reduce((s,i)=>s+(lines[i.id]||0),0);
+  document.getElementById('leg-ws').textContent=ws>0?fmt(ws):'—';
+  document.getElementById('leg-net').textContent=net>0?fmt(net):'—';
+  document.getElementById('leg-inf').textContent=inf>0?fmt(inf):'—';
+  const data=[ws||0.001,net||0.001,inf||0.001];
+  if(pieInst){pieInst.data.datasets[0].data=data;pieInst.update();return;}
+  pieInst=new Chart(document.getElementById('pieChart').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:['Workstations','Networking','Infrastructure'],
+      datasets:[{data,backgroundColor:['#2563eb','#16a34a','#ea580c'],
+        borderColor:'#fff',borderWidth:3,hoverOffset:5}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#1a1a1a',titleFont:{family:'Syne',size:12},bodyFont:{family:'DM Mono',size:11},
+        callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)}`}
+      }}}
+  });
+}
+
+/* QTY CHART (static) */
+new Chart(document.getElementById('qtyChart').getContext('2d'),{
+  type:'bar',
+  data:{
+    labels:SHORT,
+    datasets:[{data:[20,2,2,3,2,2],
+      backgroundColor:['#dbeafe','#dbeafe','#dcfce7','#dcfce7','#dcfce7','#ffedd5'],
+      borderColor:['#2563eb','#2563eb','#16a34a','#16a34a','#16a34a','#ea580c'],
+      borderWidth:2,borderRadius:5,borderSkipped:false}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a1a',titleFont:{family:'Syne',size:12},bodyFont:{family:'DM Mono',size:11}}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#bbb',font:{family:'DM Mono',size:9},maxRotation:20}},
+      y:{grid:{color:'#f5f3ef'},ticks:{color:'#bbb',font:{family:'DM Mono',size:10}},beginAtZero:true}
+    }}
+});
+
+/* HBARS */
+function updateHBars(lines,grand){
+  document.getElementById('hbars').innerHTML=ITEMS.map((it,i)=>{
+    const val=lines[it.id]||0;
+    const pct=grand>0?val/grand*100:0;
+    const w=Math.max(pct,val>0?2:0);
+    const col=CAT_HEX[it.cat];
+    return `<div class="hbar-row">
+      <div class="hbar-label" title="${it.main}">${SHORT[i]}</div>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:${w}%;background:${col};">
+          ${val>0?`<span class="hbar-pct">${pct.toFixed(1)}%</span>`:''}
+        </div>
+      </div>
+      <span class="hbar-amt">${val>0?fmt(val):'—'}</span>
+    </div>`;
+  }).join('');
+}
+
+/* CAT CHART */
+let catInst=null;
+function updateCatChart(lines){
+  const r=RATES[currency];
+  const ws=ITEMS.filter(i=>i.cat==='ws').reduce((s,i)=>s+(lines[i.id]||0),0)*r;
+  const net=ITEMS.filter(i=>i.cat==='net').reduce((s,i)=>s+(lines[i.id]||0),0)*r;
+  const inf=ITEMS.filter(i=>i.cat==='inf').reduce((s,i)=>s+(lines[i.id]||0),0)*r;
+  if(catInst){catInst.data.datasets[0].data=[ws,net,inf];catInst.update();return;}
+  catInst=new Chart(document.getElementById('catChart').getContext('2d'),{
+    type:'bar',
+    data:{labels:['Workstations','Networking','Infrastructure'],
+      datasets:[{data:[ws,net,inf],
+        backgroundColor:['#dbeafe','#dcfce7','#ffedd5'],
+        borderColor:['#2563eb','#16a34a','#ea580c'],
+        borderWidth:2,borderRadius:7,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#1a1a1a',titleFont:{family:'Syne',size:12},bodyFont:{family:'DM Mono',size:11},
+        callbacks:{label:c=>` ${SYMS[currency]}${Math.round(c.raw).toLocaleString()}`}
+      }},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#bbb',font:{family:'DM Mono',size:11}}},
+        y:{grid:{color:'#f5f3ef'},ticks:{color:'#bbb',font:{family:'DM Mono',size:10},
+          callback:v=>SYMS[currency]+Math.round(v).toLocaleString()},beginAtZero:true}
+      }}
+  });
+}
+
+function setCurrency(c){
+  currency=c;
+  document.querySelectorAll('.curr-btn').forEach(b=>b.classList.toggle('active',b.textContent===c));
+  renderTable();updateAll();
+}
+
+function exportCSV(){
+  const rows=[['#','Description','Specs','Category','Qty',`Unit Price (${currency})`,`Line Total (${currency})`]];
+  ITEMS.forEach(it=>{
+    const r=RATES[currency];
+    const u=prices[it.id]?(prices[it.id]*r).toFixed(2):'';
+    const t=prices[it.id]?(prices[it.id]*it.qty*r).toFixed(2):'';
+    rows.push([it.id,it.main,it.spec,CAT_LABEL[it.cat],it.qty,u,t]);
+  });
+  const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='procurement_bom_dubai.csv';a.click();
+}
+
+renderTable();updateAll();
+</script>
+</body>
+</html>
