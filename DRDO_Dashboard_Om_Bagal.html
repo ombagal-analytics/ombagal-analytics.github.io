@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DRDO Defence R&D Analytics | Om Bagal</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"]{
+  --bg:#0B0F1A;--surface:#111827;--surface2:#1A2235;--surface3:#222B3E;
+  --border:#1E2D47;--border2:#28354F;
+  --text-primary:#E8EDF5;--text-secondary:#8FA3BF;--text-muted:#4A6080;
+  --card-shadow:0 2px 12px rgba(0,0,0,0.4);
+  --tip-bg:#0D1B2E;--tip-border:#2A3F5F;
+}
+[data-theme="light"]{
+  --bg:#F4F6FB;--surface:#FFFFFF;--surface2:#F0F3FA;--surface3:#E8EDF8;
+  --border:#DDE4F0;--border2:#CDD6EC;
+  --text-primary:#0A1628;--text-secondary:#4A5A78;--text-muted:#8A9AB8;
+  --card-shadow:0 2px 12px rgba(0,0,0,0.07);
+  --tip-bg:#FFFFFF;--tip-border:#DDE4F0;
+}
+:root{--orange:#F97316;--orange-l:rgba(249,115,22,0.14);--green:#22C55E;--green-l:rgba(34,197,94,0.12);--red:#EF4444;--red-l:rgba(239,68,68,0.12);--amber:#F59E0B;--amber-l:rgba(245,158,11,0.12);--blue:#3B82F6;--blue-l:rgba(59,130,246,0.12);--r:10px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;font-size:14px;transition:background .3s,color .3s;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 22px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200;transition:background .3s;}
+.logo-emblem{width:36px;height:36px;background:linear-gradient(135deg,#F97316,#C2590A);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:white;font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+.logo-main{font-size:13px;font-weight:700;}
+.logo-sub{font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.org-badge{background:var(--orange-l);border:1px solid rgba(249,115,22,0.3);color:var(--orange);font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--green);font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+#liveClock{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;min-width:70px;}
+.theme-btn{cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 11px;font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:5px;transition:all .2s;user-select:none;}
+.theme-btn:hover{border-color:var(--orange);color:var(--orange);}
+.ins-bar{background:rgba(249,115,22,0.05);border-bottom:1px solid rgba(249,115,22,0.12);padding:9px 22px;display:flex;align-items:flex-start;gap:10px;}
+.ins-lbl{font-size:9px;font-weight:700;letter-spacing:1.8px;color:var(--orange);opacity:.75;margin-bottom:3px;text-transform:uppercase;}
+.ins-cards{display:flex;gap:9px;flex-wrap:wrap;}
+.ins-item{display:flex;gap:7px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 11px;border:1px solid rgba(255,255,255,0.05);min-width:190px;}
+[data-theme="light"] .ins-item{background:rgba(0,0,0,0.02);border-color:rgba(0,0,0,0.05);}
+.ins-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.ins-text{font-size:11px;line-height:1.5;color:var(--text-secondary);}
+.ins-sub{font-size:10px;color:var(--text-muted);margin-top:1px;}
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;transition:background .3s;}
+.flbl{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.ttgl{display:flex;background:var(--bg);border-radius:6px;padding:2px;border:1px solid var(--border2);}
+.tbtn{padding:4px 12px;border:none;background:none;border-radius:4px;font-size:11px;font-weight:600;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;color:var(--text-muted);transition:all .2s;}
+.tbtn.active{background:var(--orange);color:white;box-shadow:0 2px 8px rgba(249,115,22,0.3);}
+.chip-grp{display:flex;gap:5px;}
+.chip{padding:4px 11px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text-muted);transition:all .2s;user-select:none;}
+.chip:hover{border-color:var(--orange);color:var(--orange);}
+.chip.active{border-color:var(--orange);background:var(--orange-l);color:var(--orange);}
+.dvdr{width:1px;height:20px;background:var(--border2);}
+#periodLbl{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
+.main{padding:16px 22px;max-width:1400px;margin:0 auto;}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:14px;}
+.kpi-card{background:var(--surface);border-radius:var(--r);padding:15px 16px;border:1px solid var(--border);box-shadow:var(--card-shadow);position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s,background .3s;}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.2);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.ko::before{background:linear-gradient(90deg,var(--orange),#C2590A);}
+.kg::before{background:var(--green);}
+.ka::before{background:var(--amber);}
+.kr::before{background:var(--red);}
+.kb::before{background:var(--blue);}
+.kpi-lbl{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:7px;}
+.kpi-val{font-size:25px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:7px;font-family:'IBM Plex Mono',monospace;transition:all .35s;}
+.kpi-ft{display:flex;align-items:center;gap:5px;font-size:11px;}
+.bup{color:var(--green);background:var(--green-l);font-weight:700;padding:1px 5px;border-radius:3px;}
+.bdn{color:var(--red);background:var(--red-l);font-weight:700;padding:1px 5px;border-radius:3px;}
+.kpi-per{color:var(--text-muted);}
+/* Tooltip */
+.tip{position:fixed;background:var(--tip-bg);border:1px solid var(--tip-border);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--text-primary);pointer-events:none;z-index:9999;opacity:0;transition:opacity .15s;max-width:210px;box-shadow:0 8px 24px rgba(0,0,0,0.3);line-height:1.6;}
+.tip.show{opacity:1;}
+.tip-title{font-weight:700;font-size:12px;margin-bottom:4px;color:var(--orange);}
+.tip-row{display:flex;justify-content:space-between;gap:12px;font-size:11px;}
+.tip-val{font-weight:600;font-family:'IBM Plex Mono',monospace;}
+/* Alerts */
+.astrip{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:6px;margin-bottom:6px;font-size:12px;border:1px solid;cursor:default;transition:transform .15s;}
+.astrip:hover{transform:translateX(3px);}
+.astrip:last-child{margin-bottom:0;}
+.ared{background:var(--red-l);border-color:rgba(239,68,68,.25);color:#FCA5A5;}
+[data-theme="light"] .ared{color:#7F1D1D;}
+.aamber{background:var(--amber-l);border-color:rgba(245,158,11,.25);color:#FCD34D;}
+[data-theme="light"] .aamber{color:#78350F;}
+.agreen{background:var(--green-l);border-color:rgba(34,197,94,.25);color:#6EE7B7;}
+[data-theme="light"] .agreen{color:#064E3B;}
+.aico{font-size:12px;flex-shrink:0;}
+.atxt{flex:1;line-height:1.4;}
+.aact{font-weight:700;font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.1);cursor:pointer;flex-shrink:0;}
+.aact:hover{background:rgba(255,255,255,.2);}
+/* Layout */
+.row2{display:grid;grid-template-columns:2fr 1fr;gap:11px;margin-bottom:11px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--card-shadow);overflow:hidden;transition:background .3s,border .3s;}
+.card-hd{padding:12px 15px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:12px;font-weight:700;color:var(--text-primary);}
+.card-sub{font-size:10px;color:var(--text-muted);margin-top:1px;}
+.cbadge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.cb-o{background:var(--orange-l);color:var(--orange);}
+.cb-g{background:var(--green-l);color:var(--green);}
+.cb-r{background:var(--red-l);color:var(--red);}
+.cb-a{background:var(--amber-l);color:var(--amber);}
+.cb-b{background:var(--blue-l);color:var(--blue);}
+.card-body{padding:14px 15px;}
+/* Chart */
+.chart-wrap{display:flex;align-items:flex-end;gap:7px;height:125px;margin-bottom:7px;}
+.y-ax{display:flex;flex-direction:column;justify-content:space-between;height:125px;padding-right:5px;}
+.y-ax span{font-size:9px;color:var(--text-muted);}
+.chart-bars{flex:1;display:flex;align-items:flex-end;gap:5px;height:125px;}
+.cbar-wrap{flex:1;display:flex;flex-direction:column;align-items:stretch;height:100%;justify-content:flex-end;cursor:pointer;}
+.cbar{border-radius:4px 4px 0 0;transition:height .65s cubic-bezier(.34,1.56,.64,1),filter .2s;display:flex;align-items:flex-start;justify-content:center;padding-top:3px;}
+.cbar:hover{filter:brightness(1.25);}
+.cbar-val{font-size:9px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:rgba(255,255,255,.8);}
+.cbar-lbl{text-align:center;font-size:10px;color:var(--text-muted);padding-top:3px;}
+/* H-bars */
+.brow{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.brow:last-child{margin-bottom:0;}
+.blbl{width:78px;font-size:11px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+.bwrap{flex:1;background:var(--surface2);border-radius:4px;height:21px;overflow:hidden;cursor:pointer;}
+.bfill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:7px;font-size:10px;font-weight:700;color:white;transition:width .7s cubic-bezier(.34,1.56,.64,1),filter .2s;}
+.bwrap:hover .bfill{filter:brightness(1.15);}
+.bval{width:46px;text-align:right;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+/* Table */
+.dtable{width:100%;border-collapse:collapse;}
+.dtable th{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:9px 9px 9px 15px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);cursor:pointer;user-select:none;transition:color .2s;white-space:nowrap;}
+.dtable th:hover{color:var(--orange);}
+.th-arr{margin-left:3px;opacity:.5;}
+.dtable td{padding:8px 9px 8px 15px;font-size:12px;border-bottom:1px solid var(--border);color:var(--text-secondary);}
+.dtable tr:last-child td{border-bottom:none;}
+.dtable td:first-child{color:var(--text-primary);font-weight:600;}
+.dtable tbody tr{cursor:pointer;transition:background .15s;}
+.dtable tbody tr:hover td{background:var(--surface2);}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;}
+.pp{background:var(--green-l);color:var(--green);}
+.pf{background:var(--red-l);color:var(--red);}
+.pr{background:var(--amber-l);color:var(--amber);}
+.pb{background:var(--blue-l);color:var(--blue);}
+/* Timeline */
+.tl-item{display:flex;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);cursor:default;transition:background .15s;border-radius:6px;}
+.tl-item:last-child{border-bottom:none;}
+.tl-item:hover{background:var(--surface2);}
+.tl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.tl-title{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:1px;}
+.tl-meta{font-size:11px;color:var(--text-muted);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px);}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:520px;max-width:92vw;max-height:82vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);transform:translateY(20px);transition:transform .25s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.modal-title{font-size:14px;font-weight:700;color:var(--text-primary);}
+.modal-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.modal-close{cursor:pointer;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-muted);flex-shrink:0;transition:all .15s;}
+.modal-close:hover{background:var(--red-l);border-color:var(--red);color:var(--red);}
+.modal-body{padding:16px 20px;}
+.modal-section{margin-bottom:14px;}
+.modal-section:last-child{margin-bottom:0;}
+.msec-title{font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+.mrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.mrow:last-child{border-bottom:none;}
+.mrow-label{color:var(--text-secondary);}
+.mrow-val{font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--text-primary);}
+.mrow-val.danger{color:var(--red);}.mrow-val.warn{color:var(--amber);}.mrow-val.ok{color:var(--green);}
+.modal-action-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.mbtn{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;transition:all .2s;font-family:'IBM Plex Sans',sans-serif;}
+.mbtn-primary{background:var(--orange);border-color:var(--orange);color:white;}.mbtn-primary:hover{opacity:.85;}
+.mbtn-secondary{background:var(--surface2);border-color:var(--border2);color:var(--text-secondary);}.mbtn-secondary:hover{border-color:var(--orange);color:var(--orange);}
+.sc-red{background:var(--red-l);color:var(--red);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+.sc-amber{background:var(--amber-l);color:var(--amber);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+.sc-green{background:var(--green-l);color:var(--green);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
+.tl-st{font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-top:3px;display:inline-block;}
+/* Footer */
+.footer{margin-top:18px;padding:13px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);transition:background .3s;}
+.footer-l{font-size:11px;color:var(--text-muted);}
+.footer-r{display:flex;gap:14px;}
+.fc{font-size:11px;color:var(--text-muted);}
+.fc span{color:var(--orange);font-weight:600;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.row2,.row3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="tip" id="tip"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="logo-emblem">DR</div>
+    <div><div class="logo-main">DRDO Defence R&amp;D Analytics Dashboard</div><div class="logo-sub">Defence Research &amp; Development Organisation · Materials Lab</div></div>
+    <div class="org-badge">⚙ MATERIALS LAB</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:9px;">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div id="liveClock"></div>
+    <div class="theme-btn" onclick="toggleTheme()" id="themeBtnEl">🌙 Dark</div>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div class="ins-bar">
+  <div style="font-size:15px;margin-top:2px;">🔬</div>
+  <div style="flex:1;">
+    <div class="ins-lbl">Intelligence Summary</div>
+    <div class="ins-cards">
+      <div class="ins-item"><div class="ins-dot" style="background:var(--red);"></div><div><div class="ins-text">3 samples failed tensile strength — Batch M-47 flagged</div><div class="ins-sub">→ Escalate to QC Lead immediately</div></div></div>
+      <div class="ins-item"><div class="ins-dot" style="background:var(--amber);"></div><div><div class="ins-text">Project SHIELD-X milestone 2 overdue by 6 days</div><div class="ins-sub">→ Review timeline with project head</div></div></div>
+      <div class="ins-item"><div class="ins-dot" style="background:var(--green);"></div><div><div class="ins-text">Alloy composite trials: 87% pass rate — highest in Q4</div><div class="ins-sub">→ Proceed to Phase-2 validation</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filter-bar">
+  <div class="flbl">Period</div>
+  <div class="ttgl">
+    <button class="tbtn" onclick="setPeriod(this,'Monthly')">Monthly</button>
+    <button class="tbtn active" onclick="setPeriod(this,'Quarterly')">Quarterly</button>
+    <button class="tbtn" onclick="setPeriod(this,'Yearly')">Yearly</button>
+  </div>
+  <div class="dvdr"></div>
+  <div class="flbl">Division</div>
+  <div class="chip-grp">
+    <div class="chip active" onclick="setDiv(this,'ALL')">All</div>
+    <div class="chip" onclick="setDiv(this,'MAT')">Materials</div>
+    <div class="chip" onclick="setDiv(this,'CHEM')">Chemical</div>
+    <div class="chip" onclick="setDiv(this,'MECH')">Mechanical</div>
+  </div>
+  <div class="dvdr"></div>
+  <div id="periodLbl" style="font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">Q4 2024 · All Divisions</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card ko" data-tip-key="samples"><div class="kpi-lbl">Samples Tested</div><div class="kpi-val" id="kv-s" style="color:var(--orange);">0</div><div class="kpi-ft"><span class="bup">▲ 12%</span><span class="kpi-per">vs last quarter</span></div></div>
+    <div class="kpi-card kg" data-tip-key="pass"><div class="kpi-lbl">Pass Rate</div><div class="kpi-val" id="kv-p" style="color:var(--green);">0%</div><div class="kpi-ft"><span class="bup">▲ 3.1%</span><span class="kpi-per">vs last quarter</span></div></div>
+    <div class="kpi-card ka" data-tip-key="projects"><div class="kpi-lbl">Active Projects</div><div class="kpi-val" id="kv-pr" style="color:var(--amber);">0</div><div class="kpi-ft"><span class="bdn">▼ 2</span><span class="kpi-per">completed this Q</span></div></div>
+    <div class="kpi-card kr" data-tip-key="failures"><div class="kpi-lbl">Failed Samples</div><div class="kpi-val" id="kv-f" style="color:var(--red);">0</div><div class="kpi-ft"><span class="bup">▼ 8%</span><span class="kpi-per">vs last quarter</span></div></div>
+    <div class="kpi-card kb" data-tip-key="util"><div class="kpi-lbl">Lab Utilisation</div><div class="kpi-val" id="kv-u" style="color:var(--blue);">0%</div><div class="kpi-ft"><span class="bup">▲ 5%</span><span class="kpi-per">vs last quarter</span></div></div>
+  </div>
+
+  <!-- ROW 1 -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Sample Testing Output — Trend</div><div class="card-sub" id="chartSub">Tests conducted across all divisions</div></div><span class="cbadge cb-o" id="chartBadge">—</span></div>
+      <div class="card-body">
+        <div class="chart-wrap"><div class="y-ax" id="yAx"></div><div class="chart-bars" id="chartBars"></div></div>
+        <div id="chartLabels" style="display:flex;gap:5px;padding-left:30px;margin-top:2px;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Pass Rate by Division</div><div class="card-sub">Threshold: 80% · Hover bars for details</div></div><span class="cbadge cb-g">Q4 2024</span></div>
+      <div class="card-body" id="passDiv"></div>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row3">
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Live Quality Alerts</div><div class="card-sub">Requires immediate action</div></div><span class="cbadge cb-r" id="alertBadge">5 Alerts</span></div>
+      <div class="card-body">
+        <div class="astrip ared"><span class="aico">🔴</span><span class="atxt">Batch M-47: 3 samples failed tensile — below 450 MPa</span><span class="aact" onclick="openModal('review_m47')">Review →</span></div>
+        <div class="astrip ared"><span class="aico">🔴</span><span class="atxt">Thermal Lab: calibration overdue by 12 days</span><span class="aact" onclick="openModal('action_thermal')">Action →</span></div>
+        <div class="astrip aamber"><span class="aico">🟡</span><span class="atxt">Project SHIELD-X: Milestone 2 delayed 6 days</span><span class="aact" onclick="openModal('escalate_shield')">Escalate →</span></div>
+        <div class="astrip aamber"><span class="aico">🟡</span><span class="atxt">Chemical stock: HNO3 below minimum — reorder</span><span class="aact" onclick="openModal('order_chemical')">Order →</span></div>
+        <div class="astrip agreen"><span class="aico">🟢</span><span class="atxt">Alloy composite trials complete — Phase 2 approved</span><span class="aact" onclick="openModal('view_composite')">View →</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Project Milestone Tracker</div><div class="card-sub">Active R&amp;D projects · Hover rows</div></div><span class="cbadge cb-o" id="projBadge">18 Active</span></div>
+      <div class="card-body" id="projList">
+        <div class="tl-item"><div class="tl-dot" style="background:var(--green);"></div><div><div class="tl-title">Project ARMOUR-3</div><div class="tl-meta">Ballistic material testing · Phase 3/4</div><span class="tl-st" style="background:var(--green-l);color:var(--green);">ON TRACK</span></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--red);"></div><div><div class="tl-title">Project SHIELD-X</div><div class="tl-meta">Composite alloy research · Phase 2/5</div><span class="tl-st" style="background:var(--red-l);color:var(--red);">DELAYED</span></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--amber);"></div><div><div class="tl-title">Project VEGA-9</div><div class="tl-meta">Thermal insulation study · Phase 1/3</div><span class="tl-st" style="background:var(--amber-l);color:var(--amber);">IN REVIEW</span></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--blue);"></div><div><div class="tl-title">Project FERRO-2</div><div class="tl-meta">High-strength steel · Phase 4/4</div><span class="tl-st" style="background:var(--blue-l);color:var(--blue);">COMPLETE</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><div class="card-title">Failure Mode Analysis</div><div class="card-sub">Top causes · Hover bars for breakdown</div></div><span class="cbadge cb-r" id="failBadge">196 Failures</span></div>
+      <div class="card-body" id="failDiv"></div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-hd"><div><div class="card-title">Sample Batch Log</div><div class="card-sub">Click column headers to sort · Hover rows for details</div></div><span class="cbadge cb-o">8 Batches</span></div>
+    <div style="overflow-x:auto;">
+      <table class="dtable">
+        <thead><tr>
+          <th onclick="sortTbl(0)">Batch<span class="th-arr" id="ta0">↕</span></th>
+          <th onclick="sortTbl(1)">Material<span class="th-arr" id="ta1">↕</span></th>
+          <th onclick="sortTbl(2)">Division<span class="th-arr" id="ta2">↕</span></th>
+          <th onclick="sortTbl(3)">Samples<span class="th-arr" id="ta3">↕</span></th>
+          <th onclick="sortTbl(4)">Pass<span class="th-arr" id="ta4">↕</span></th>
+          <th onclick="sortTbl(5)">Fail<span class="th-arr" id="ta5">↕</span></th>
+          <th onclick="sortTbl(6)">Pass Rate<span class="th-arr" id="ta6">↕</span></th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="bTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hd">
+      <div>
+        <div class="modal-title" id="modalTitle">—</div>
+        <div class="modal-sub" id="modalSub">—</div>
+      </div>
+      <div class="modal-close" onclick="closeModal(true)">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-l">© 2025 Om Bagal Analytics · DRDO Materials Lab Dashboard · Portfolio use only</div>
+  <div class="footer-r">
+    <div class="fc">📱 <span>9987258696</span></div>
+    <div class="fc">✉ <span>ombagal.official@gmail.com</span></div>
+    <div class="fc">🔗 <span>linkedin.com/in/ombagal-analytics</span></div>
+  </div>
+</div>
+
+<script>
+// DATA
+const D = {
+  ALL:{s:1247,p:84.3,pr:18,f:196,u:91.2,
+    trend:{
+      Monthly:   [72,68,80,77,85,79,88,83,91,87,95,192],
+      Quarterly: [310,355,390,192],
+      Yearly:    [1050,1180,1247,980]
+    },
+    div:{Materials:87,Chemical:82,Mechanical:78,Composite:91,Thermal:75},
+    fail:{Tensile:54,Hardness:41,Thermal:36,Chemical:29,Impact:18}
+  },
+  MAT:{s:510,p:89.1,pr:7,f:56,u:93.4,
+    trend:{
+      Monthly:   [28,26,31,30,34,32,36,34,38,36,40,38],
+      Quarterly: [120,138,160,92],
+      Yearly:    [410,462,510,390]
+    },
+    div:{Materials:89,Composite:92},
+    fail:{Tensile:22,Hardness:15,Thermal:9,Chemical:6,Impact:4}
+  },
+  CHEM:{s:310,p:82.4,pr:5,f:55,u:88.7,
+    trend:{
+      Monthly:   [18,17,20,19,22,21,24,23,26,24,27,49],
+      Quarterly: [78,88,95,49],
+      Yearly:    [260,285,310,240]
+    },
+    div:{Chemical:82},
+    fail:{Tensile:8,Hardness:10,Thermal:12,Chemical:20,Impact:5}
+  },
+  MECH:{s:427,p:80.1,pr:6,f:85,u:90.1,
+    trend:{
+      Monthly:   [26,25,29,28,29,26,28,26,27,27,29,51],
+      Quarterly: [112,129,135,51],
+      Yearly:    [380,433,427,350]
+    },
+    div:{Mechanical:78,Thermal:75},
+    fail:{Tensile:24,Hardness:16,Thermal:15,Chemical:3,Impact:9}
+  },
+};
+const PLBL = {
+  Monthly:   ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  Quarterly: ['Oct','Nov','Dec','Jan'],
+  Yearly:    ['2021','2022','2023','2024']
+};
+const TIPS = {
+  samples:{title:'Samples Tested',rows:[['Total Q4','1,247'],['Materials','510'],['Chemical','310'],['Mechanical','427']]},
+  pass:   {title:'Pass Rate',rows:[['Overall','84.3%'],['Best Div','Composite 91%'],['Worst Div','Thermal 75%'],['Target','>80%']]},
+  projects:{title:'Active Projects',rows:[['On Track','14'],['Delayed','3'],['In Review','1'],['Completed Q4','2']]},
+  failures:{title:'Failed Samples',rows:[['Total','196'],['Top Cause','Tensile (54)'],['Failure Rate','15.7%'],['vs Q3','▼ 8%']]},
+  util:   {title:'Lab Utilisation',rows:[['Overall','91.2%'],['Peak Day','98%'],['Min Day','74%'],['Target','>85%']]},
+};
+
+let curDiv='ALL',curPeriod='Quarterly',sortCol=-1,sortAsc=true;
+const tip=document.getElementById('tip');
+
+// CLOCK
+setInterval(()=>document.getElementById('liveClock').textContent=new Date().toLocaleTimeString('en-IN'),1000);
+document.getElementById('liveClock').textContent=new Date().toLocaleTimeString('en-IN');
+
+// THEME
+function toggleTheme(){
+  const h=document.documentElement,dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('themeBtnEl').textContent=dark?'☀ Light':'🌙 Dark';
+}
+
+// TOOLTIP
+function showTip(e,html){tip.innerHTML=html;tip.classList.add('show');moveTip(e);}
+function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';}
+function hideTip(){tip.classList.remove('show');}
+document.querySelectorAll('[data-tip-key]').forEach(el=>{
+  const k=el.getAttribute('data-tip-key');const d=TIPS[k];if(!d)return;
+  const html=`<div class="tip-title">${d.title}</div>${d.rows.map(r=>`<div class="tip-row"><span>${r[0]}</span><span class="tip-val">${r[1]}</span></div>`).join('')}`;
+  el.addEventListener('mousemove',e=>showTip(e,html));
+  el.addEventListener('mouseleave',hideTip);
+});
+
+// COUNTER
+function counter(el,target,isFloat,sfx=''){
+  const steps=36,dur=800,st=dur/steps;let i=0;
+  const t=setInterval(()=>{i++;const v=target*(i/steps);
+    el.textContent=isFloat?v.toFixed(1)+sfx:Math.round(v).toLocaleString()+sfx;
+    if(i>=steps){el.textContent=isFloat?target.toFixed(1)+sfx:target.toLocaleString()+sfx;clearInterval(t);}
+  },st);
+}
+
+// KPIs
+function renderKPIs(d){
+  counter(document.getElementById('kv-s'),d.s,false);
+  counter(document.getElementById('kv-p'),d.p,true,'%');
+  counter(document.getElementById('kv-pr'),d.pr,false);
+  counter(document.getElementById('kv-f'),d.f,false);
+  counter(document.getElementById('kv-u'),d.u,true,'%');
+}
+
+// CHART — Bug 1 fix: use trend[period] not flat array; Bug 2 fix: all bars coloured
+function barColor(v, maxV){
+  const pct = v/maxV;
+  if(pct >= 0.85) return '#22C55E';   // green — high
+  if(pct >= 0.65) return '#F97316';   // orange — mid-high
+  if(pct >= 0.45) return '#F59E0B';   // amber — mid
+  return '#EF4444';                    // red — low
+}
+function renderChart(d,period){
+  const labels=PLBL[period], vals=d.trend[period], maxV=Math.max(...vals);
+  const yAx=document.getElementById('yAx'),bars=document.getElementById('chartBars'),lbls=document.getElementById('chartLabels');
+  yAx.innerHTML=bars.innerHTML=lbls.innerHTML='';
+  [maxV,Math.round(maxV*.66),Math.round(maxV*.33),0].forEach(v=>{
+    const s=document.createElement('span');s.textContent=v;yAx.appendChild(s);
+  });
+  const total=vals.reduce((a,b)=>a+b,0);
+  document.getElementById('chartBadge').textContent=total.toLocaleString()+' Total';
+  document.getElementById('chartSub').textContent='Tests conducted · '+period+' view · '+labels.length+' periods';
+  vals.forEach((v,i)=>{
+    const pct=(v/maxV)*100, isLast=i===vals.length-1;
+    const col = isLast ? 'var(--orange)' : barColor(v, maxV);
+    const border = isLast ? 'var(--orange)' : col;
+    const wrap=document.createElement('div');wrap.className='cbar-wrap';
+    const bar=document.createElement('div');bar.className='cbar';
+    bar.style.cssText=`width:100%;height:0;background:${col};border-top:2px solid ${border};opacity:${isLast?1:0.75};`;
+    bar.innerHTML=pct>25?`<span class="cbar-val">${v}</span>`:'';
+    setTimeout(()=>{bar.style.height=pct+'%';},50+i*30);
+    bar.addEventListener('mouseover',()=>{bar.style.opacity='1';bar.style.filter='brightness(1.2)';});
+    bar.addEventListener('mouseout', ()=>{bar.style.opacity=isLast?'1':'0.75';bar.style.filter='none';});
+    const tipHtml=`<div class="tip-title">${labels[i]}</div><div class="tip-row"><span>Tests</span><span class="tip-val">${v.toLocaleString()}</span></div><div class="tip-row"><span>vs Peak</span><span class="tip-val">${Math.round(v/maxV*100)}%</span></div><div class="tip-row"><span>vs Total</span><span class="tip-val">${Math.round(v/total*100)}%</span></div>`;
+    bar.addEventListener('mousemove',e=>showTip(e,tipHtml));bar.addEventListener('mouseleave',hideTip);
+    wrap.appendChild(bar);bars.appendChild(wrap);
+    const lbl=document.createElement('div');lbl.className='cbar-lbl';lbl.style.flex='1';
+    // For monthly show short label to avoid crowding
+    lbl.textContent = period==='Monthly' ? labels[i].slice(0,3) : labels[i];
+    if(isLast){lbl.style.color='var(--orange)';lbl.style.fontWeight='700';}
+    lbls.appendChild(lbl);
+  });
+}
+
+// PASS RATE BARS
+function renderPass(d){
+  const c=document.getElementById('passDiv');c.innerHTML='';
+  Object.entries(d.div).forEach(([name,val])=>{
+    const col=val>=85?'var(--green)':val>=80?'var(--orange)':'var(--red)';
+    const row=document.createElement('div');row.className='brow';
+    const uid='pb-'+name.replace(/\s/g,'');
+    row.innerHTML=`<div class="blbl">${name}</div><div class="bwrap"><div class="bfill" id="${uid}" style="width:0;background:${col};">${val}%</div></div><div class="bval" style="color:${col};">${val}%</div>`;
+    c.appendChild(row);
+    setTimeout(()=>{const el=document.getElementById(uid);if(el)el.style.width=val+'%';},100);
+    const tipHtml=`<div class="tip-title">${name}</div><div class="tip-row"><span>Pass Rate</span><span class="tip-val">${val}%</span></div><div class="tip-row"><span>Status</span><span class="tip-val">${val>=80?'✅ Above target':'❌ Below target'}</span></div><div class="tip-row"><span>Threshold</span><span class="tip-val">80%</span></div>`;
+    row.querySelector('.bwrap').addEventListener('mousemove',e=>showTip(e,tipHtml));
+    row.querySelector('.bwrap').addEventListener('mouseleave',hideTip);
+  });
+}
+
+// FAILURE BARS
+function renderFail(d){
+  const c=document.getElementById('failDiv');c.innerHTML='';
+  const cols=['var(--red)','var(--orange)','var(--amber)','var(--blue)','var(--text-muted)'];
+  const total=Object.values(d.fail).reduce((a,b)=>a+b,0);
+  const maxF=Math.max(...Object.values(d.fail));
+  document.getElementById('failBadge').textContent=total+' Failures';
+  Object.entries(d.fail).forEach(([name,val],i)=>{
+    const pct=Math.round(val/maxF*100);
+    const uid='fb-'+name;
+    const row=document.createElement('div');row.className='brow';
+    row.innerHTML=`<div class="blbl">${name}</div><div class="bwrap"><div class="bfill" id="${uid}" style="width:0;background:${cols[i]};">${val}</div></div><div class="bval" style="color:${cols[i]};">${val}</div>`;
+    c.appendChild(row);
+    setTimeout(()=>{const el=document.getElementById(uid);if(el)el.style.width=pct+'%';},100+i*45);
+    const tipHtml=`<div class="tip-title">${name} Failures</div><div class="tip-row"><span>Count</span><span class="tip-val">${val}</span></div><div class="tip-row"><span>Share</span><span class="tip-val">${Math.round(val/total*100)}%</span></div>`;
+    row.querySelector('.bwrap').addEventListener('mousemove',e=>showTip(e,tipHtml));
+    row.querySelector('.bwrap').addEventListener('mouseleave',hideTip);
+  });
+}
+
+// TABLE
+const BATCHES=[
+  ['M-47','Alloy Steel','Materials',120,97,23,80.8,'REVIEW'],
+  ['C-31','Composite Fibre','Chemical',85,74,11,87.1,'PASS'],
+  ['T-19','Titanium Sheet','Mechanical',60,52,8,86.7,'PASS'],
+  ['TH-08','Ceramic Coating','Thermal',45,30,15,66.7,'FAIL'],
+  ['M-46','Maraging Steel','Materials',110,98,12,89.1,'PASS'],
+  ['CH-22','Propellant Mix','Chemical',30,22,8,73.3,'REVIEW'],
+  ['CP-14','Carbon-Fibre','Materials',95,88,7,92.6,'PASS'],
+  ['ME-33','Gear Alloy','Mechanical',70,59,11,84.3,'PASS'],
+];
+let tblData=[...BATCHES];
+function renderTable(divF){
+  const tbody=document.getElementById('bTbody');tbody.innerHTML='';
+  const rows=divF==='ALL'?tblData:tblData.filter(r=>r[2].toUpperCase().startsWith(divF==='MAT'?'MA':divF==='CHEM'?'CH':'ME'));
+  rows.forEach(r=>{
+    const pc=r[7]==='PASS'?'pp':r[7]==='FAIL'?'pf':r[7]==='REVIEW'?'pr':'pb';
+    const rc=r[6]>=85?'var(--green)':r[6]>=80?'var(--amber)':'var(--red)';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="font-family:'IBM Plex Mono';">${r[3]}</td><td style="color:var(--green);font-family:'IBM Plex Mono';">${r[4]}</td><td style="color:var(--red);font-family:'IBM Plex Mono';">${r[5]}</td><td style="color:${rc};font-family:'IBM Plex Mono';">${r[6].toFixed(1)}%</td><td><span class="pill ${pc}">${r[7]}</span></td>`;
+    const tipHtml=`<div class="tip-title">Batch ${r[0]}</div><div class="tip-row"><span>Pass Rate</span><span class="tip-val">${r[6]}%</span></div><div class="tip-row"><span>Passed</span><span class="tip-val">${r[4]}</span></div><div class="tip-row"><span>Failed</span><span class="tip-val">${r[5]}</span></div><div class="tip-row"><span>Material</span><span class="tip-val">${r[1]}</span></div>`;
+    tr.addEventListener('mousemove',e=>showTip(e,tipHtml));
+    tr.addEventListener('mouseleave',hideTip);
+    tbody.appendChild(tr);
+  });
+}
+function sortTbl(col){
+  if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=true;}
+  tblData.sort((a,b)=>{const av=a[col],bv=b[col];return typeof av==='number'?(sortAsc?av-bv:bv-av):(sortAsc?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av)));});
+  for(let i=0;i<7;i++)document.getElementById('ta'+i).textContent=i===col?(sortAsc?'↑':'↓'):'↕';
+  renderTable(curDiv);
+}
+
+// FILTERS
+function setPeriod(btn,period){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curPeriod=period;updateLbl();renderChart(D[curDiv],period);}
+function setDiv(el,div){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');curDiv=div;updateLbl();const d=D[div];renderKPIs(d);renderChart(d,curPeriod);renderPass(d);renderFail(d);renderTable(div);}
+function updateLbl(){const dNames={ALL:'All Divisions',MAT:'Materials',CHEM:'Chemical',MECH:'Mechanical'};document.getElementById('periodLbl').textContent=curPeriod+' · '+dNames[curDiv];}
+
+// SIMULATED LIVE REFRESH
+setInterval(()=>{
+  const el=document.getElementById('kv-s'),cur=parseInt(el.textContent.replace(/,/g,''));
+  const nv=cur+Math.floor(Math.random()*3)-1;
+  el.style.transition='color .3s';el.style.color='#ffffff';
+  setTimeout(()=>{el.textContent=nv.toLocaleString();el.style.color='var(--orange)';},300);
+},30000);
+
+
+// ===== MODAL SYSTEM =====
+const MODALS = {
+  review_m47: {
+    title: '🔴 Batch M-47 — Quality Review Report',
+    sub: 'Alloy Steel · Materials Division · Raised: 08 Jan 2025',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Failure Summary</div>
+        <div class="mrow"><span class="mrow-label">Batch ID</span><span class="mrow-val">M-47</span></div>
+        <div class="mrow"><span class="mrow-label">Material</span><span class="mrow-val">Alloy Steel (AISI 4340)</span></div>
+        <div class="mrow"><span class="mrow-label">Samples Tested</span><span class="mrow-val">120</span></div>
+        <div class="mrow"><span class="mrow-label">Samples Failed</span><span class="mrow-val danger">23 (19.2%)</span></div>
+        <div class="mrow"><span class="mrow-label">Failure Mode</span><span class="mrow-val danger">Tensile Strength Below Threshold</span></div>
+        <div class="mrow"><span class="mrow-label">Threshold Requirement</span><span class="mrow-val">≥ 450 MPa</span></div>
+        <div class="mrow"><span class="mrow-label">Recorded Values</span><span class="mrow-val danger">412–438 MPa (avg 424 MPa)</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Root Cause Analysis</div>
+        <div class="mrow"><span class="mrow-label">Probable Cause</span><span class="mrow-val warn">Heat treatment cycle deviation</span></div>
+        <div class="mrow"><span class="mrow-label">Furnace Used</span><span class="mrow-val">Furnace F-3 (Bhosari Lab)</span></div>
+        <div class="mrow"><span class="mrow-label">Temperature Log</span><span class="mrow-val warn">Drop of 18°C at 14:30 on 06 Jan</span></div>
+        <div class="mrow"><span class="mrow-label">Operator on Shift</span><span class="mrow-val">Tech. Ramesh K.</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Recommended Actions</div>
+        <div class="mrow"><span class="mrow-label">1. Re-test</span><span class="mrow-val">Full batch re-testing by 10 Jan</span></div>
+        <div class="mrow"><span class="mrow-label">2. Furnace Audit</span><span class="mrow-val">Calibrate F-3 before next use</span></div>
+        <div class="mrow"><span class="mrow-label">3. Escalation</span><span class="mrow-val">Notify QC Lead Dr. Patil</span></div>
+        <div class="mrow"><span class="mrow-label">Current Status</span><span class="sc-red">UNDER REVIEW</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Escalation sent to QC Lead')">Escalate to QC Lead</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('Re-test scheduled for 10 Jan')">Schedule Re-test</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  action_thermal: {
+    title: '🔴 Thermal Lab — Calibration Overdue',
+    sub: 'Equipment Maintenance · Raised: 28 Dec 2024',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Equipment Status</div>
+        <div class="mrow"><span class="mrow-label">Lab</span><span class="mrow-val">Thermal Analysis Lab — Block C</span></div>
+        <div class="mrow"><span class="mrow-label">Equipment</span><span class="mrow-val">Dilatometer DL-7 &amp; TGA Unit-2</span></div>
+        <div class="mrow"><span class="mrow-label">Last Calibrated</span><span class="mrow-val danger">27 Dec 2024</span></div>
+        <div class="mrow"><span class="mrow-label">Scheduled Every</span><span class="mrow-val">21 days</span></div>
+        <div class="mrow"><span class="mrow-label">Overdue By</span><span class="mrow-val danger">12 days (was due 17 Dec)</span></div>
+        <div class="mrow"><span class="mrow-label">Tests Affected</span><span class="mrow-val warn">14 tests run since last calibration</span></div>
+        <div class="mrow"><span class="mrow-label">Risk Level</span><span class="sc-red">HIGH — Results may be invalid</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Impact Assessment</div>
+        <div class="mrow"><span class="mrow-label">Affected Batches</span><span class="mrow-val warn">TH-08, TH-09, TH-10</span></div>
+        <div class="mrow"><span class="mrow-label">Samples at Risk</span><span class="mrow-val warn">45 ceramic coating samples</span></div>
+        <div class="mrow"><span class="mrow-label">Data Reliability</span><span class="mrow-val danger">Uncertain — pending re-verification</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Required Actions</div>
+        <div class="mrow"><span class="mrow-label">Calibration Team</span><span class="mrow-val">Contact NABL certified technician</span></div>
+        <div class="mrow"><span class="mrow-label">Earliest Slot</span><span class="mrow-val ok">09 Jan 2025 — 10:00 AM</span></div>
+        <div class="mrow"><span class="mrow-label">Freeze Tests</span><span class="mrow-val">Stop all thermal tests until cleared</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Calibration booked for 09 Jan 10:00 AM')">Book Calibration Slot</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('All thermal tests frozen')">Freeze Lab Tests</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  escalate_shield: {
+    title: '🟡 Project SHIELD-X — Milestone Delay Report',
+    sub: 'Composite Alloy Research · Phase 2 of 5 · PM: Dr. Arvind N.',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Project Overview</div>
+        <div class="mrow"><span class="mrow-label">Project Code</span><span class="mrow-val">SHIELD-X</span></div>
+        <div class="mrow"><span class="mrow-label">Objective</span><span class="mrow-val">High-strength composite alloy for armour</span></div>
+        <div class="mrow"><span class="mrow-label">Current Phase</span><span class="mrow-val">Phase 2 — Lab Synthesis</span></div>
+        <div class="mrow"><span class="mrow-label">Milestone Due</span><span class="mrow-val danger">02 Jan 2025</span></div>
+        <div class="mrow"><span class="mrow-label">Current Date</span><span class="mrow-val">08 Jan 2025</span></div>
+        <div class="mrow"><span class="mrow-label">Delay</span><span class="mrow-val danger">6 working days</span></div>
+        <div class="mrow"><span class="mrow-label">Status</span><span class="sc-red">DELAYED</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Delay Root Cause</div>
+        <div class="mrow"><span class="mrow-label">Primary Reason</span><span class="mrow-val warn">Reagent delivery from CSIR delayed</span></div>
+        <div class="mrow"><span class="mrow-label">Secondary Reason</span><span class="mrow-val warn">Team member on medical leave (3 days)</span></div>
+        <div class="mrow"><span class="mrow-label">Budget Impact</span><span class="mrow-val">₹1.2L additional cost projected</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Recovery Plan</div>
+        <div class="mrow"><span class="mrow-label">Revised Milestone</span><span class="mrow-val">16 Jan 2025</span></div>
+        <div class="mrow"><span class="mrow-label">Additional Resource</span><span class="mrow-val">Request 1 temp researcher from ARMOUR-3</span></div>
+        <div class="mrow"><span class="mrow-label">Weekend Work</span><span class="mrow-val warn">11–12 Jan with OT approval needed</span></div>
+        <div class="mrow"><span class="mrow-label">Escalate To</span><span class="mrow-val">Director Dr. S. Mehta — approval needed</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Escalation sent to Director Dr. S. Mehta')">Escalate to Director</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('OT approval request sent to HR')">Request OT Approval</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  order_chemical: {
+    title: '🟡 Chemical Stock — Reorder Required',
+    sub: 'Chemical Division Inventory · Lab Store — Block A',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Stock Alert Details</div>
+        <div class="mrow"><span class="mrow-label">Chemical</span><span class="mrow-val">Nitric Acid (HNO3) — 68% concentration</span></div>
+        <div class="mrow"><span class="mrow-label">Current Stock</span><span class="mrow-val danger">4.2 litres remaining</span></div>
+        <div class="mrow"><span class="mrow-label">Minimum Threshold</span><span class="mrow-val">10 litres</span></div>
+        <div class="mrow"><span class="mrow-label">Weekly Consumption</span><span class="mrow-val">~6 litres/week</span></div>
+        <div class="mrow"><span class="mrow-label">Days Remaining</span><span class="mrow-val danger">~5 days at current rate</span></div>
+        <div class="mrow"><span class="mrow-label">Tests at Risk</span><span class="mrow-val warn">CH-23, CH-24 (scheduled 12 Jan)</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Approved Suppliers</div>
+        <div class="mrow"><span class="mrow-label">Primary</span><span class="mrow-val ok">Merck India — Pune (2 day lead)</span></div>
+        <div class="mrow"><span class="mrow-label">Secondary</span><span class="mrow-val">SRL Chemicals — Mumbai (4 day lead)</span></div>
+        <div class="mrow"><span class="mrow-label">Order Quantity</span><span class="mrow-val">25 litres (1 month supply)</span></div>
+        <div class="mrow"><span class="mrow-label">Estimated Cost</span><span class="mrow-val">₹8,400</span></div>
+        <div class="mrow"><span class="mrow-label">PO Auth Required</span><span class="mrow-val">Stores Officer + Lab Head sign-off</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('PO raised to Merck India for 25L HNO3')">Raise Purchase Order</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('Emergency request sent to stores')">Emergency Request</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  },
+  view_composite: {
+    title: '✅ Alloy Composite Trials — Phase 2 Approval',
+    sub: 'Materials Division · Project FERRO-2 · Completed 07 Jan 2025',
+    body: `
+      <div class="modal-section">
+        <div class="msec-title">Trial Summary</div>
+        <div class="mrow"><span class="mrow-label">Trial ID</span><span class="mrow-val">CP-14 — Carbon-Fibre Composite</span></div>
+        <div class="mrow"><span class="mrow-label">Samples Tested</span><span class="mrow-val">95</span></div>
+        <div class="mrow"><span class="mrow-label">Samples Passed</span><span class="mrow-val ok">88 (92.6%)</span></div>
+        <div class="mrow"><span class="mrow-label">Samples Failed</span><span class="mrow-val">7 (7.4%) — within tolerance</span></div>
+        <div class="mrow"><span class="mrow-label">Tensile Strength</span><span class="mrow-val ok">524 MPa avg — exceeds 450 MPa threshold</span></div>
+        <div class="mrow"><span class="mrow-label">Hardness (HRC)</span><span class="mrow-val ok">48.2 avg — within spec 45–52 HRC</span></div>
+        <div class="mrow"><span class="mrow-label">Status</span><span class="sc-green">APPROVED FOR PHASE 2</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="msec-title">Phase 2 Plan</div>
+        <div class="mrow"><span class="mrow-label">Next Step</span><span class="mrow-val">Field environment simulation tests</span></div>
+        <div class="mrow"><span class="mrow-label">Start Date</span><span class="mrow-val">13 Jan 2025</span></div>
+        <div class="mrow"><span class="mrow-label">Lead Scientist</span><span class="mrow-val">Dr. Priya S.</span></div>
+        <div class="mrow"><span class="mrow-label">Budget Allocated</span><span class="mrow-val">₹3.8L for Phase 2</span></div>
+        <div class="mrow"><span class="mrow-label">Expected Completion</span><span class="mrow-val">28 Feb 2025</span></div>
+      </div>
+      <div class="modal-action-row">
+        <button class="mbtn mbtn-primary" onclick="alert('Phase 2 initiated — team notified')">Initiate Phase 2</button>
+        <button class="mbtn mbtn-secondary" onclick="alert('Full report downloaded')">Download Full Report</button>
+        <button class="mbtn mbtn-secondary" onclick="closeModal(true)">Close</button>
+      </div>`
+  }
+};
+
+function openModal(key){
+  const m=MODALS[key];if(!m)return;
+  document.getElementById('modalTitle').innerHTML=m.title;
+  document.getElementById('modalSub').textContent=m.sub;
+  document.getElementById('modalBody').innerHTML=m.body;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(force){
+  if(force===true||force.target===document.getElementById('modalOverlay')){
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow='';
+  }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal(true);});
+
+// INIT
+window.onload=()=>{renderKPIs(D.ALL);renderChart(D.ALL,'Quarterly');renderPass(D.ALL);renderFail(D.ALL);renderTable('ALL');};
+</script>
+</body>
+</html>
