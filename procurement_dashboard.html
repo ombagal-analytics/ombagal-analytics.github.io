@@ -1,396 +1,1297 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>IT Procurement — Dubai Client</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<title>Al Fajr Logistics — Operations Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f4f0;color:#1a1a1a;font-family:'Inter',sans-serif;min-height:100vh;}
+:root{
+  --bg:#06080F;
+  --bg2:#090C15;
+  --bg3:#0D1120;
+  --card:#0B0E1A;
+  --card2:#0F1322;
 
-.header{
-  background:#fff;border-bottom:1px solid #e5e3de;
-  padding:16px 36px;display:flex;align-items:center;justify-content:space-between;
+  --cyan:#00C2CB;
+  --cyan-dim:rgba(0,194,203,0.10);
+  --cyan-border:rgba(0,194,203,0.20);
+  --cyan-glow:0 0 28px rgba(0,194,203,0.14);
+
+  --orange:#F97316;
+  --orange-dim:rgba(249,115,22,0.10);
+  --orange-border:rgba(249,115,22,0.22);
+
+  --green:#10B981;
+  --red:#EF4444;
+  --yellow:#FBBF24;
+  --purple:#8B5CF6;
+
+  --text:#E8EDF5;
+  --text2:#7B8BA8;
+  --text3:#3A4560;
+
+  --border:rgba(255,255,255,0.05);
+  --shadow:0 8px 48px rgba(0,0,0,0.8);
+  --radius:10px;
 }
-.header h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.01em;}
-.header p{font-size:11px;color:#aaa;margin-top:2px;font-family:'DM Mono',monospace;}
-.curr-group{display:flex;gap:5px;align-items:center;}
-.curr-label{font-size:11px;color:#bbb;margin-right:4px;}
-.curr-btn{font-size:11px;padding:4px 13px;border-radius:20px;border:1px solid #ddd;background:#fff;color:#777;cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s;}
-.curr-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
-.curr-btn:hover:not(.active){border-color:#1a1a1a;color:#1a1a1a;}
 
-.page{padding:24px 36px;display:flex;flex-direction:column;gap:18px;}
-
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-.kpi{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:16px 18px;}
-.kpi-label{font-size:10px;color:#aaa;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:5px;}
-.kpi-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:#1a1a1a;line-height:1;}
-.kpi-sub{font-size:10px;color:#ccc;margin-top:4px;font-family:'DM Mono',monospace;}
-.kpi-accent .kpi-val{color:#e85d04;}
-
-.row{display:grid;gap:18px;}
-.col-2{grid-template-columns:1fr 1fr;}
-.col-3{grid-template-columns:1fr 1fr 1fr;}
-
-.card{background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:20px 22px;}
-.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:2px;}
-.card-sub{font-size:10px;color:#bbb;margin-bottom:16px;font-family:'DM Mono',monospace;}
-
-table{width:100%;border-collapse:collapse;font-size:12px;}
-thead th{padding:8px 11px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#bbb;border-bottom:1px solid #f0ede8;}
-tbody tr{border-bottom:1px solid #f5f3ef;transition:background 0.1s;}
-tbody tr:last-child{border-bottom:none;}
-tbody tr:hover{background:#faf9f7;}
-tbody td{padding:10px 11px;color:#1a1a1a;}
-.pill{display:inline-block;font-size:10px;font-weight:500;padding:2px 9px;border-radius:20px;}
-.price-inp{width:100px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #e0ddd8;background:#faf9f7;color:#1a1a1a;outline:none;transition:border 0.15s;}
-.price-inp:focus{border-color:#1a1a1a;}
-.line-total{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#e85d04;}
-tfoot td{padding:11px;border-top:2px solid #f0ede8;background:#faf9f7;}
-.grand-label{font-size:10px;color:#aaa;text-align:right;letter-spacing:0.07em;text-transform:uppercase;}
-.grand-value{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#e85d04;text-align:right;}
-
-.hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
-.hbar-label{font-size:11px;color:#888;width:105px;flex-shrink:0;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.hbar-track{flex:1;background:#f5f3ef;border-radius:4px;height:22px;overflow:hidden;}
-.hbar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
-.hbar-pct{font-size:11px;font-family:'DM Mono',monospace;font-weight:500;color:#fff;white-space:nowrap;}
-.hbar-amt{font-size:10px;font-family:'DM Mono',monospace;color:#aaa;width:80px;text-align:right;flex-shrink:0;}
-
-/* INSIGHT — only shown after prices entered */
-.insight-card{
-  background:#1a1a1a;border-radius:10px;padding:20px 24px;
-  display:none;
+[data-theme="light"]{
+  --bg:#F0F4FA;
+  --bg2:#E4EAF4;
+  --bg3:#D8E0EE;
+  --card:#FFFFFF;
+  --card2:#F5F8FF;
+  --cyan:#0098A6;
+  --cyan-dim:rgba(0,152,166,0.08);
+  --cyan-border:rgba(0,152,166,0.20);
+  --cyan-glow:0 0 28px rgba(0,152,166,0.12);
+  --orange:#EA6A0A;
+  --orange-dim:rgba(234,106,10,0.08);
+  --orange-border:rgba(234,106,10,0.20);
+  --text:#0D1526;
+  --text2:#4A5A78;
+  --text3:#8A9AB8;
+  --border:rgba(0,0,0,0.07);
+  --shadow:0 4px 24px rgba(0,0,0,0.10);
 }
-.insight-card.visible{display:block;}
-.insight-eyebrow{font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#e85d04;margin-bottom:6px;}
-.insight-headline{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;line-height:1.45;margin-bottom:8px;}
-.insight-body{font-size:11px;color:#888;line-height:1.7;}
-.insight-stat{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#e85d04;margin:10px 0 2px;}
-.insight-stat-sub{font-size:10px;color:#555;font-family:'DM Mono',monospace;}
-.insight-divider{width:28px;height:2px;background:#e85d04;margin-bottom:12px;border-radius:2px;}
+[data-theme="light"] header{background:rgba(240,244,250,0.97);}
+[data-theme="light"] body::before{background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,152,166,0.006) 2px,rgba(0,152,166,0.006) 4px);}
+[data-theme="light"] .tbl td{border-bottom-color:rgba(0,0,0,0.04);}
+[data-theme="light"] .tbl tr:hover td{background:var(--cyan-dim);}
+[data-theme="light"] .route-item,.agent{background:var(--bg2);}
+[data-theme="light"] .mini{background:var(--bg2);}
+[data-theme="light"] .port-track{background:var(--bg3);}
+[data-theme="light"] .ft{background:var(--bg3);}
 
-.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
-.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
-.leg-name{font-size:11px;color:#777;flex:1;}
-.leg-val{font-size:12px;font-family:'Syne',sans-serif;font-weight:700;color:#1a1a1a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Barlow',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  transition:background .3s,color .3s;
+}
 
-.actions{display:flex;gap:10px;}
-.act-btn{font-size:12px;padding:8px 18px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-.act-btn:hover{border-color:#1a1a1a;color:#1a1a1a;}
-.act-btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
-.act-btn.primary:hover{background:#333;}
-.note{font-size:10px;color:#ccc;font-family:'DM Mono',monospace;}
+/* scanline texture */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,194,203,0.008) 2px,rgba(0,194,203,0.008) 4px);
+}
 
-.empty-hint{text-align:center;padding:28px 0;color:#ccc;font-size:11px;font-family:'DM Mono',monospace;}
+/* ── HEADER ── */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(6,8,15,0.97);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--cyan-border);height:58px;
+}
+.nav{
+  max-width:1440px;margin:0 auto;padding:0 24px;
+  height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-ico{
+  width:34px;height:34px;border:1.5px solid var(--cyan);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.82rem;
+  color:var(--cyan);letter-spacing:.05em;
+  box-shadow:0 0 12px rgba(0,194,203,0.25);
+  flex-shrink:0;
+}
+.logo-text{
+  font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;
+  color:var(--text);letter-spacing:.04em;
+}
+.logo-text span{color:var(--cyan);}
+.logo-sub{font-size:.58rem;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;margin-top:1px;font-family:'Barlow Condensed',sans-serif;}
+
+.nav-right{display:flex;align-items:center;gap:10px;}
+
+/* live status */
+.status-row{display:flex;align-items:center;gap:14px;}
+.status-item{display:flex;align-items:center;gap:5px;font-size:.67rem;color:var(--text2);font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;}
+.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.s-green{background:#10B981;box-shadow:0 0 6px #10B981;}
+.s-yellow{background:#FBBF24;box-shadow:0 0 6px #FBBF24;}
+
+/* Q tabs */
+.q-tabs{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;}
+.qt{
+  background:none;border:none;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.82rem;font-weight:700;letter-spacing:.08em;
+  color:var(--text3);padding:5px 14px;border-radius:6px;
+  cursor:pointer;transition:.2s;position:relative;
+}
+.qt:hover{color:var(--text2);}
+.qt.active{background:var(--cyan);color:#06080F;box-shadow:0 0 14px rgba(0,194,203,0.35);}
+
+.icon-btn{background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:7px;cursor:pointer;font-size:.82rem;transition:.2s;}
+.icon-btn:hover{border-color:var(--cyan-border);color:var(--cyan);}
+
+/* ── PAGE ── */
+.page{max-width:1440px;margin:0 auto;padding:72px 24px 48px;position:relative;z-index:1;}
+
+/* quarter transition overlay */
+.q-flash{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,194,203,0.04);
+  pointer-events:none;opacity:0;
+  transition:opacity .15s;
+}
+.q-flash.on{opacity:1;}
+
+/* ── PAGE HEADER ── */
+.page-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  flex-wrap:wrap;gap:14px;margin-bottom:20px;
+}
+.ph-left{}
+.page-title{
+  font-family:'Rajdhani',sans-serif;
+  font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;
+  letter-spacing:.04em;line-height:1.1;
+}
+.page-title span{color:var(--cyan);}
+.page-sub{color:var(--text2);font-size:.82rem;margin-top:4px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em;}
+.q-label{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--cyan-dim);border:1px solid var(--cyan-border);
+  color:var(--cyan);padding:6px 14px;border-radius:6px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;margin-top:6px;
+}
+.ph-right{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:10px 16px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.72rem;color:var(--text2);
+  display:flex;flex-direction:column;gap:4px;
+}
+.ph-right .row{display:flex;align-items:center;gap:10px;}
+.ph-right .label{color:var(--text3);letter-spacing:.08em;text-transform:uppercase;font-size:.65rem;}
+.ph-right .val{color:var(--text);font-weight:600;}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px;}
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+
+.kpi{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 18px;
+  position:relative;overflow:hidden;cursor:default;
+  transition:border-color .2s,box-shadow .2s;
+}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:0;transition:.3s;
+}
+.kpi:hover{border-color:var(--cyan-border);box-shadow:var(--cyan-glow);}
+.kpi:hover::before{opacity:1;}
+.kpi-icon{font-size:1rem;margin-bottom:7px;opacity:.85;}
+.kpi-lbl{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.62rem;color:var(--text3);font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;
+}
+.kpi-val{
+  font-family:'Rajdhani',sans-serif;
+  font-size:1.7rem;font-weight:700;line-height:1;color:var(--text);
+}
+.kpi-unit{font-size:.82rem;color:var(--cyan);font-family:'Barlow Condensed',sans-serif;}
+.kpi-delta{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:.64rem;font-weight:600;margin-top:5px;
+  padding:2px 7px;border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;
+}
+.up{background:rgba(16,185,129,0.12);color:#10B981;}
+.dn{background:rgba(239,68,68,0.12);color:#EF4444;}
+.fl{background:rgba(251,191,36,0.12);color:#FBBF24;}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);transition:border-color .2s;
+}
+.card:hover{border-color:rgba(0,194,203,0.10);}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;}
+.ct{
+  font-family:'Rajdhani',sans-serif;
+  font-size:.95rem;font-weight:700;letter-spacing:.04em;
+}
+.cb{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 10px;border-radius:4px;white-space:nowrap;
+}
+.cb-c{background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan-border);}
+.cb-o{background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border);}
+.cb-g{background:rgba(16,185,129,0.1);color:#10B981;border:1px solid rgba(16,185,129,0.2);}
+.cb-y{background:rgba(251,191,36,0.1);color:#FBBF24;border:1px solid rgba(251,191,36,0.2);}
+
+/* ── GRIDS ── */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;}
+.g3{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;}
+.g-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:1100px){.g3,.g2,.g-bottom{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.g3,.g2,.g-bottom,.g4{grid-template-columns:1fr;}}
+
+/* ── ROUTE LANES ── */
+.route-list{display:flex;flex-direction:column;gap:8px;}
+.route-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 13px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:8px;
+  transition:.2s;cursor:default;
+}
+.route-item:hover{border-color:var(--cyan-border);}
+.route-flag{font-size:1.1rem;flex-shrink:0;}
+.route-name{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.85rem;font-weight:600;color:var(--text);flex:1;letter-spacing:.03em;
+}
+.route-origin{font-size:.67rem;color:var(--text3);display:block;}
+.route-vol{
+  font-family:'Rajdhani',sans-serif;
+  font-size:1rem;font-weight:700;color:var(--cyan);text-align:right;
+}
+.route-units{font-size:.62rem;color:var(--text3);text-align:right;}
+.route-bar-wrap{width:80px;}
+.route-bar-track{height:4px;background:var(--border);border-radius:2px;}
+.route-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--cyan),#00E5EF);}
+
+/* ── CARGO TABLE ── */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.6rem;color:var(--text3);font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:0 10px 10px;text-align:left;
+  border-bottom:1px solid var(--border);
+}
+.tbl td{
+  padding:9px 10px;font-size:.78rem;color:var(--text2);
+  border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--cyan-dim);}
+.t-bold{color:var(--text);font-weight:600;font-size:.8rem;}
+.t-code{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.72rem;color:var(--cyan);letter-spacing:.08em;
+}
+.t-aed{font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:700;color:var(--orange);text-align:right;}
+.t-pill{display:inline-block;font-size:.59rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:3px;}
+.tp-cl{background:rgba(16,185,129,0.12);color:#10B981;}
+.tp-tr{background:rgba(251,191,36,0.12);color:#FBBF24;}
+.tp-pe{background:rgba(0,194,203,0.12);color:var(--cyan);}
+.tp-dl{background:rgba(239,68,68,0.12);color:#EF4444;}
+.rnk{width:22px;height:22px;background:var(--bg3);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:700;color:var(--text3);font-family:'Barlow Condensed',sans-serif;}
+.rnk.c{background:var(--cyan-dim);color:var(--cyan);}
+
+/* ── PORT BARS ── */
+.port-list{display:flex;flex-direction:column;gap:10px;}
+.port-row{display:flex;align-items:center;gap:10px;}
+.port-name{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.78rem;font-weight:600;color:var(--text2);width:120px;flex-shrink:0;
+}
+.port-track{flex:1;background:var(--bg3);border-radius:4px;height:18px;overflow:hidden;}
+.port-fill{
+  height:100%;border-radius:4px;
+  display:flex;align-items:center;padding-left:8px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.66rem;font-weight:700;color:#06080F;
+}
+.port-val{
+  font-family:'Rajdhani',sans-serif;
+  font-size:.88rem;font-weight:700;width:60px;text-align:right;flex-shrink:0;
+}
+
+/* ── ALERT STRIP ── */
+.alerts{display:flex;flex-direction:column;gap:7px;}
+.alert-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 13px;border-radius:7px;
+  border:1px solid;font-size:.76rem;
+}
+.alert-item.warn{background:rgba(251,191,36,0.06);border-color:rgba(251,191,36,0.2);color:#FBBF24;}
+.alert-item.ok{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.18);color:#10B981;}
+.alert-item.info{background:rgba(0,194,203,0.06);border-color:var(--cyan-border);color:var(--cyan);}
+.alert-item.err{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.18);color:#EF4444;}
+.alert-ico{font-size:.95rem;flex-shrink:0;margin-top:1px;}
+.alert-body{flex:1;}
+.alert-title{font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;}
+.alert-sub{font-size:.68rem;opacity:.75;color:var(--text2);margin-top:1px;}
+
+/* ── MINI STATS ── */
+.mini-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.mini{flex:1;min-width:75px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+.mv{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--cyan);}
+.ml{font-family:'Barlow Condensed',sans-serif;font-size:.58rem;color:var(--text3);margin-top:1px;text-transform:uppercase;letter-spacing:.08em;}
+
+/* ── DIVIDER ── */
+.divider{display:flex;align-items:center;gap:14px;margin:22px 0 18px;}
+.dv-line{flex:1;height:1px;background:var(--border);}
+.dv-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.78rem;font-weight:700;color:var(--text3);
+  letter-spacing:.12em;text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.dv-label::before,.dv-label::after{
+  content:'▶';font-size:.4rem;color:var(--cyan);
+}
+
+/* ── WATERMARK ── */
+.wm{text-align:center;padding:20px 0 4px;font-size:.68rem;color:var(--text3);display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em;}
+.wm a{color:var(--cyan);text-decoration:none;font-weight:700;}
+.wm a:hover{text-decoration:underline;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px;}
+
+/* ── COUNTER ANIMATION ── */
+@keyframes countUp{from{opacity:.3;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.kpi-val.updating{animation:countUp .35s ease forwards;}
+
+/* ── FADE IN ── */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease;}
+.reveal.show{opacity:1;transform:none;}
+
+/* ── CROSS-FILTER ── */
+@keyframes cfPulse{0%{box-shadow:0 0 0 0 rgba(0,194,203,0.5);}70%{box-shadow:0 0 0 10px rgba(0,194,203,0);}100%{box-shadow:0 0 0 0 rgba(0,194,203,0);}}
+@keyframes cfSlide{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes cfShimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+
+.cf-banner{
+  display:none;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-bottom:14px;padding:10px 16px;
+  background:rgba(0,194,203,0.05);
+  border:1px solid rgba(0,194,203,0.28);border-radius:8px;
+  animation:cfSlide .3s ease;font-family:'Barlow Condensed',sans-serif;
+}
+.cf-banner.active{display:flex;}
+.cf-icon{font-size:.9rem;flex-shrink:0;}
+.cf-label{font-size:.72rem;color:var(--text2);font-weight:500;flex:1;letter-spacing:.03em;}
+.cf-label strong{color:var(--cyan);font-weight:700;}
+.cf-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.cf-chip{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(0,194,203,0.1);border:1px solid rgba(0,194,203,0.28);
+  color:var(--cyan);padding:3px 10px 3px 8px;border-radius:4px;
+  font-size:.65rem;font-weight:700;letter-spacing:.06em;cursor:pointer;
+  text-transform:uppercase;transition:.2s;
+}
+.cf-chip:hover{background:rgba(0,194,203,0.2);}
+.cf-chip .x{font-size:.75rem;opacity:.7;margin-left:2px;}
+.cf-clear{
+  background:none;border:1px solid rgba(239,68,68,0.35);
+  color:var(--red);padding:4px 12px;border-radius:4px;
+  font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Barlow Condensed',sans-serif;
+  letter-spacing:.06em;text-transform:uppercase;transition:.2s;white-space:nowrap;
+}
+.cf-clear:hover{background:rgba(239,68,68,0.1);}
+
+/* Source card glows cyan */
+.card.cf-source{
+  border-color:var(--cyan)!important;
+  box-shadow:0 0 24px rgba(0,194,203,0.22)!important;
+  animation:cfPulse 1s ease-out;
+}
+/* Other cards get subtle active border */
+.card.cf-active{
+  border-color:rgba(0,194,203,0.18)!important;
+}
+/* KPI shimmer when filter active */
+.kpi.cf-hl{
+  border-color:rgba(0,194,203,0.25)!important;
+  background:linear-gradient(135deg,var(--card),rgba(0,194,203,0.04))!important;
+  position:relative;overflow:hidden;
+}
+.kpi.cf-hl::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(0,194,203,0.06),transparent);
+  background-size:200% 100%;animation:cfShimmer 2s infinite;pointer-events:none;
+}
+/* Table row states */
+tbody tr.cf-match td{background:rgba(0,194,203,0.04)!important;color:var(--text)!important;}
+tbody tr.cf-match .t-code{color:var(--cyan)!important;}
+tbody tr.cf-dim{opacity:0.3;}
+/* Clickable hint */
+canvas.cf-click{cursor:pointer;}
+.card .cf-hint{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.6rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;
+  text-align:center;margin-top:6px;opacity:0;transition:.2s;
+}
+.card:hover .cf-hint{opacity:1;}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <h1>IT Procurement — Bill of Materials</h1>
-    <p>Dubai Client · Quotation Reference · May 2026</p>
-  </div>
-  <div class="curr-group">
-    <span class="curr-label">Currency</span>
-    <button class="curr-btn active" onclick="setCurrency('AED')">AED</button>
-    <button class="curr-btn" onclick="setCurrency('USD')">USD</button>
-    <button class="curr-btn" onclick="setCurrency('INR')">INR</button>
-  </div>
-</div>
+<!-- QUARTER FLASH -->
+<div class="q-flash" id="qFlash"></div>
+
+<!-- HEADER -->
+<header>
+  <nav class="nav">
+    <div class="logo">
+      <div class="logo-ico">AFL</div>
+      <div>
+        <div class="logo-text">Al Fajr <span>Logistics</span></div>
+        <div class="logo-sub">Operations Intelligence · Dubai, UAE</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="status-row">
+        <div class="status-item"><div class="status-dot s-green"></div>Jebel Ali · Online</div>
+        <div class="status-item"><div class="status-dot s-green"></div>DXB Air · Active</div>
+        <div class="status-item"><div class="status-dot s-yellow"></div>Al Maktoum · Partial</div>
+      </div>
+      <div class="q-tabs">
+        <button class="qt" onclick="setQ(1,this)">Q1</button>
+        <button class="qt" onclick="setQ(2,this)">Q2</button>
+        <button class="qt" onclick="setQ(3,this)">Q3</button>
+        <button class="qt active" onclick="setQ(4,this)">Q4</button>
+      </div>
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    </div>
+  </nav>
+</header>
 
 <div class="page">
 
-  <!-- KPIs -->
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Total Line Items</div><div class="kpi-val">6</div><div class="kpi-sub">Unique SKUs</div></div>
-    <div class="kpi"><div class="kpi-label">Total Units</div><div class="kpi-val">31</div><div class="kpi-sub">Across all items</div></div>
-    <div class="kpi kpi-accent"><div class="kpi-label">Grand Total</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub" id="kpi-sub">Enter prices below</div></div>
-    <div class="kpi"><div class="kpi-label">Items Priced</div><div class="kpi-val" id="kpi-filled">0 / 6</div><div class="kpi-sub">With unit price</div></div>
+  <!-- PAGE HEADER -->
+  <div class="page-header reveal">
+    <div class="ph-left">
+      <div class="page-title">Freight & Logistics <span>Operations</span></div>
+      <div class="page-sub">Dubai · UAE · All Values in AED · Jebel Ali | DXB | Al Maktoum</div>
+      <div class="q-label" id="qLabel">◉ &nbsp;Q4 2024 · Oct – Dec</div>
+    </div>
+    <div class="ph-right">
+      <div class="row"><span class="label">Last Refresh</span><span class="val" id="lastRefresh">Today, 07:30 GST</span></div>
+      <div class="row"><span class="label">Reporting Period</span><span class="val" id="reportPeriod">Q4 2024</span></div>
+      <div class="row"><span class="label">Active Shipments</span><span class="val" style="color:var(--cyan);" id="activeShip">1,842</span></div>
+    </div>
   </div>
 
-  <!-- ROW 1: Table + Pie + Qty -->
-  <div class="row col-2">
+  <!-- CROSS-FILTER BANNER -->
+  <div class="cf-banner" id="cfBanner">
+    <div class="cf-icon">🔍</div>
+    <div class="cf-label">Filtered by: <span id="cfLabel">—</span></div>
+    <div class="cf-chips" id="cfChips"></div>
+    <button class="cf-clear" onclick="clearAllFilters()">✕ Clear All</button>
+  </div>
 
+  <!-- KPI STRIP -->
+  <div class="kpi-row reveal" id="kpiRow">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- ROW 1: Shipment Trend + Cargo Mix + Mode Split -->
+  <div class="g3 reveal">
     <div class="card">
-      <div class="card-title">Line Item Detail</div>
-      <div class="card-sub">Enter unit prices — totals compute in real time</div>
-      <table>
-        <thead><tr>
-          <th>#</th><th>Item</th><th>Cat.</th>
-          <th style="text-align:center;">Qty</th>
-          <th style="text-align:right;">Unit Price</th>
-          <th style="text-align:right;">Line Total</th>
-        </tr></thead>
-        <tbody id="tbody"></tbody>
-        <tfoot><tr>
-          <td colspan="4"></td>
-          <td class="grand-label">Grand Total</td>
-          <td class="grand-value" id="grand-total">—</td>
-        </tr></tfoot>
-      </table>
+      <div class="ch"><div class="ct">Monthly Shipment Volume & Revenue</div><div class="cb cb-c" id="monthBadge">OCT – DEC</div></div>
+      <canvas id="shipChart" style="max-height:240px;"></canvas>
+      <div class="mini-row" id="miniRow1"></div>
     </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Cargo Type Breakdown</div><div class="cb cb-o">Composition</div></div>
+      <div style="position:relative;height:195px;display:flex;align-items:center;justify-content:center;">
+        <canvas id="cargoChart" class="cf-click"></canvas>
+      </div>
+      <div id="cargoLeg" style="margin-top:10px;display:flex;flex-direction:column;gap:4px;"></div>
+      <div class="cf-hint">Click a segment to filter dashboard</div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">Transport Mode Split</div><div class="cb cb-g">By Volume</div></div>
+      <canvas id="modeChart" style="max-height:240px;" class="cf-click"></canvas>
+      <div class="cf-hint">Click a bar to filter by transport mode</div>
+    </div>
+  </div>
 
-    <div style="display:flex;flex-direction:column;gap:16px;">
-
-      <!-- PIE CHART -->
-      <div class="card" style="flex:1;">
-        <div class="card-title">Category Split</div>
-        <div class="card-sub">Cost share by category — updates with prices</div>
-        <div style="display:flex;align-items:center;gap:20px;">
-          <div style="width:150px;height:150px;flex-shrink:0;">
-            <canvas id="pieChart" role="img" aria-label="Pie chart of cost by category"></canvas>
-          </div>
-          <div style="flex:1;">
-            <div class="leg-row"><div class="leg-dot" style="background:#2563eb;"></div><span class="leg-name">Workstations</span><span class="leg-val" id="leg-ws">—</span></div>
-            <div class="leg-row"><div class="leg-dot" style="background:#16a34a;"></div><span class="leg-name">Networking</span><span class="leg-val" id="leg-net">—</span></div>
-            <div class="leg-row"><div class="leg-dot" style="background:#ea580c;"></div><span class="leg-name">Infrastructure</span><span class="leg-val" id="leg-inf">—</span></div>
-          </div>
+  <!-- ROW 2: Shipment Table + Port Performance -->
+  <div class="g2 reveal">
+    <div class="card">
+      <div class="ch">
+        <div class="ct">Active Shipment Register</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="statusSel" onchange="renderTable()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:5px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em;">
+            <option value="all">All Status</option>
+            <option value="cl">Cleared</option>
+            <option value="tr">In Transit</option>
+            <option value="pe">Pending</option>
+            <option value="dl">Delayed</option>
+          </select>
         </div>
       </div>
-
-      <!-- QTY BAR -->
-      <div class="card" style="flex:1;">
-        <div class="card-title">Units per Item</div>
-        <div class="card-sub">Quantity ordered by line</div>
-        <div style="position:relative;height:130px;">
-          <canvas id="qtyChart" role="img" aria-label="Bar chart of quantities per item"></canvas>
-        </div>
-      </div>
-
+      <table class="tbl"><thead><tr>
+        <th>#</th><th>Shipment ID</th><th>Origin → Dest</th><th>Cargo</th><th>Weight</th><th>Status</th><th style="text-align:right">Value (AED)</th>
+      </tr></thead>
+      <tbody id="shipBody"></tbody></table>
     </div>
-  </div>
 
-  <!-- ROW 2: Hbars + Cat bar — only when prices entered -->
-  <div class="row col-2" id="row2" style="display:none;">
     <div class="card">
-      <div class="card-title">Cost Breakdown per Item</div>
-      <div class="card-sub">% share of total spend</div>
-      <div id="hbars"></div>
+      <div class="ch"><div class="ct">Port Utilisation</div><div class="cb cb-c" id="portBadge">Capacity %</div></div>
+      <div class="port-list" id="portList"></div>
+      <div class="mini-row" id="miniRow2" style="margin-top:14px;"></div>
     </div>
+  </div>
+
+  <!-- ROW 3: Trade Lanes + OTD Trend + Alerts -->
+  <div class="g-bottom reveal">
+
     <div class="card">
-      <div class="card-title">Category Total Cost</div>
-      <div class="card-sub">Aggregated spend per category</div>
-      <div style="position:relative;height:220px;">
-        <canvas id="catChart" role="img" aria-label="Bar chart of total cost by category"></canvas>
-      </div>
+      <div class="ch"><div class="ct">Top Trade Lanes</div><div class="cb cb-o">By TEU Volume</div></div>
+      <div class="route-list" id="routeList"></div>
     </div>
-  </div>
 
-  <!-- INSIGHT — shown only when all 6 are priced -->
-  <div class="insight-card" id="insightCard">
-    <div class="insight-eyebrow">🔍 Hidden Insight</div>
-    <div class="insight-divider"></div>
-    <div class="insight-headline">One SKU quietly controls your entire negotiation leverage.</div>
-    <div style="display:flex;align-items:flex-start;gap:32px;margin-top:10px;">
-      <div>
-        <div class="insight-stat">64.5%</div>
-        <div class="insight-stat-sub">of total units = Lenovo AIO alone</div>
-      </div>
-      <div class="insight-body" style="flex:1;padding-top:4px;">
-        The Lenovo IdeaCentre (qty 20) is 1 of 6 SKUs but makes up nearly two-thirds of all units ordered. A <strong style="color:#e8d5c0;">5% volume discount</strong> on this single item saves more than completely removing the MikroTik router line. Before finalising this quote, push the vendor on the Lenovo unit price — that's where the real money is.
-      </div>
+    <div class="card">
+      <div class="ch"><div class="ct">On-Time Delivery Trend</div><div class="cb cb-c">Weekly %</div></div>
+      <canvas id="otdChart" style="max-height:240px;"></canvas>
     </div>
+
+    <div class="card">
+      <div class="ch"><div class="ct">Operational Alerts</div><div class="cb cb-y" id="alertBadge">Live</div></div>
+      <div class="alerts" id="alertList"></div>
+    </div>
+
   </div>
 
-  <div class="actions">
-    <button class="act-btn primary" onclick="exportCSV()">⬇ Export CSV</button>
-    <button class="act-btn" onclick="window.print()">🖨 Print / PDF</button>
+  <!-- WATERMARK -->
+  <div class="wm">
+    Dashboard built by &nbsp;<a href="https://wa.me/919987258696" target="_blank">Om Bagal Analytics</a>&nbsp;
+    · Business Intelligence for Dubai & UAE &nbsp;·&nbsp; ombagal.analytics@gmail.com
   </div>
 
-  <div class="note">Indicative rates: 1 USD = 3.67 AED · 1 USD = 83.5 INR · All prices editable</div>
-
-</div>
+</div><!-- /page -->
 
 <script>
-const RATES={AED:1,USD:1/3.67,INR:83.5/3.67};
-const SYMS={AED:'AED ',USD:'$',INR:'₹'};
-let currency='AED';
-const prices={};
+/* ═══════════════════════════════════════════════
+   CROSS-FILTER STATE & IMPACT TABLES
+═══════════════════════════════════════════════ */
+var cfState = { cargo: null, mode: null, status: null };
 
-const ITEMS=[
-  {id:1,main:'Lenovo IdeaCentre AIO 24IRH9',spec:'i7-13620H · 16GB · 512GB · WIN11 PRO K',cat:'ws',qty:20},
-  {id:2,main:'HP Pro Tower 290 G9',spec:'i7-14700 · 64GB · 512GB · WIN11 PRO',cat:'ws',qty:2},
-  {id:3,main:'Fortinet FortiGate 61F',spec:'Hardware + License',cat:'net',qty:2},
-  {id:4,main:'Cisco Switch 24-port PoE C1300',spec:'Layer 2 Managed · PoE+',cat:'net',qty:3},
-  {id:5,main:'Router MikroTik 4011',spec:'RouterBOARD · 10-port',cat:'net',qty:2},
-  {id:6,main:'Server Rack Cabinet 20U',spec:'With PDU mounts',cat:'inf',qty:2},
-];
-const CAT_LABEL={ws:'Workstation',net:'Networking',inf:'Infrastructure'};
-const CAT_BG={ws:'#eff6ff',net:'#f0fdf4',inf:'#fff7ed'};
-const CAT_TX={ws:'#2563eb',net:'#16a34a',inf:'#ea580c'};
-const CAT_HEX={ws:'#2563eb',net:'#16a34a',inf:'#ea580c'};
-const SHORT=['Lenovo AIO','HP Tower','FortiGate 61F','Cisco Switch','MikroTik','Rack 20U'];
+// How each cargo type biases KPI metrics
+var CF_CARGO = {
+  'Electronics':  { ship: 1.00, rev: 1.18, teu: 0.95, otd: 1.01, clr: 0.96, delay: 0.80 },
+  'Machinery':    { ship: 0.78, rev: 1.08, teu: 1.12, otd: 0.98, clr: 1.05, delay: 1.10 },
+  'FMCG':         { ship: 1.10, rev: 0.82, teu: 1.05, otd: 0.99, clr: 0.98, delay: 0.95 },
+  'Chemicals':    { ship: 0.62, rev: 0.94, teu: 1.10, otd: 0.96, clr: 1.08, delay: 1.20 },
+  'Other':        { ship: 0.48, rev: 0.72, teu: 0.88, otd: 0.97, clr: 1.00, delay: 1.05 },
+};
+// How each transport mode biases KPIs
+var CF_MODE = {
+  'Sea Freight':  { ship: 1.00, rev: 0.88, teu: 1.20, otd: 0.97, clr: 1.10, delay: 1.05 },
+  'Air Freight':  { ship: 0.42, rev: 1.24, teu: 0.30, otd: 1.02, clr: 0.72, delay: 0.80 },
+  'Road / Rail':  { ship: 0.58, rev: 0.78, teu: 0.85, otd: 1.00, clr: 0.90, delay: 0.90 },
+};
 
-function fmt(v){
-  const n=v*RATES[currency];
-  return SYMS[currency]+n.toLocaleString('en-AE',{minimumFractionDigits:0,maximumFractionDigits:0});
+function getCFMult(metric) {
+  var m = 1;
+  if (cfState.cargo && CF_CARGO[cfState.cargo] && CF_CARGO[cfState.cargo][metric] != null)
+    m *= CF_CARGO[cfState.cargo][metric];
+  if (cfState.mode && CF_MODE[cfState.mode] && CF_MODE[cfState.mode][metric] != null)
+    m *= CF_MODE[cfState.mode][metric];
+  return m;
+}
+function hasCF() { return cfState.cargo || cfState.mode || cfState.status; }
+
+function setSourceCard(srcCanvas) {
+  document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('cf-source','cf-active'); });
+  if (!srcCanvas) return;
+  var src = srcCanvas.closest ? srcCanvas.closest('.card') : null;
+  if (!src) { // fallback for older browsers
+    var el = srcCanvas; while(el && el.className !== undefined && !el.className.includes('card')) el = el.parentElement;
+    src = el;
+  }
+  if (src) {
+    src.classList.add('cf-source');
+    document.querySelectorAll('.card').forEach(function(c){ if(c !== src) c.classList.add('cf-active'); });
+  }
+}
+function clearCardHighlights() {
+  document.querySelectorAll('.card').forEach(function(c){ c.classList.remove('cf-source','cf-active'); });
 }
 
-function renderTable(){
-  document.getElementById('tbody').innerHTML=ITEMS.map(it=>`
-    <tr>
-      <td style="color:#ccc;font-family:'DM Mono',monospace;font-size:11px;">${it.id}</td>
-      <td>
-        <div style="font-weight:500;font-size:12px;">${it.main}</div>
-        <div style="font-size:10px;color:#ccc;margin-top:1px;font-family:'DM Mono',monospace;">${it.spec}</div>
-      </td>
-      <td><span class="pill" style="background:${CAT_BG[it.cat]};color:${CAT_TX[it.cat]};">${CAT_LABEL[it.cat]}</span></td>
-      <td style="text-align:center;font-weight:600;font-family:'Syne',sans-serif;">${it.qty}</td>
-      <td style="text-align:right;">
-        <input class="price-inp" type="number" min="0" step="1" placeholder="0.00"
-          id="p${it.id}" value="${prices[it.id]||''}" oninput="onPrice(${it.id},this.value)"/>
-      </td>
-      <td style="text-align:right;">
-        <span class="line-total" id="t${it.id}">${prices[it.id]?fmt(prices[it.id]*it.qty):'—'}</span>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function onPrice(id,val){
-  const v=parseFloat(val);
-  if(!isNaN(v)&&v>=0)prices[id]=v; else delete prices[id];
-  updateAll();
-}
-
-function updateAll(){
-  let grand=0,filled=0;
-  const lines={};
-  ITEMS.forEach(it=>{
-    if(prices[it.id]){const l=prices[it.id]*it.qty;grand+=l;filled++;lines[it.id]=l;}
-    else lines[it.id]=0;
-    const el=document.getElementById('t'+it.id);
-    if(el)el.textContent=lines[it.id]>0?fmt(lines[it.id]):'—';
-  });
-  document.getElementById('grand-total').textContent=grand>0?fmt(grand):'—';
-  document.getElementById('kpi-total').textContent=grand>0?fmt(grand):'—';
-  document.getElementById('kpi-filled').textContent=filled+' / 6';
-  document.getElementById('kpi-sub').textContent=filled===6?'All items quoted':(filled>0?filled+' item(s) priced':'Enter prices below');
-
-  // show row2 only when at least 1 price entered
-  document.getElementById('row2').style.display=filled>0?'grid':'none';
-  // show insight only when all 6 priced
-  document.getElementById('insightCard').classList.toggle('visible',filled===6);
-
-  updatePie(lines,grand);
-  if(filled>0){updateHBars(lines,grand);updateCatChart(lines);}
-}
-
-/* PIE */
-let pieInst=null;
-function updatePie(lines,grand){
-  const ws=ITEMS.filter(i=>i.cat==='ws').reduce((s,i)=>s+(lines[i.id]||0),0);
-  const net=ITEMS.filter(i=>i.cat==='net').reduce((s,i)=>s+(lines[i.id]||0),0);
-  const inf=ITEMS.filter(i=>i.cat==='inf').reduce((s,i)=>s+(lines[i.id]||0),0);
-  document.getElementById('leg-ws').textContent=ws>0?fmt(ws):'—';
-  document.getElementById('leg-net').textContent=net>0?fmt(net):'—';
-  document.getElementById('leg-inf').textContent=inf>0?fmt(inf):'—';
-  const data=[ws||0.001,net||0.001,inf||0.001];
-  if(pieInst){pieInst.data.datasets[0].data=data;pieInst.update();return;}
-  pieInst=new Chart(document.getElementById('pieChart').getContext('2d'),{
-    type:'doughnut',
-    data:{labels:['Workstations','Networking','Infrastructure'],
-      datasets:[{data,backgroundColor:['#2563eb','#16a34a','#ea580c'],
-        borderColor:'#fff',borderWidth:3,hoverOffset:5}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
-      plugins:{legend:{display:false},tooltip:{
-        backgroundColor:'#1a1a1a',titleFont:{family:'Syne',size:12},bodyFont:{family:'DM Mono',size:11},
-        callbacks:{label:c=>` ${c.label}: ${fmt(c.raw)}`}
-      }}}
-  });
-}
-
-/* QTY CHART (static) */
-new Chart(document.getElementById('qtyChart').getContext('2d'),{
-  type:'bar',
-  data:{
-    labels:SHORT,
-    datasets:[{data:[20,2,2,3,2,2],
-      backgroundColor:['#dbeafe','#dbeafe','#dcfce7','#dcfce7','#dcfce7','#ffedd5'],
-      borderColor:['#2563eb','#2563eb','#16a34a','#16a34a','#16a34a','#ea580c'],
-      borderWidth:2,borderRadius:5,borderSkipped:false}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a1a',titleFont:{family:'Syne',size:12},bodyFont:{family:'DM Mono',size:11}}},
-    scales:{
-      x:{grid:{display:false},ticks:{color:'#bbb',font:{family:'DM Mono',size:9},maxRotation:20}},
-      y:{grid:{color:'#f5f3ef'},ticks:{color:'#bbb',font:{family:'DM Mono',size:10}},beginAtZero:true}
-    }}
-});
-
-/* HBARS */
-function updateHBars(lines,grand){
-  document.getElementById('hbars').innerHTML=ITEMS.map((it,i)=>{
-    const val=lines[it.id]||0;
-    const pct=grand>0?val/grand*100:0;
-    const w=Math.max(pct,val>0?2:0);
-    const col=CAT_HEX[it.cat];
-    return `<div class="hbar-row">
-      <div class="hbar-label" title="${it.main}">${SHORT[i]}</div>
-      <div class="hbar-track">
-        <div class="hbar-fill" style="width:${w}%;background:${col};">
-          ${val>0?`<span class="hbar-pct">${pct.toFixed(1)}%</span>`:''}
-        </div>
-      </div>
-      <span class="hbar-amt">${val>0?fmt(val):'—'}</span>
-    </div>`;
+function updCFBanner() {
+  var banner = document.getElementById('cfBanner');
+  var chips  = document.getElementById('cfChips');
+  var label  = document.getElementById('cfLabel');
+  var active = hasCF();
+  banner.classList.toggle('active', !!active);
+  if (!active) { chips.innerHTML = ''; return; }
+  var parts = [];
+  if (cfState.cargo)  parts.push({ type:'cargo',  val: cfState.cargo,  icon:'📦' });
+  if (cfState.mode)   parts.push({ type:'mode',   val: cfState.mode,   icon:'🚢' });
+  if (cfState.status) parts.push({ type:'status', val: cfState.status, icon:'📋' });
+  label.innerHTML = parts.map(function(p){ return '<strong>' + p.icon + ' ' + p.val + '</strong>'; }).join(' + ');
+  chips.innerHTML = parts.map(function(p){
+    return '<div class="cf-chip" onclick="clearFilter(\'' + p.type + '\')">' + p.icon + ' ' + p.val + ' <span class="x">✕</span></div>';
   }).join('');
 }
 
-/* CAT CHART */
-let catInst=null;
-function updateCatChart(lines){
-  const r=RATES[currency];
-  const ws=ITEMS.filter(i=>i.cat==='ws').reduce((s,i)=>s+(lines[i.id]||0),0)*r;
-  const net=ITEMS.filter(i=>i.cat==='net').reduce((s,i)=>s+(lines[i.id]||0),0)*r;
-  const inf=ITEMS.filter(i=>i.cat==='inf').reduce((s,i)=>s+(lines[i.id]||0),0)*r;
-  if(catInst){catInst.data.datasets[0].data=[ws,net,inf];catInst.update();return;}
-  catInst=new Chart(document.getElementById('catChart').getContext('2d'),{
-    type:'bar',
-    data:{labels:['Workstations','Networking','Infrastructure'],
-      datasets:[{data:[ws,net,inf],
-        backgroundColor:['#dbeafe','#dcfce7','#ffedd5'],
-        borderColor:['#2563eb','#16a34a','#ea580c'],
-        borderWidth:2,borderRadius:7,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{
-        backgroundColor:'#1a1a1a',titleFont:{family:'Syne',size:12},bodyFont:{family:'DM Mono',size:11},
-        callbacks:{label:c=>` ${SYMS[currency]}${Math.round(c.raw).toLocaleString()}`}
-      }},
-      scales:{
-        x:{grid:{display:false},ticks:{color:'#bbb',font:{family:'DM Mono',size:11}}},
-        y:{grid:{color:'#f5f3ef'},ticks:{color:'#bbb',font:{family:'DM Mono',size:10},
-          callback:v=>SYMS[currency]+Math.round(v).toLocaleString()},beginAtZero:true}
-      }}
+function clearFilter(type) {
+  cfState[type] = null;
+  if (!hasCF()) clearCardHighlights();
+  rerenderWithCF();
+}
+
+function clearAllFilters() {
+  cfState.cargo = null; cfState.mode = null; cfState.status = null;
+  clearCardHighlights();
+  rerenderWithCF();
+}
+
+/* ═══════════════════════════════════════════════
+   QUARTERLY DATA — Q1 through Q4
+   Every section reads from activeQ
+═══════════════════════════════════════════════ */
+var QDATA = {
+  1: {
+    label: 'Q1 2024 · Jan – Mar',
+    months: ['Jan','Feb','Mar'],
+    monthBadge: 'JAN – MAR',
+    period: 'Q1 2024',
+    activeShip: '1,412',
+    kpis: [
+      {icon:'🚢', lbl:'Total Shipments', val:'4,820', unit:'', delta:'↑ 8.2% vs Q4', cls:'up'},
+      {icon:'💰', lbl:'Freight Revenue', val:'AED 94.3M', unit:'', delta:'↑ 6.1%', cls:'up'},
+      {icon:'📦', lbl:'TEU Processed', val:'18,450', unit:'', delta:'↑ 4.8%', cls:'up'},
+      {icon:'✅', lbl:'On-Time Delivery', val:'87.4', unit:'%', delta:'↓ 1.2pts', cls:'dn'},
+      {icon:'⏳', lbl:'Avg Clearance Time', val:'2.8', unit:'days', delta:'↑ 0.4 days slower', cls:'dn'},
+      {icon:'⚠️', lbl:'Delayed Shipments', val:'312', unit:'', delta:'↑ 22 vs Q4', cls:'dn'},
+    ],
+    shipVol: [1540, 1620, 1660],
+    revenue: [30.1, 31.8, 32.4],
+    cargoV: [34, 22, 18, 15, 11],
+    modeV: [42, 33, 25],
+    mini1: [{v:'94.3M', l:'Q1 Revenue AED'},{v:'4,820', l:'Total Shipments'},{v:'87.4%', l:'OTD Rate'}],
+    ports: [
+      {n:'Jebel Ali Port', v:78, col:'#00C2CB'},
+      {n:'DXB Air Freight', v:65, col:'#F97316'},
+      {n:'Al Maktoum (DWC)', v:52, col:'#10B981'},
+      {n:'Port Rashid', v:41, col:'#FBBF24'},
+    ],
+    mini2: [{v:'78%', l:'Jebel Ali'},{v:'65%', l:'DXB Air'},{v:'52%', l:'Al Maktoum'}],
+    routes: [
+      {flag:'🇨🇳', dest:'Shanghai → Jebel Ali', vol:'3,840 TEU', pct:100},
+      {flag:'🇮🇳', dest:'Mumbai → Dubai', vol:'2,910 TEU', pct:76},
+      {flag:'🇬🇧', dest:'Felixstowe → Jebel Ali', vol:'2,120 TEU', pct:55},
+      {flag:'🇩🇪', dest:'Hamburg → Dubai', vol:'1,840 TEU', pct:48},
+      {flag:'🇺🇸', dest:'Houston → Jebel Ali', vol:'1,540 TEU', pct:40},
+    ],
+    otd: [85, 87, 86, 88, 87, 88, 87, 87, 88, 87, 87, 88],
+    alerts: [
+      {type:'warn', ico:'⚠️', title:'Monsoon Advisory — Mumbai Route', sub:'Expected 1.5-day delay on India-origin cargo. Feb 10–18.'},
+      {type:'info', ico:'ℹ️', title:'Jebel Ali Berth 12 Upgrade', sub:'Scheduled maintenance complete. Capacity restored to 100%.'},
+      {type:'ok', ico:'✅', title:'Chinese New Year Pre-loading Done', sub:'All CNY peak cargo processed ahead of schedule.'},
+      {type:'ok', ico:'✅', title:'Customs Fast-Track Active', sub:'Dubai Trade digital clearance active for all GCC corridors.'},
+    ],
+    shipments: [
+      {id:'AFL-24-001', route:'Shanghai → Jebel Ali', cargo:'Electronics', wt:'42 MT', st:'cl', val:'AED 2,840,000'},
+      {id:'AFL-24-002', route:'Rotterdam → Dubai', cargo:'Machinery', wt:'86 MT', st:'tr', val:'AED 1,920,000'},
+      {id:'AFL-24-003', route:'Mumbai → Jebel Ali', cargo:'Textiles', wt:'24 MT', st:'cl', val:'AED 680,000'},
+      {id:'AFL-24-004', route:'Houston → Dubai', cargo:'Chemicals', wt:'110 MT', st:'pe', val:'AED 3,400,000'},
+      {id:'AFL-24-005', route:'Hamburg → Jebel Ali', cargo:'Auto Parts', wt:'55 MT', st:'tr', val:'AED 1,540,000'},
+      {id:'AFL-24-006', route:'Singapore → Dubai', cargo:'FMCG', wt:'30 MT', st:'cl', val:'AED 920,000'},
+      {id:'AFL-24-007', route:'Karachi → Jebel Ali', cargo:'Garments', wt:'18 MT', st:'dl', val:'AED 440,000'},
+      {id:'AFL-24-008', route:'London → Dubai', cargo:'Luxury Goods', wt:'6 MT', st:'cl', val:'AED 5,100,000'},
+    ],
+  },
+
+  2: {
+    label: 'Q2 2024 · Apr – Jun',
+    months: ['Apr','May','Jun'],
+    monthBadge: 'APR – JUN',
+    period: 'Q2 2024',
+    activeShip: '1,614',
+    kpis: [
+      {icon:'🚢', lbl:'Total Shipments', val:'5,340', unit:'', delta:'↑ 10.8% vs Q1', cls:'up'},
+      {icon:'💰', lbl:'Freight Revenue', val:'AED 108.7M', unit:'', delta:'↑ 15.3%', cls:'up'},
+      {icon:'📦', lbl:'TEU Processed', val:'20,810', unit:'', delta:'↑ 12.8%', cls:'up'},
+      {icon:'✅', lbl:'On-Time Delivery', val:'89.1', unit:'%', delta:'↑ 1.7pts', cls:'up'},
+      {icon:'⏳', lbl:'Avg Clearance Time', val:'2.4', unit:'days', delta:'↓ 0.4 days faster', cls:'up'},
+      {icon:'⚠️', lbl:'Delayed Shipments', val:'248', unit:'', delta:'↓ 64 vs Q1', cls:'up'},
+    ],
+    shipVol: [1720, 1790, 1830],
+    revenue: [35.2, 36.8, 36.7],
+    cargoV: [30, 25, 20, 14, 11],
+    modeV: [44, 30, 26],
+    mini1: [{v:'108.7M', l:'Q2 Revenue AED'},{v:'5,340', l:'Total Shipments'},{v:'89.1%', l:'OTD Rate'}],
+    ports: [
+      {n:'Jebel Ali Port', v:84, col:'#00C2CB'},
+      {n:'DXB Air Freight', v:72, col:'#F97316'},
+      {n:'Al Maktoum (DWC)', v:61, col:'#10B981'},
+      {n:'Port Rashid', v:45, col:'#FBBF24'},
+    ],
+    mini2: [{v:'84%', l:'Jebel Ali'},{v:'72%', l:'DXB Air'},{v:'61%', l:'Al Maktoum'}],
+    routes: [
+      {flag:'🇨🇳', dest:'Shanghai → Jebel Ali', vol:'4,210 TEU', pct:100},
+      {flag:'🇮🇳', dest:'Nhava Sheva → Dubai', vol:'3,140 TEU', pct:75},
+      {flag:'🇩🇪', dest:'Hamburg → Jebel Ali', vol:'2,380 TEU', pct:57},
+      {flag:'🇸🇬', dest:'Singapore → Dubai', vol:'2,010 TEU', pct:48},
+      {flag:'🇺🇸', dest:'New York → Jebel Ali', vol:'1,680 TEU', pct:40},
+    ],
+    otd: [88, 89, 90, 89, 90, 91, 89, 90, 89, 90, 90, 89],
+    alerts: [
+      {type:'ok', ico:'✅', title:'Expo City Corridor Opened', sub:'New direct rail link between Jebel Ali and Al Maktoum reduces transit 18%.'},
+      {type:'warn', ico:'⚠️', title:'Red Sea Rerouting in Effect', sub:'Suez Canal alternative routing adds 9 days to EU-origin cargo.'},
+      {type:'info', ico:'ℹ️', title:'Ramadan Operations Adjusted', sub:'Port hours extended to 24hr for clearance during Ramadan period.'},
+      {type:'ok', ico:'✅', title:'CSAT Score 4.8 / 5.0', sub:'Highest customer satisfaction score on record this quarter.'},
+    ],
+    shipments: [
+      {id:'AFL-24-Q2-01', route:'Shanghai → Jebel Ali', cargo:'Electronics', wt:'58 MT', st:'cl', val:'AED 3,940,000'},
+      {id:'AFL-24-Q2-02', route:'Piraeus → Dubai', cargo:'Machinery', wt:'94 MT', st:'tr', val:'AED 2,110,000'},
+      {id:'AFL-24-Q2-03', route:'Colombo → Jebel Ali', cargo:'Textiles', wt:'32 MT', st:'cl', val:'AED 740,000'},
+      {id:'AFL-24-Q2-04', route:'Felixstowe → Dubai', cargo:'Automotive', wt:'125 MT', st:'tr', val:'AED 4,200,000'},
+      {id:'AFL-24-Q2-05', route:'Jeddah → Jebel Ali', cargo:'Petrochemicals', wt:'200 MT', st:'cl', val:'AED 6,800,000'},
+      {id:'AFL-24-Q2-06', route:'Busan → Dubai', cargo:'Consumer Goods', wt:'44 MT', st:'pe', val:'AED 1,380,000'},
+      {id:'AFL-24-Q2-07', route:'Mumbai → Jebel Ali', cargo:'Garments', wt:'22 MT', st:'cl', val:'AED 520,000'},
+      {id:'AFL-24-Q2-08', route:'Frankfurt → Dubai', cargo:'Pharma', wt:'8 MT', st:'dl', val:'AED 9,200,000'},
+    ],
+  },
+
+  3: {
+    label: 'Q3 2024 · Jul – Sep',
+    months: ['Jul','Aug','Sep'],
+    monthBadge: 'JUL – SEP',
+    period: 'Q3 2024',
+    activeShip: '1,720',
+    kpis: [
+      {icon:'🚢', lbl:'Total Shipments', val:'5,810', unit:'', delta:'↑ 8.8% vs Q2', cls:'up'},
+      {icon:'💰', lbl:'Freight Revenue', val:'AED 121.4M', unit:'', delta:'↑ 11.7%', cls:'up'},
+      {icon:'📦', lbl:'TEU Processed', val:'22,640', unit:'', delta:'↑ 8.8%', cls:'up'},
+      {icon:'✅', lbl:'On-Time Delivery', val:'91.3', unit:'%', delta:'↑ 2.2pts', cls:'up'},
+      {icon:'⏳', lbl:'Avg Clearance Time', val:'2.1', unit:'days', delta:'↓ 0.3 days faster', cls:'up'},
+      {icon:'⚠️', lbl:'Delayed Shipments', val:'198', unit:'', delta:'↓ 50 vs Q2', cls:'up'},
+    ],
+    shipVol: [1880, 1940, 1990],
+    revenue: [39.8, 40.4, 41.2],
+    cargoV: [28, 26, 22, 14, 10],
+    modeV: [46, 28, 26],
+    mini1: [{v:'121.4M', l:'Q3 Revenue AED'},{v:'5,810', l:'Total Shipments'},{v:'91.3%', l:'OTD Rate'}],
+    ports: [
+      {n:'Jebel Ali Port', v:91, col:'#00C2CB'},
+      {n:'DXB Air Freight', v:79, col:'#F97316'},
+      {n:'Al Maktoum (DWC)', v:68, col:'#10B981'},
+      {n:'Port Rashid', v:52, col:'#FBBF24'},
+    ],
+    mini2: [{v:'91%', l:'Jebel Ali'},{v:'79%', l:'DXB Air'},{v:'68%', l:'Al Maktoum'}],
+    routes: [
+      {flag:'🇨🇳', dest:'Tianjin → Jebel Ali', vol:'4,680 TEU', pct:100},
+      {flag:'🇮🇳', dest:'Mundra → Dubai', vol:'3,420 TEU', pct:73},
+      {flag:'🇩🇪', dest:'Bremerhaven → Jebel Ali', vol:'2,640 TEU', pct:56},
+      {flag:'🇸🇬', dest:'Singapore → Dubai', vol:'2,210 TEU', pct:47},
+      {flag:'🇿🇦', dest:'Durban → Jebel Ali', vol:'1,840 TEU', pct:39},
+    ],
+    otd: [90, 91, 92, 91, 92, 93, 91, 92, 91, 92, 92, 91],
+    alerts: [
+      {type:'warn', ico:'⚠️', title:'Port Congestion · Jebel Ali T2', sub:'Average wait time increased to 38hr. Alternative berths allocated.'},
+      {type:'ok', ico:'✅', title:'GITEX Cargo Peak Handled', sub:'Q3 tech expo shipments processed with 0 delays.'},
+      {type:'info', ico:'ℹ️', title:'Al Maktoum Capacity Expansion', sub:'Phase 2 expansion complete — 12% more throughput from Oct 1.'},
+      {type:'ok', ico:'✅', title:'ISO 28000 Recertified', sub:'Security management system recertified for another 3 years.'},
+    ],
+    shipments: [
+      {id:'AFL-24-Q3-01', route:'Tianjin → Jebel Ali', cargo:'Electronics', wt:'72 MT', st:'cl', val:'AED 5,200,000'},
+      {id:'AFL-24-Q3-02', route:'Antwerp → Dubai', cargo:'Chemicals', wt:'140 MT', st:'cl', val:'AED 3,600,000'},
+      {id:'AFL-24-Q3-03', route:'Mundra → Jebel Ali', cargo:'Textiles', wt:'28 MT', st:'tr', val:'AED 620,000'},
+      {id:'AFL-24-Q3-04', route:'Singapore → Dubai', cargo:'Consumer Electronics', wt:'48 MT', st:'cl', val:'AED 4,100,000'},
+      {id:'AFL-24-Q3-05', route:'Durban → Jebel Ali', cargo:'Mining Equipment', wt:'310 MT', st:'tr', val:'AED 8,900,000'},
+      {id:'AFL-24-Q3-06', route:'Istanbul → Dubai', cargo:'Marble & Stone', wt:'95 MT', st:'pe', val:'AED 1,840,000'},
+      {id:'AFL-24-Q3-07', route:'Colombo → Jebel Ali', cargo:'Rubber & Polymers', wt:'62 MT', st:'cl', val:'AED 1,120,000'},
+      {id:'AFL-24-Q3-08', route:'JFK → Dubai (Air)', cargo:'Pharma Cold Chain', wt:'4 MT', st:'dl', val:'AED 12,400,000'},
+    ],
+  },
+
+  4: {
+    label: 'Q4 2024 · Oct – Dec',
+    months: ['Oct','Nov','Dec'],
+    monthBadge: 'OCT – DEC',
+    period: 'Q4 2024',
+    activeShip: '1,842',
+    kpis: [
+      {icon:'🚢', lbl:'Total Shipments', val:'6,284', unit:'', delta:'↑ 8.2% vs Q3', cls:'up'},
+      {icon:'💰', lbl:'Freight Revenue', val:'AED 138.9M', unit:'', delta:'↑ 14.4%', cls:'up'},
+      {icon:'📦', lbl:'TEU Processed', val:'24,810', unit:'', delta:'↑ 9.6%', cls:'up'},
+      {icon:'✅', lbl:'On-Time Delivery', val:'93.2', unit:'%', delta:'↑ 1.9pts', cls:'up'},
+      {icon:'⏳', lbl:'Avg Clearance Time', val:'1.8', unit:'days', delta:'↓ 0.3 days faster', cls:'up'},
+      {icon:'⚠️', lbl:'Delayed Shipments', val:'142', unit:'', delta:'↓ 56 vs Q3', cls:'up'},
+    ],
+    shipVol: [2020, 2080, 2184],
+    revenue: [44.6, 46.2, 48.1],
+    cargoV: [29, 24, 21, 15, 11],
+    modeV: [48, 28, 24],
+    mini1: [{v:'138.9M', l:'Q4 Revenue AED'},{v:'6,284', l:'Total Shipments'},{v:'93.2%', l:'OTD Rate'}],
+    ports: [
+      {n:'Jebel Ali Port', v:94, col:'#00C2CB'},
+      {n:'DXB Air Freight', v:84, col:'#F97316'},
+      {n:'Al Maktoum (DWC)', v:73, col:'#10B981'},
+      {n:'Port Rashid', v:58, col:'#FBBF24'},
+    ],
+    mini2: [{v:'94%', l:'Jebel Ali'},{v:'84%', l:'DXB Air'},{v:'73%', l:'Al Maktoum'}],
+    routes: [
+      {flag:'🇨🇳', dest:'Shanghai → Jebel Ali', vol:'5,120 TEU', pct:100},
+      {flag:'🇮🇳', dest:'Nhava Sheva → Dubai', vol:'3,840 TEU', pct:75},
+      {flag:'🇩🇪', dest:'Hamburg → Jebel Ali', vol:'2,760 TEU', pct:54},
+      {flag:'🇸🇬', dest:'Singapore → Dubai', vol:'2,340 TEU', pct:46},
+      {flag:'🇺🇸', dest:'Los Angeles → Jebel Ali', vol:'1,920 TEU', pct:37},
+    ],
+    otd: [91, 92, 93, 92, 93, 94, 93, 94, 93, 94, 93, 94],
+    alerts: [
+      {type:'ok', ico:'✅', title:'Year-End Peak Handled Flawlessly', sub:'All 6,284 Q4 shipments processed with record 93.2% OTD rate.'},
+      {type:'warn', ico:'⚠️', title:'Holiday Congestion · DXB Air', sub:'Dec 20–Jan 5 capacity at 98%. Pre-booking mandatory for air freight.'},
+      {type:'ok', ico:'✅', title:'HarbourLink Group Partnership Renewed', sub:'5-year berth priority agreement signed. Effective Jan 2025.'},
+      {type:'info', ico:'ℹ️', title:'New India Trade Corridor Live', sub:'Dedicated India–UAE freight lane reduces transit time by 22%.'},
+    ],
+    shipments: [
+      {id:'AFL-24-Q4-01', route:'Shanghai → Jebel Ali', cargo:'Electronics', wt:'84 MT', st:'cl', val:'AED 6,400,000'},
+      {id:'AFL-24-Q4-02', route:'Hamburg → Dubai', cargo:'Machinery', wt:'112 MT', st:'cl', val:'AED 3,200,000'},
+      {id:'AFL-24-Q4-03', route:'Nhava Sheva → Jebel Ali', cargo:'Textiles', wt:'36 MT', st:'tr', val:'AED 840,000'},
+      {id:'AFL-24-Q4-04', route:'LA → Dubai (Air)', cargo:'Cold Chain Pharma', wt:'5 MT', st:'cl', val:'AED 14,800,000'},
+      {id:'AFL-24-Q4-05', route:'Rotterdam → Jebel Ali', cargo:'Chemicals', wt:'160 MT', st:'tr', val:'AED 4,600,000'},
+      {id:'AFL-24-Q4-06', route:'Singapore → Dubai', cargo:'Consumer Goods', wt:'52 MT', st:'pe', val:'AED 1,640,000'},
+      {id:'AFL-24-Q4-07', route:'Istanbul → Jebel Ali', cargo:'Steel & Metal', wt:'280 MT', st:'cl', val:'AED 2,180,000'},
+      {id:'AFL-24-Q4-08', route:'Busan → Dubai', cargo:'EV Components', wt:'66 MT', st:'dl', val:'AED 7,200,000'},
+    ],
+  }
+};
+
+var activeQ = 4;
+var _charts = {};
+
+/* ═══ QUARTER SWITCH ═══ */
+function setQ(q, btn) {
+  if (q === activeQ) return;
+  activeQ = q;
+  var flash = document.getElementById('qFlash');
+  flash.classList.add('on');
+  setTimeout(function(){ flash.classList.remove('on'); }, 280);
+  document.querySelectorAll('.qt').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderAll();
+}
+
+/* ═══ RERENDER WITH ACTIVE CF (no full rebuild) ═══ */
+function rerenderWithCF() {
+  var d = QDATA[activeQ];
+  renderKPIs(d);
+  renderTable();
+  updateChartsForCF(d);
+  updCFBanner();
+}
+
+/* ═══ RENDER ALL ═══ */
+function renderAll() {
+  var d = QDATA[activeQ];
+  document.getElementById('qLabel').textContent = '◉  ' + d.label;
+  document.getElementById('lastRefresh').textContent = 'Today, 07:30 GST';
+  document.getElementById('reportPeriod').textContent = d.period;
+  document.getElementById('activeShip').textContent = d.activeShip;
+  document.getElementById('monthBadge').textContent = d.monthBadge;
+  document.getElementById('portBadge').textContent = 'Capacity % · ' + d.period;
+  document.getElementById('alertBadge').textContent = 'Live · ' + d.period;
+  renderKPIs(d);
+  renderTable();
+  renderPorts(d);
+  renderRoutes(d);
+  renderAlerts(d);
+  renderMiniRow('miniRow1', d.mini1);
+  renderMiniRow('miniRow2', d.mini2);
+  buildCharts(d);
+  updCFBanner();
+}
+
+/* ── KPIs with CF multipliers ── */
+function renderKPIs(d) {
+  var row = document.getElementById('kpiRow');
+  row.innerHTML = '';
+  // Apply CF multipliers to KPI values
+  var mShip = getCFMult('ship'), mRev = getCFMult('rev'), mTeu = getCFMult('teu');
+  var mOtd = getCFMult('otd'), mClr = getCFMult('clr'), mDelay = getCFMult('delay');
+  var isFiltered = hasCF();
+
+  // Parse base values from strings
+  function parseNum(str) { return parseFloat(str.replace(/[^0-9.]/g, '')); }
+  var kpis = d.kpis;
+  var cfKpis = [
+    { icon: kpis[0].icon, lbl: kpis[0].lbl, val: Math.round(parseNum(kpis[0].val) * mShip).toLocaleString(), unit: '', delta: kpis[0].delta, cls: kpis[0].cls },
+    { icon: kpis[1].icon, lbl: kpis[1].lbl, val: 'AED ' + (parseNum(kpis[1].val) * mRev).toFixed(1) + 'M', unit: '', delta: kpis[1].delta, cls: kpis[1].cls },
+    { icon: kpis[2].icon, lbl: kpis[2].lbl, val: Math.round(parseNum(kpis[2].val) * mTeu).toLocaleString(), unit: '', delta: kpis[2].delta, cls: kpis[2].cls },
+    { icon: kpis[3].icon, lbl: kpis[3].lbl, val: Math.min(99.9, parseNum(kpis[3].val) * mOtd).toFixed(1), unit: '%', delta: kpis[3].delta, cls: kpis[3].cls },
+    { icon: kpis[4].icon, lbl: kpis[4].lbl, val: (parseNum(kpis[4].val) * mClr).toFixed(1), unit: 'days', delta: kpis[4].delta, cls: kpis[4].cls },
+    { icon: kpis[5].icon, lbl: kpis[5].lbl, val: Math.round(parseNum(kpis[5].val) * mDelay).toLocaleString(), unit: '', delta: kpis[5].delta, cls: kpis[5].cls },
+  ];
+
+  cfKpis.forEach(function(k) {
+    var div = document.createElement('div');
+    div.className = 'kpi' + (isFiltered ? ' cf-hl' : '');
+    div.innerHTML =
+      '<div class="kpi-icon">' + k.icon + '</div>' +
+      '<div class="kpi-lbl">' + k.lbl + '</div>' +
+      '<div class="kpi-val updating">' + k.val + (k.unit ? '<span class="kpi-unit"> ' + k.unit + '</span>' : '') + '</div>' +
+      '<div class="kpi-delta ' + k.cls + '">' + k.delta + (isFiltered ? ' · filtered' : '') + '</div>';
+    row.appendChild(div);
+    setTimeout(function(){ div.querySelector('.kpi-val').classList.remove('updating'); }, 400);
   });
 }
 
-function setCurrency(c){
-  currency=c;
-  document.querySelectorAll('.curr-btn').forEach(b=>b.classList.toggle('active',b.textContent===c));
-  renderTable();updateAll();
-}
-
-function exportCSV(){
-  const rows=[['#','Description','Specs','Category','Qty',`Unit Price (${currency})`,`Line Total (${currency})`]];
-  ITEMS.forEach(it=>{
-    const r=RATES[currency];
-    const u=prices[it.id]?(prices[it.id]*r).toFixed(2):'';
-    const t=prices[it.id]?(prices[it.id]*it.qty*r).toFixed(2):'';
-    rows.push([it.id,it.main,it.spec,CAT_LABEL[it.cat],it.qty,u,t]);
+/* ── TABLE with CF highlighting ── */
+function renderTable() {
+  var d = QDATA[activeQ];
+  var f = document.getElementById('statusSel').value;
+  // If cfState.status is set, override dropdown filter
+  if (cfState.status) f = cfState.status;
+  var body = document.getElementById('shipBody');
+  body.innerHTML = '';
+  var sc = {cl:'tp-cl',tr:'tp-tr',pe:'tp-pe',dl:'tp-dl'};
+  var sl = {cl:'Cleared',tr:'In Transit',pe:'Pending',dl:'Delayed'};
+  var shown = 0;
+  d.shipments.forEach(function(s) {
+    var matchStatus = (f === 'all' || s.st === f);
+    var matchCargo  = !cfState.cargo  || s.cargo.toLowerCase().includes(cfState.cargo.toLowerCase());
+    var matchMode   = !cfState.mode; // mode doesn't filter rows directly, but dims non-air/sea rows
+    if (f !== 'all' && !matchStatus) return;
+    shown++;
+    var rowClass = '';
+    if (hasCF()) {
+      var isMatch = matchStatus && matchCargo;
+      rowClass = isMatch ? 'cf-match' : 'cf-dim';
+    }
+    body.innerHTML +=
+      '<tr class="' + rowClass + '" style="cursor:pointer" onclick="filterByStatus(\'' + s.st + '\')">' +
+      '<td><span class="rnk' + (shown === 1 ? ' c' : '') + '">' + shown + '</span></td>' +
+      '<td class="t-code">' + s.id + '</td>' +
+      '<td class="t-bold" style="font-size:.76rem;">' + s.route + '</td>' +
+      '<td style="font-size:.74rem;">' + s.cargo + '</td>' +
+      '<td style="font-size:.74rem;color:var(--text3);">' + s.wt + '</td>' +
+      '<td><span class="t-pill ' + sc[s.st] + '">' + sl[s.st] + '</span></td>' +
+      '<td class="t-aed">' + s.val + '</td>' +
+      '</tr>';
   });
-  const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='procurement_bom_dubai.csv';a.click();
 }
 
-renderTable();updateAll();
+function filterByStatus(st) {
+  cfState.status = cfState.status === st ? null : st;
+  var tblCard = document.getElementById('shipBody').closest('.card');
+  clearCardHighlights();
+  if (cfState.status && tblCard) {
+    tblCard.classList.add('cf-source');
+    document.querySelectorAll('.card').forEach(function(c){ if(c !== tblCard) c.classList.add('cf-active'); });
+  }
+  rerenderWithCF();
+}
+
+/* ── PORTS ── */
+function renderPorts(d) {
+  var el = document.getElementById('portList');
+  el.innerHTML = '';
+  d.ports.forEach(function(p) {
+    el.innerHTML +=
+      '<div class="port-row">' +
+      '<div class="port-name">' + p.n + '</div>' +
+      '<div class="port-track"><div class="port-fill" style="width:' + p.v + '%;background:linear-gradient(90deg,' + p.col + ',' + p.col + 'bb);">' + p.v + '%</div></div>' +
+      '<div class="port-val" style="color:' + p.col + ';">' + p.v + '%</div>' +
+      '</div>';
+  });
+}
+
+/* ── ROUTES ── */
+function renderRoutes(d) {
+  var el = document.getElementById('routeList');
+  el.innerHTML = '';
+  d.routes.forEach(function(r) {
+    el.innerHTML +=
+      '<div class="route-item">' +
+      '<div class="route-flag">' + r.flag + '</div>' +
+      '<div style="flex:1;">' +
+        '<div class="route-name">' + r.dest + '</div>' +
+        '<div class="route-bar-wrap" style="margin-top:4px;"><div class="route-bar-track"><div class="route-bar-fill" style="width:' + r.pct + '%;"></div></div></div>' +
+      '</div>' +
+      '<div style="text-align:right;">' +
+        '<div class="route-vol">' + r.vol + '</div>' +
+      '</div>' +
+      '</div>';
+  });
+}
+
+/* ── ALERTS ── */
+function renderAlerts(d) {
+  var el = document.getElementById('alertList');
+  el.innerHTML = '';
+  d.alerts.forEach(function(a) {
+    el.innerHTML +=
+      '<div class="alert-item ' + a.type + '">' +
+      '<div class="alert-ico">' + a.ico + '</div>' +
+      '<div class="alert-body"><div class="alert-title">' + a.title + '</div><div class="alert-sub">' + a.sub + '</div></div>' +
+      '</div>';
+  });
+}
+
+/* ── MINI ROW ── */
+function renderMiniRow(id, items) {
+  var el = document.getElementById(id);
+  el.innerHTML = '';
+  items.forEach(function(m) {
+    el.innerHTML += '<div class="mini"><div class="mv">' + m.v + '</div><div class="ml">' + m.l + '</div></div>';
+  });
+}
+
+/* ═══ UPDATE CHARTS FOR CF (no rebuild) ═══ */
+function updateChartsForCF(d) {
+  if (!_charts.cargo || !_charts.mode) return;
+  var cargoC = ['#00C2CB','#F97316','#10B981','#FBBF24','#8B5CF6'];
+  var cargoL = ['Electronics','Machinery','FMCG','Chemicals','Other'];
+
+  // Cargo donut — dim non-selected
+  _charts.cargo.data.datasets[0].backgroundColor = cargoC.map(function(c, i) {
+    return (!cfState.cargo || cargoL[i] === cfState.cargo) ? c : 'rgba(60,70,90,0.35)';
+  });
+  _charts.cargo.data.datasets[0].borderWidth = cargoL.map(function(l) {
+    return cfState.cargo && l === cfState.cargo ? 2 : 0;
+  });
+  _charts.cargo.update();
+
+  // Mode bar — dim non-selected
+  var modeLabels = ['Sea Freight','Air Freight','Road / Rail'];
+  var modeCols = ['rgba(0,194,203,0.8)','rgba(249,115,22,0.8)','rgba(16,185,129,0.8)'];
+  _charts.mode.data.datasets[0].backgroundColor = modeLabels.map(function(l, i) {
+    return (!cfState.mode || l === cfState.mode) ? modeCols[i] : 'rgba(60,70,90,0.3)';
+  });
+  _charts.mode.update();
+
+  // Shipment bars — apply revenue CF multiplier visually
+  var mRev = getCFMult('rev');
+  _charts.ship.data.datasets[1].data = d.revenue.map(function(v){ return parseFloat((v * mRev).toFixed(1)); });
+  var mShip = getCFMult('ship');
+  _charts.ship.data.datasets[0].data = d.shipVol.map(function(v){ return Math.round(v * mShip); });
+  // Dim bar colors when filtered
+  _charts.ship.data.datasets[0].backgroundColor = d.months.map(function(_, i) {
+    var a = hasCF() ? [0.35, 0.55, 0.75][i] : [0.55, 0.75, 0.95][i];
+    return 'rgba(0,194,203,' + a + ')';
+  });
+  _charts.ship.update();
+
+  // OTD — apply otd multiplier
+  var mOtd = getCFMult('otd');
+  _charts.otd.data.datasets[0].data = d.otd.map(function(v){ return Math.min(100, parseFloat((v * mOtd).toFixed(1))); });
+  _charts.otd.data.datasets[0].borderColor = cfState.cargo || cfState.mode ? '#FBBF24' : '#00C2CB';
+  _charts.otd.data.datasets[0].pointBackgroundColor = cfState.cargo || cfState.mode ? '#FBBF24' : '#00C2CB';
+  _charts.otd.update();
+}
+
+/* ═══ CHARTS ═══ */
+function cc() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    text: isDark ? '#7B8BA8' : '#4A5A78',
+    grid: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)'
+  };
+}
+Chart.defaults.font.family = "'Barlow', system-ui, sans-serif";
+
+function destroyCharts() {
+  Object.values(_charts).forEach(function(c){ if(c) c.destroy(); });
+  _charts = {};
+}
+
+function buildCharts(d) {
+  destroyCharts();
+  var c = cc();
+
+  /* Shipment Volume + Revenue */
+  _charts.ship = new Chart(document.getElementById('shipChart'), {
+    type: 'bar',
+    data: {
+      labels: d.months,
+      datasets: [
+        {
+          label: 'Shipments',
+          data: d.shipVol,
+          backgroundColor: ['rgba(0,194,203,0.55)','rgba(0,194,203,0.75)','rgba(0,194,203,0.95)'],
+          borderRadius: 5,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Revenue (AED M)',
+          data: d.revenue,
+          type: 'line',
+          borderColor: '#F97316',
+          backgroundColor: 'rgba(249,115,22,0.08)',
+          pointBackgroundColor: '#F97316',
+          pointRadius: 5,
+          borderWidth: 2.5,
+          fill: true,
+          tension: .4,
+          yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: c.text, font: { size: 11 }, boxWidth: 10, padding: 12 } } },
+      scales: {
+        x: { grid: { color: c.grid }, ticks: { color: c.text } },
+        y: { grid: { color: c.grid }, ticks: { color: c.text }, position: 'left' },
+        y2: { grid: { display: false }, ticks: { color: '#F97316', callback: function(v){ return 'AED '+v+'M'; } }, position: 'right' }
+      }
+    }
+  });
+
+  /* Cargo Doughnut — CLICKABLE */
+  var cargoL = ['Electronics','Machinery','FMCG','Chemicals','Other'];
+  var cargoC = ['#00C2CB','#F97316','#10B981','#FBBF24','#8B5CF6'];
+  _charts.cargo = new Chart(document.getElementById('cargoChart'), {
+    type: 'doughnut',
+    data: { labels: cargoL, datasets: [{ data: d.cargoV, backgroundColor: cargoC, borderWidth: 0, hoverOffset: 10 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(x){ return ' '+x.label+': '+x.raw+'%'; } } }
+      },
+      onClick: function(evt, els) {
+        if (!els.length) return;
+        var lbl = cargoL[els[0].index];
+        cfState.cargo = cfState.cargo === lbl ? null : lbl;
+        var card = document.getElementById('cargoChart').closest ? document.getElementById('cargoChart').closest('.card') : null;
+        clearCardHighlights();
+        if (cfState.cargo && card) {
+          card.classList.add('cf-source');
+          document.querySelectorAll('.card').forEach(function(c){ if(c !== card) c.classList.add('cf-active'); });
+        }
+        rerenderWithCF();
+      }
+    }
+  });
+
+  // rebuild legend with click support
+  var leg = document.getElementById('cargoLeg');
+  leg.innerHTML = '';
+  cargoL.forEach(function(l, i) {
+    leg.innerHTML +=
+      '<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 4px;border-radius:4px;transition:.15s;" ' +
+      'onmouseover="this.style.background=\'rgba(0,194,203,0.06)\'" onmouseout="this.style.background=\'\'" ' +
+      'onclick="legendCargoClick(\'' + l + '\')">' +
+      '<div style="display:flex;align-items:center;gap:7px;">' +
+        '<div style="width:8px;height:8px;border-radius:2px;background:' + cargoC[i] + ';flex-shrink:0;"></div>' +
+        '<span style="font-size:.72rem;color:var(--text2);font-family:\'Barlow Condensed\',sans-serif;">' + l + '</span>' +
+      '</div>' +
+      '<span style="font-size:.72rem;font-weight:700;color:var(--text);font-family:\'Rajdhani\',sans-serif;">' + d.cargoV[i] + '%</span>' +
+      '</div>';
+  });
+
+  /* Mode Split Horizontal Bar — CLICKABLE */
+  _charts.mode = new Chart(document.getElementById('modeChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Sea Freight','Air Freight','Road / Rail'],
+      datasets: [{
+        data: d.modeV,
+        backgroundColor: ['rgba(0,194,203,0.8)','rgba(249,115,22,0.8)','rgba(16,185,129,0.8)'],
+        borderRadius: 5
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(x){ return ' '+x.raw+'% of volume'; } } }
+      },
+      scales: {
+        x: { grid: { color: c.grid }, ticks: { color: c.text, callback: function(v){ return v+'%'; } }, max: 60 },
+        y: { grid: { display: false }, ticks: { color: c.text, font: { size: 12 } } }
+      },
+      onClick: function(evt, els) {
+        if (!els.length) return;
+        var modeLabels = ['Sea Freight','Air Freight','Road / Rail'];
+        var lbl = modeLabels[els[0].index];
+        cfState.mode = cfState.mode === lbl ? null : lbl;
+        var card = document.getElementById('modeChart').closest ? document.getElementById('modeChart').closest('.card') : null;
+        clearCardHighlights();
+        if (cfState.mode && card) {
+          card.classList.add('cf-source');
+          document.querySelectorAll('.card').forEach(function(c){ if(c !== card) c.classList.add('cf-active'); });
+        }
+        rerenderWithCF();
+      }
+    }
+  });
+
+  /* OTD Line Chart */
+  var weeks = Array.from({length: 12}, function(_, i){ return 'W'+(i+1); });
+  _charts.otd = new Chart(document.getElementById('otdChart'), {
+    type: 'line',
+    data: {
+      labels: weeks,
+      datasets: [{
+        label: 'OTD %',
+        data: d.otd,
+        borderColor: '#00C2CB',
+        backgroundColor: 'rgba(0,194,203,0.08)',
+        pointBackgroundColor: '#00C2CB',
+        pointRadius: 3,
+        borderWidth: 2.5,
+        fill: true,
+        tension: .4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 10 } } },
+        y: {
+          grid: { color: c.grid }, ticks: { color: c.text, callback: function(v){ return v+'%'; } },
+          min: 80, max: 100
+        }
+      }
+    }
+  });
+}
+
+function legendCargoClick(lbl) {
+  cfState.cargo = cfState.cargo === lbl ? null : lbl;
+  var card = document.getElementById('cargoChart').closest ? document.getElementById('cargoChart').closest('.card') : null;
+  clearCardHighlights();
+  if (cfState.cargo && card) {
+    card.classList.add('cf-source');
+    document.querySelectorAll('.card').forEach(function(c){ if(c !== card) c.classList.add('cf-active'); });
+  }
+  rerenderWithCF();
+}
+
+/* ── THEME ── */
+function toggleTheme() {
+  var h = document.documentElement;
+  var isDark = h.getAttribute('data-theme') === 'dark';
+  h.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isDark ? '🌙' : '☀️';
+  setTimeout(buildCharts.bind(null, QDATA[activeQ]), 60);
+}
+
+/* ── SCROLL REVEAL ── */
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(e){
+    e.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('show'); io.unobserve(x.target); } });
+  }, { threshold: 0.04 });
+  document.querySelectorAll('.reveal').forEach(function(el, i){
+    el.style.transitionDelay = (i * 0.06) + 's';
+    io.observe(el);
+  });
+})();
+
+/* ── INIT ── */
+renderAll();
 </script>
 </body>
 </html>
