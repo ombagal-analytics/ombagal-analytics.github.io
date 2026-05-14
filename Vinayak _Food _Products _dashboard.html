@@ -29,8 +29,8 @@
   --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;overflow-x:hidden}
-body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;transition:background .3s,color .3s;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;transition:background .3s,color .3s}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--surface2)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
@@ -57,7 +57,7 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .lang-toggle{padding:5px 12px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'IBM Plex Sans',sans-serif;letter-spacing:.5px;flex-shrink:0}
 .lang-toggle:hover{border-color:var(--accent);color:var(--accent)}
 .lang-toggle.hi-active{background:var(--saffron-bg);border-color:var(--saffron);color:var(--saffron)}
-.theme-btn{width:44px;height:24px;background:var(--surface3);border:1px solid var(--border2);border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:background .3s}
+height:24px;background:var(--surface3);border:1px solid var(--border2);border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:background .3s}
 .theme-thumb{width:18px;height:18px;background:var(--saffron);border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .3s;display:flex;align-items:center;justify-content:center;font-size:10px}
 [data-theme="dark"] .theme-thumb{transform:translateX(20px)}
 
@@ -216,7 +216,6 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 
 /* ── OUTSTANDING TABLE ── */
 .out-table{width:100%;border-collapse:collapse;font-size:12px}
-.out-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .out-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:var(--muted);padding:0 8px 10px 0;border-bottom:1px solid var(--border2)}
 .out-table td{padding:8px 8px 8px 0;border-bottom:1px solid var(--border);vertical-align:middle}
 .out-table tr:last-child td{border-bottom:none}
@@ -308,183 +307,9 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .kpi-grid .kpi-card:nth-child(4){animation:kpiIn .35s ease .20s both}
 .kpi-grid .kpi-card:nth-child(5){animation:kpiIn .35s ease .25s both}
 
-/* ── RESPONSIVE — TABLET ── */
-@media(max-width:1100px){
-  .kpi-grid{grid-template-columns:repeat(3,1fr)}
-  .kpi-grid-4{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:900px){
-  .kpi-grid,.kpi-grid-4{grid-template-columns:repeat(2,1fr)}
-  .grid-2,.grid-60-40,.grid-55-45{grid-template-columns:1fr}
-  .insights-grid{grid-template-columns:1fr}
-}
-
-/* ── RESPONSIVE — MOBILE ── */
-@media(max-width:600px){
-
-  /* --- Layout & Wrap --- */
-  .wrap{padding:0 12px}
-  .section{padding:16px 0 0}
-
-  /* --- Header --- */
-  .header-inner{flex-wrap:wrap;height:auto;padding:8px 0;gap:8px}
-  .logo-name{font-size:13px}
-  .logo-tag{font-size:9px}
-  .logo-mark{width:30px;height:30px;font-size:14px;border-radius:8px}
-
-  /* View toggle: full width, tabs equal */
-  .view-toggle{width:100%;order:3}
-  .view-tab{flex:1;justify-content:center;padding:6px 8px;font-size:11px}
-
-  /* Header right: wrap and compress */
-  .header-right{order:2;flex-wrap:wrap;gap:6px;width:100%}
-  .data-badge{font-size:9px;padding:3px 7px;flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .live-wrap{font-size:10px;padding:3px 8px}
-  .lang-toggle{font-size:11px;padding:4px 9px}
-
-  /* --- Filter Bar --- */
-  .filter-bar{top:auto;position:static}/* un-sticky on mobile to save screen space */
-  .filter-bar-inner{flex-wrap:wrap;gap:5px}
-  .filter-label{width:100%;margin-bottom:0}
-  .seg-btn{font-size:10px;padding:4px 9px;gap:4px}
-  .seg-dot{width:6px;height:6px}
-  .bar-div{display:none}
-  .period-wrap{margin-left:0;width:100%;flex-wrap:wrap;gap:5px}
-  .period-label{width:100%}
-  .period-sel{min-width:0;width:100%;font-size:10px;padding:5px 24px 5px 9px}
-  .period-badge,.filter-mode-badge{font-size:9px;padding:3px 9px}
-
-  /* --- KPI Grids --- */
-  .kpi-grid,.kpi-grid-4{grid-template-columns:1fr 1fr;gap:10px}
-  .kpi-card{padding:13px 14px}
-  .kpi-value{font-size:22px}
-  .kpi-label{font-size:9px}
-  .kpi-sub{font-size:10px}
-  .kpi-icon-wrap{width:30px;height:30px;font-size:14px;border-radius:7px}
-  .kpi-badge{font-size:9px;padding:2px 6px}
-
-  /* --- Banner --- */
-  .leakage-banner{flex-direction:column;padding:12px 14px;margin:12px 0 0;gap:10px}
-  .banner-amount{font-size:26px}
-  .banner-split{gap:12px;flex-wrap:nowrap;justify-content:space-between}
-  .banner-item-val{font-size:13px}
-  .banner-item-label{font-size:9px}
-  .banner-divider{display:none}
-  .banner-icon{font-size:18px}
-  .banner-label{font-size:9px}
-  .banner-desc{font-size:10px}
-
-  /* --- Priority Strip --- */
-  .priority-strip{padding:10px 12px;margin:10px 0 0}
-  .p-item{font-size:11px}
-
-  /* --- Cards --- */
-  .card-header{padding:12px 14px 0}
-  .card-title{font-size:12px}
-  .card-sub{font-size:10px}
-  .card-body{padding:10px 14px 14px}
-
-  /* --- Section Header --- */
-  .section-header{flex-wrap:wrap;gap:6px;margin-bottom:10px}
-  .section-title{font-size:10px;letter-spacing:1.2px}
-
-  /* --- Charts --- */
-  .chart-wrap[style*="height:280px"],.chart-wrap[style*="height:260px"],.chart-wrap[style*="height:300px"]{height:200px!important}
-  .chart-wrap[style*="height:240px"]{height:180px!important}
-  .chart-wrap[style*="height:310px"]{height:220px!important}
-  .chart-wrap[style*="height:155px"]{height:130px!important}
-  canvas{max-width:100%!important}
-
-  /* --- Trend Legend --- */
-  .trend-legend{gap:8px}
-  .trend-leg-item{font-size:10px}
-  .trend-leg-line{width:12px}
-
-  /* --- Donut Legend --- */
-  .donut-legend{gap:5px}
-  .donut-leg-row{font-size:10px}
-
-  /* --- Segment Perf Rows --- */
-  .seg-perf-row{gap:6px;padding:7px 0}
-
-  /* --- Expense Rows --- */
-  .expense-row{gap:6px;padding:7px 0;flex-wrap:wrap}
-  .expense-bar-bg{min-width:60px}
-
-  /* --- Storage Rows --- */
-  .storage-row{flex-wrap:wrap;gap:6px;padding:7px 0}
-  .storage-row>div:first-child{flex:1 1 100%}
-  .storage-age-bar{flex:1;min-width:80px}
-
-  /* --- Outstanding Table --- */
-  .out-table{font-size:10px}
-  .out-table th{font-size:9px;padding:0 5px 8px 0}
-  .out-table td{padding:6px 5px 6px 0}
-  .out-table th:nth-child(2),.out-table td:nth-child(2){display:none}/* hide "Billed" col */
-  .mono{font-size:10px}
-  .tag{font-size:9px;padding:2px 6px}
-
-  /* --- Customer Leaderboard --- */
-  .cust-rank-row{padding:7px 8px;gap:8px}
-  .crank{font-size:11px;width:18px}
-  .cust-name-txt{font-size:11px}
-  .cust-seg-sub{font-size:9px}
-  .cust-bar-wrap{max-width:60px}
-  .cust-rev-txt{font-size:10px;width:48px}
-  .chg-pill{font-size:9px;padding:1px 5px}
-  .seg-pill{font-size:8px;padding:1px 5px}
-
-  /* --- Spotlight Panel --- */
-  .cust-spotlight{flex-direction:column;padding:12px 14px;margin:12px 0 0;gap:10px}
-  .spot-left{gap:10px}
-  .spot-emoji{font-size:22px}
-  .spot-name{font-size:16px}
-  .spot-stats{gap:12px;justify-content:space-between;width:100%}
-  .spot-stat-val{font-size:13px}
-  .spot-stat-label{font-size:9px}
-  .spot-divider{display:none}
-
-  /* --- Insights --- */
-  .insights-grid{grid-template-columns:1fr;gap:10px}
-  .insight-card{padding:12px 14px}
-  .insight-num{font-size:20px}
-  .insight-body .i-title{font-size:11px}
-  .insight-body .i-desc{font-size:10px}
-  .insight-body .i-action{font-size:10px;padding:4px 8px}
-
-  /* --- Inline Breakdown --- */
-  .inline-breakdown{padding:10px 12px}
-
-  /* --- Ctx Alerts --- */
-  .ctx-alert{font-size:10px;padding:8px 11px}
-
-  /* --- Footer --- */
-  .footer{margin-top:28px;padding:12px 0}
-  .footer-copy{font-size:10px;line-height:1.6}
-
-  /* --- Donut legend in cust view --- */
-  #segLegend{margin-top:8px}
-
-  /* --- Cust month summary chips --- */
-  #custMonthSummary{gap:5px;margin-top:10px;padding-top:8px}
-  #custMonthSummary>*{font-size:9px}
-
-  /* --- KPI cust label --- */
-  #custKpiLabel{font-size:10px}
-}
-
-/* ── RESPONSIVE — SMALL MOBILE ── */
-@media(max-width:380px){
-  .kpi-grid,.kpi-grid-4{grid-template-columns:1fr}
-  .kpi-value{font-size:26px}
-  .banner-split{flex-wrap:wrap;gap:8px}
-  .banner-divider{display:none}
-  .seg-btn{font-size:9px;padding:3px 7px}
-  .view-tab{font-size:10px;padding:5px 4px}
-  .out-table th:nth-child(3),.out-table td:nth-child(3){display:none}/* also hide "Collected" */
-  .spot-stats{flex-wrap:wrap;gap:8px}
-  .spot-stat{flex:1 1 40%}
-}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.kpi-grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.kpi-grid,.kpi-grid-4{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-60-40,.grid-55-45{grid-template-columns:1fr}.insights-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.wrap{padding:0 14px}.kpi-grid,.kpi-grid-4{grid-template-columns:1fr 1fr}.kpi-value{font-size:24px}.header-inner{flex-wrap:wrap;height:auto;padding:10px 0}.view-toggle{width:100%}.view-tab{flex:1;justify-content:center}.period-wrap{margin-left:0;width:100%}}
 </style>
 </head>
 <body data-view="overview">
@@ -770,7 +595,6 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
         <div><div class="card-title">💸 Outstanding Amounts by Customer — At-Risk Collections</div><div class="card-sub" id="outstandingSub">Day Book gap: Sales billed vs receipts collected · Sorted by risk</div></div>
       </div>
       <div class="card-body" style="padding-top:10px">
-        <div class="out-table-wrap">
         <table class="out-table">
           <thead><tr><th data-en="Customer" data-hi="ग्राहक">Customer</th><th data-en="Billed" data-hi="बिल">Billed</th><th data-en="Collected" data-hi="संग्रह">Collected</th><th data-en="Outstanding" data-hi="बकाया">Outstanding</th><th data-en="Risk" data-hi="जोखिम">Risk</th></tr></thead>
           <tbody>
@@ -782,7 +606,11 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
             <tr><td><div style="font-weight:600;font-size:12px;color:var(--muted)">+ 100 other customers</div></td><td><span class="mono" style="color:var(--muted)">₹5.88L</span></td><td><span class="mono" style="color:var(--positive)">₹5.61L</span></td><td><span class="mono" style="color:var(--muted)">₹13,628</span></td><td><span class="tag green">Normal</span></td></tr>
           </tbody>
         </table>
-        </div><!-- /out-table-wrap -->
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGIC INSIGHTS -->
   <div class="section">
     <div class="section-header"><div class="section-title" data-en="Strategic Analysis & Recommendations" data-hi="रणनीतिक विश्लेषण और सिफारिशें">Strategic Analysis & Recommendations</div><div class="tag blue" id="insightTag">All Period Insights</div></div>
     <div class="insights-grid" id="insightsGrid"></div>
